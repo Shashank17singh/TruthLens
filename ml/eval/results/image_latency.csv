@@ -1,0 +1,7 @@
+model,branches,size_mb,max_output_difference,machine,median_ms_1t,p95_ms_1t,median_ms_4t,p95_ms_4t
+efficientnet_b0,RGB,16.6,2.288818359375e-05,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",27.24,32.85,13.53,16.33
+efficientnet_b0,RGB + frequency,18.4,2.288818359375e-05,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",45.26,75.93,27.55,38.63
+convnext_tiny,RGB,111.9,5.811452865600586e-07,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",178.82,243.94,65.74,101.42
+convnext_tiny,RGB + frequency,113.7,6.631016731262207e-07,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",177.35,268.77,93.43,117.93
+vit_b16,RGB,344.1,2.1845102310180664e-05,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",479.57,772.7,210.17,267.85
+vit_b16,RGB + frequency,345.9,2.187490463256836e-05,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",552.96,746.76,279.9,324.57

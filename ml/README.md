@@ -75,6 +75,10 @@ python -m ml.common.prepare --combine image_core faceforensics genimage
 
 The merged manifest goes through the leakage check again, so content shared between datasets is caught.
 
+## Training
+
+- [Image detector](image/README.md)
+
 ## Tests
 
 ```bash

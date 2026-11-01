@@ -1,0 +1,13 @@
+# Ablation baseline: a horizontal flip only.
+name: none
+random_crop: {enabled: false, scale: [0.8, 1.0]}
+color_jitter:
+  enabled: false
+  p: 0.3
+  brightness: [0.85, 1.15]
+  contrast: [0.85, 1.15]
+  saturation: [0.85, 1.15]
+  hue: [-0.03, 0.03]
+gaussian_blur: {enabled: false, p: 0.2, sigma: [0.1, 2.0]}
+resize: {enabled: false, p: 0.3, scale: [0.5, 0.9]}
+jpeg: {enabled: false, p: 0.5, quality: [30, 95]}

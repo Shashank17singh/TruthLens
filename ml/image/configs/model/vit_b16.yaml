@@ -1,0 +1,7 @@
+name: vit_b16
+backbone: vit_base_patch16_224.augreg_in21k_ft_in1k
+pretrained: true
+# Two accumulated batches give an effective batch of 48 within a T4's memory.
+batch_size: 24
+accumulation_steps: 2
+learning_rate: 0.0001

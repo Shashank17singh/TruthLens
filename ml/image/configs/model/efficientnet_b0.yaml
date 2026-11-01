@@ -1,0 +1,6 @@
+name: efficientnet_b0
+backbone: efficientnet_b0.ra_in1k
+pretrained: true
+batch_size: 64
+accumulation_steps: 1
+learning_rate: 0.0003

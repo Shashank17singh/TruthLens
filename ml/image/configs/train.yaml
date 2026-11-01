@@ -1,0 +1,36 @@
+# Image detector experiment. Example sweep of every architecture with and without
+# the frequency branch:
+#   python -m ml.image.train -m model=efficientnet_b0,convnext_tiny,vit_b16 use_frequency=true,false
+defaults:
+  - model: convnext_tiny
+  - augment: robust
+  - _self_
+
+version: 1.0.0
+seed: 1337
+
+manifest: data/manifests/image_core.csv
+data_root: data/processed
+checkpoint_dir: checkpoints/image
+
+image_size: 224
+use_frequency: true
+frequency_channels: [32, 64, 128, 256]
+
+epochs: 20
+warmup_epochs: 1
+steps_per_epoch: null   # Caps an epoch so a run fits inside a free Colab session
+weight_decay: 0.05
+label_smoothing: 0.1
+max_grad_norm: 1.0
+patience: 5
+num_workers: 2
+amp: true
+device: auto
+
+tracker: wandb          # wandb or none; metrics.jsonl is always written
+wandb_project: truthlens-image
+
+hydra:
+  job:
+    chdir: false

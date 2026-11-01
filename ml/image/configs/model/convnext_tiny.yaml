@@ -1,0 +1,6 @@
+name: convnext_tiny
+backbone: convnext_tiny.fb_in1k
+pretrained: true
+batch_size: 48
+accumulation_steps: 1
+learning_rate: 0.0002

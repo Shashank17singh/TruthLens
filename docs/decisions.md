@@ -107,6 +107,50 @@ MAGE therefore uses the grouped 70/15/15 split, which is what prompt 2.1 asks fo
 
 MAGE publishes no prompt ids. Grouping on the first 12 words links continuations to their human source, and it may join a few unrelated texts with the same stock opening, which is harmless. It cannot link topical or specified generations, because those do not reuse the human text. The LLaMA family is the unseen-generator set.
 
+### D25. The frequency branch uses a DCT inside the model
+
+The prompt allows FFT or DCT. An FFT in preprocessing would be a second code path to keep identical in training and serving, and FFT export to ONNX adds complex-number operators. A DCT is two matrix products, so it stays inside the model and exports as ordinary operators. The spectrum is computed from recovered pixels, so it means the same thing whichever normalization the backbone needs.
+
+### D26. The frequency branch keeps spatial position
+
+Position in a spectrum is frequency, and generator artefacts sit at particular frequencies. The branch ends in a 4×4 grid and not in global average pooling, which would discard where the energy is.
+
+### D27. Late fusion happens at the logit level
+
+Each branch produces its own logit and a learned weight combines them. This keeps each branch's contribution readable and makes the RGB-against-fusion ablation a direct comparison. Concatenating features was rejected because it hides how much each branch contributes.
+
+### D28. Normalization follows the backbone
+
+The ViT weights expect mean and std of 0.5, while EfficientNet and ConvNeXt expect ImageNet statistics. Values come from each model's timm configuration and are stored in the checkpoint and the export sidecar. Using one fixed normalization would silently degrade the ViT.
+
+### D29. Calibration uses a temperature and a bias
+
+Label smoothing trains the model to avoid confident outputs, and the balanced sampler trains it on a class mix that differs from validation. The first problem changes the scale of the logits and the second shifts them. A temperature alone cannot fix a shift: in a test run it left the classes separated around 0.41 instead of 0.5 and made ECE worse. Fitting a temperature and a bias on validation fixes both without changing the ranking, so AUC is unchanged. The API must return calibrated probabilities, because the confidence band and the 95% precision threshold both depend on them.
+
+The temperature is bounded between 0.05 and 20. Without a bound, a model worse than chance sent it to 1.6e16, every probability became 0.5, and the report showed a perfect ECE of 0.000 for a broken model. Reports also carry a warning when validation AUC is 0.55 or lower, and `results_table` names those runs.
+
+### D30. Nothing is tuned on test data
+
+Calibration and the threshold come from validation only. A test flips every test label and confirms that both values stay identical. Precision depends on the share of fakes, so the 95% figure holds only near the validation mix and will be lower in a stream with far fewer fakes.
+
+### D31. AUC intervals resample whole groups
+
+Frames of one person are not independent, so a plain bootstrap would report an interval that is too narrow. The interval resamples identities instead, which is the honest uncertainty when two models are compared in the paper.
+
+### D32. Training resumes after a session ends
+
+Free Colab sessions end without warning. `last.pt` is written after every epoch through a temporary file, so a disconnect during a save cannot corrupt it, and re-running the same command continues from there.
+
+### D33. ONNX parity is measured on images
+
+A parity check on Gaussian noise failed a correct export. Noise is far outside the training data, so a small model returned logits near -1000, and at that size ordinary float32 rounding gave a difference of 0.2, or 0.02% of the logit. Layer-by-layer measurement showed the difference growing steadily through the network, with no single layer at fault. The check now uses validation images, or smooth generated images in the valid pixel range when no manifest is available. The 1e-3 tolerance did not change. The report records which inputs were used and the largest logit.
+
+All six architecture variants, with ImageNet weights at 224×224, then passed with a largest difference of 2.3e-5. That shows the export itself is correct. The toy model's relative difference was larger than rounding in one operation would give, so the steady build-up through its layers is the best explanation available, and it was not proven separately. A trained model with unusually large logits on real images would still fail this check, and that failure should be investigated, not excused.
+
+### D34. ONNX export traces with a batch of two
+
+Tracing with a single image hard-codes the batch size into the graph even when the dimension is declared dynamic, and a later batch of two then crashes at a reshape. The trace uses two images, and verification runs batches of 1, 2 and 4.
+
 ## Risks
 
 ### D16. Dataset licences limit public release
