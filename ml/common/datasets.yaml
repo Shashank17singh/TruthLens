@@ -1,0 +1,223 @@
+# Dataset registry. Licence text and evidence levels are explained in docs/datasets.md.
+#
+# strategy:
+#   grouped     whole groups are allocated 70/15/15 by ml/common/splits.py
+#   official    the benchmark's own split is kept
+#   evaluation  every sample is a test sample
+# access:
+#   open        downloaded automatically from `files`
+#   manual      place the files in data/raw/<name>/ yourself, after any request form
+
+faceforensics:
+  title: FaceForensics++
+  modality: image
+  adapter: ml.image.datasets:faceforensics_records
+  role: Primary face-manipulation training set
+  licence: FaceForensics Terms of Use, non-commercial research and education only
+  access: manual
+  homepage: https://github.com/ondyari/faceforensics
+  instructions: >-
+    Request access through the official repository, then download the c23 videos
+    so data/raw/faceforensics/ holds original_sequences/ and manipulated_sequences/.
+  split:
+    strategy: grouped
+    heldout_generators: [NeuralTextures]
+  known_biases:
+    - Identities are source YouTube videos, so one person could appear under two ids and escape the split check.
+    - Most subjects are news presenters in frontal, well-lit shots.
+    - Frames from one video are near-duplicates, so per-frame counts overstate the amount of independent data.
+
+celebdf:
+  title: Celeb-DF v2
+  modality: image
+  adapter: ml.image.datasets:celebdf_records
+  role: Cross-dataset test only
+  licence: Celeb-DF terms of use, to be read before publication
+  access: manual
+  homepage: https://github.com/yuezunli/celeb-deepfakeforensics
+  instructions: >-
+    Fill in the request form in the official repository, then extract so
+    data/raw/celebdf/ holds Celeb-real/, YouTube-real/ and Celeb-synthesis/.
+  split:
+    strategy: evaluation
+  known_biases:
+    - Subjects are 59 celebrities, which is a narrow sample of ages and ethnicities.
+    - Every fake comes from one improved synthesis method.
+
+genimage:
+  title: GenImage
+  modality: image
+  adapter: ml.image.datasets:genimage_records
+  role: Primary whole-image synthesis training set
+  licence: Non-commercial research and education; a mirror states CC BY-NC-SA 4.0
+  access: manual
+  homepage: https://genimage-dataset.github.io
+  instructions: >-
+    Download a subset from the official Baidu Yunpan link or the per-generator
+    Kaggle mirror, with one folder per generator under data/raw/genimage/ and
+    ai/ and nature/ folders inside each.
+  split:
+    strategy: grouped
+    heldout_generators: [midjourney, biggan]
+  known_biases:
+    - Real images are ImageNet JPEGs and many fakes were saved differently, so a model can learn the file history instead of the forgery. The JPEG augmentation in prompt 2.2 exists to counter this.
+    - Real images inherit ImageNet's class and geographic skew.
+
+asvspoof2019_la:
+  title: ASVspoof 2019 Logical Access
+  modality: audio
+  adapter: ml.audio.datasets:asvspoof2019_la_records
+  role: Primary training set and min t-DCF benchmark
+  licence: Open Data Commons Attribution
+  access: manual
+  homepage: https://datashare.ed.ac.uk/handle/10283/3336
+  instructions: >-
+    Download LA.zip from the DataShare page and place it in data/raw/asvspoof2019_la/.
+    The direct link returned an HTML page when tested, so use a browser.
+  split:
+    strategy: official
+    # A16 and A19 reuse the A04 and A06 algorithms, so they stay in the known-attack test.
+    heldout_generators: [A07, A08, A09, A10, A11, A12, A13, A14, A15, A17, A18]
+  known_biases:
+    - Silence length correlates with the label in this corpus, which is why every clip has silence trimmed.
+    - Bona fide speech comes from VCTK-derived studio recordings of a limited speaker set.
+    - Spoofed samples far outnumber bona fide samples.
+
+asvspoof2021_df:
+  title: ASVspoof 2021 Deepfake
+  modality: audio
+  adapter: ml.audio.datasets:asvspoof2021_df_records
+  role: Evaluation only; it has no training split
+  licence: Open Database License on the Zenodo record
+  access: open
+  homepage: https://zenodo.org/record/4835108
+  files:
+    - url: https://zenodo.org/api/records/4835108/files/ASVspoof2021_DF_eval_part00.tar.gz/content
+      name: ASVspoof2021_DF_eval_part00.tar.gz
+      checksum: md5:4f2cbae07cf3ede2a1dde3b8d2ee55ea
+    - url: https://zenodo.org/api/records/4835108/files/ASVspoof2021_DF_eval_part01.tar.gz/content
+      name: ASVspoof2021_DF_eval_part01.tar.gz
+      checksum: md5:1578c89ab433c2b60b1dce93bdf8fbec
+    - url: https://zenodo.org/api/records/4835108/files/ASVspoof2021_DF_eval_part02.tar.gz/content
+      name: ASVspoof2021_DF_eval_part02.tar.gz
+      checksum: md5:5497a35f0126e94a1d7a7d26db57b4f7
+    - url: https://zenodo.org/api/records/4835108/files/ASVspoof2021_DF_eval_part03.tar.gz/content
+      name: ASVspoof2021_DF_eval_part03.tar.gz
+      checksum: md5:42b7512ba2943e98a32a53c9608cf83c
+    - url: https://www.asvspoof.org/asvspoof2021/DF-keys-full.tar.gz
+      name: DF-keys-full.tar.gz
+      checksum: sha256:426f93e1cdaf507bf36c355c00c0567137ba1fe8bc177b17281eeae6f4d870a6
+  split:
+    strategy: evaluation
+  known_biases:
+    - Organisers state that some source corpora are undisclosed, so the speaker mix cannot be fully audited.
+    - Codec conditions dominate the difficulty, so results should be reported per codec through the domain column.
+
+wavefake:
+  title: WaveFake with LJSpeech
+  modality: audio
+  adapter: ml.audio.datasets:wavefake_records
+  role: Per-vocoder evaluation only
+  licence: CC BY-SA 4.0 for WaveFake; LJSpeech is listed as public domain
+  access: open
+  homepage: https://zenodo.org/record/5642694
+  files:
+    - url: https://zenodo.org/api/records/5642694/files/generated_audio.zip/content
+      name: generated_audio.zip
+      checksum: md5:76b3e62d69f866e57ad6b1debaff434b
+    - url: https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+      name: LJSpeech-1.1.tar.bz2
+  split:
+    strategy: evaluation
+  known_biases:
+    - The English set has a single speaker, so it cannot show speaker generalization and cannot be split by speaker.
+    - Fakes are vocoder copies of real clips, so they test vocoder traces and not full text-to-speech.
+
+in_the_wild:
+  title: In-the-Wild Audio Deepfake
+  modality: audio
+  adapter: ml.audio.datasets:in_the_wild_records
+  role: Cross-dataset test only
+  licence: Apache 2.0 on the official page; a mirror states CC BY-SA 4.0
+  access: manual
+  homepage: https://deepfake-demo.aisec.fraunhofer.de/in_the_wild
+  instructions: >-
+    Download the release from the official page so data/raw/in_the_wild/ holds
+    meta.csv beside the audio files.
+  split:
+    strategy: evaluation
+  known_biases:
+    - The 58 speakers are public figures, mostly English-speaking politicians and celebrities.
+    - Generators are unknown, so no per-generator breakdown is possible.
+
+mage:
+  title: MAGE
+  modality: text
+  adapter: ml.text.datasets:mage_records
+  role: Primary training set
+  licence: Apache 2.0
+  access: open
+  homepage: https://huggingface.co/datasets/yaful/MAGE
+  files:
+    - url: https://huggingface.co/datasets/yaful/MAGE/resolve/main/train.csv
+      name: train.csv
+      checksum: sha256:07b95008964d6be412aa764aa1e515d652c345305cebc522a7612c6015ba373a
+    - url: https://huggingface.co/datasets/yaful/MAGE/resolve/main/valid.csv
+      name: valid.csv
+      checksum: sha256:005e200957a4da551c8ac37079f43811db9c32f5141e3bdabb1caa257588691f
+    - url: https://huggingface.co/datasets/yaful/MAGE/resolve/main/test.csv
+      name: test.csv
+      checksum: sha256:dcb8a8a8de1459d382ac2da5e0f1c39452e8bc47d186d7393f3ed4308f762ac7
+  split:
+    # The published split shares prompts across train, val and test. See D24 in docs/decisions.md.
+    strategy: grouped
+    # The LLaMA family.
+    heldout_generators: ["7B", "13B", "30B", "65B"]
+  known_biases:
+    - Generators date from 2023 or earlier, so current models are not represented.
+    - Prompt ids are not published, so groups are estimated from opening words. This links continuations to their human text, but topical and specified generations may still share a prompt across splits.
+    - The published split shares prompts across splits, so scores here are not comparable with the MAGE paper's.
+    - Human text is limited to the ten source domains, which are mostly online English.
+
+hc3:
+  title: Human ChatGPT Comparison Corpus
+  modality: text
+  adapter: ml.text.datasets:hc3_records
+  role: Cross-dataset test only
+  licence: CC BY-SA 4.0, or stricter where a source corpus is stricter
+  access: open
+  homepage: https://huggingface.co/datasets/Hello-SimpleAI/HC3
+  files:
+    - url: https://huggingface.co/datasets/Hello-SimpleAI/HC3/resolve/main/all.jsonl
+      name: all.jsonl
+      checksum: sha256:ee231f82283d754050a4dc58ecf9331afaf5daea7283c6da0b096ed0fb2774cf
+  split:
+    strategy: evaluation
+  known_biases:
+    - Human answers are tokenized with spaces around punctuation and ChatGPT answers are not. Normalization removes this before any model sees it.
+    - All fakes come from one early ChatGPT release.
+    - Human answers are dominated by Reddit ELI5.
+    - No text is identical to a MAGE text, but 497 rows (0.82%), nearly all human Reddit ELI5, open with the same words as MAGE train or val texts. Exclude them from cross-dataset results.
+    - A quarter of records fall below the 50-word minimum, so very short answers are not represented.
+
+detector_bias:
+  title: ChatGPT Detector Bias corpus
+  modality: text
+  adapter: ml.text.datasets:detector_bias_records
+  role: Bias test only, never training
+  licence: MIT on the dataset card; essays originate from third parties
+  access: open
+  homepage: https://huggingface.co/datasets/WxWx/ChatGPT-Detector-Bias
+  files:
+    - url: https://huggingface.co/datasets/WxWx/ChatGPT-Detector-Bias/resolve/main/all_data.json
+      name: all_data.json
+      checksum: sha256:4afbf07bbeebac0e2d9ee4845b87ea6c0077ce22b7264f6d9396bc2ce442acae
+    - url: https://raw.githubusercontent.com/Weixin-Liang/ChatGPT-Detector-Bias/1d05ed8242d4694a0ed7b73a79c52be8864470f9/Data_and_Results/Human_Data/HewlettStudentEssay_real_88/data.json
+      name: HewlettStudentEssay_real_88.json
+      checksum: sha256:6145e4e8bf36b780624626b31a783d7ca97696e1e14ae6d13c083b79da2f042d
+  split:
+    strategy: evaluation
+  known_biases:
+    - The TOEFL sample has 89 distinct essays, since 2 of the published 91 are duplicates, and all come from a Chinese forum, so it represents one group of non-native writers.
+    - The native baseline is US 8th-grade essays, so the groups differ in age, topic and level, not only in language background.
+    - The Hewlett essays come from the ASAP competition data, which has its own terms.

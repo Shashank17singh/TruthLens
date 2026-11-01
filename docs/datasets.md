@@ -36,9 +36,9 @@ CIFAKE images are 32×32, so upscaling them to 224×224 tests the resize and not
 | Dataset | Size | Generators or content | Licence | Request form | Evidence | Role |
 |---|---|---|---|---|---|---|
 | [ASVspoof 2019 LA](https://datashare.ed.ac.uk/handle/10283/3336) | 7.116 GB | TTS and VC attacks A01–A19 | Open Data Commons Attribution | No | Official | **Primary**, and the source for min t-DCF |
-| [ASVspoof 2021 DF](https://zenodo.org/record/4835108) | 34.5 GB on the record found; 14,869 and 519,059 trials in a survey table | TTS and VC with codecs | Open Data Commons Attribution | No | Official for size; secondary for licence | **Primary** evaluation set; it has no training split, and its keys are a separate download |
-| [WaveFake](https://zenodo.org/record/5642694) | 104,885 clips; GB size not confirmed | GAN vocoders on LJSpeech and JSUT | CC BY-SA 4.0 | No | Official | Per-vocoder evaluation |
-| [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) | 13,100 clips, about 2.6 GB (unconfirmed) | Real speech from one speaker | Public domain (unconfirmed) | No | Unconfirmed | Real side of WaveFake |
+| [ASVspoof 2021 DF](https://zenodo.org/record/4835108) | 34.5 GB in 4 parts; the `eval` phase has 14,869 bona fide and 519,059 spoof trials | TTS and VC with codecs | Conflict: Zenodo metadata says Open Database License, a 2022 announcement says Attribution | No | Official for size, counts and Zenodo licence | **Primary** evaluation set; it has no training split, and its keys are a separate download |
+| [WaveFake](https://zenodo.org/record/5642694) | 104,885 clips, 28.9 GB | GAN vocoders on LJSpeech and JSUT | CC BY-SA 4.0 | No | Official | Per-vocoder evaluation |
+| [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) | 2.75 GB; 13,100 clips (unconfirmed) | Real speech from one speaker | Public domain (unconfirmed) | No | Official for size | Real side of WaveFake |
 | [In-the-Wild](https://deepfake-demo.aisec.fraunhofer.de/in_the_wild) | 20.8 h real, 17.2 h fake, 58 speakers | Public-figure recordings | Apache 2.0 on the official page; a mirror says CC BY-SA 4.0 | No | Official | **Primary** cross-dataset test |
 | [ASVspoof 5](https://zenodo.org/records/14498691) | 142.3 GB | Crowdsourced speech, newer attacks | Open Data Commons Attribution | No, for the released data | Official | Optional, and too large for a free session unless sampled |
 | [FakeAVCeleb](https://sites.google.com/view/fakeavcelebdash-lab/download) | Not found | Audio-video deepfakes | Non-commercial research and education, no redistribution | **Yes** | Official for form terms | Optional |
@@ -53,9 +53,9 @@ WaveFake's English set comes from one speaker, so a split by speaker is impossib
 | [HC3](https://huggingface.co/datasets/Hello-SimpleAI/HC3) | Nearly 40,000 questions with human and ChatGPT answers | ChatGPT across 5 domains | CC BY-SA 4.0, or stricter where a source is stricter; some splits are unknown | No | Official | **Primary** cross-dataset test |
 | [M4GT-Bench](https://arxiv.org/pdf/2501.11012) | 86,782 human, 181,081 machine in one shared-task train split | 14 generators, 6 domains | CC BY-SA 4.0 for M4GT-Bench; original M4 not found | Not found | Secondary | Optional |
 | [RAID](https://arxiv.org/abs/2405.07940) | Over 6 million generations | 11 models, 8 domains, 11 attacks | MIT in a shared-task table | No | Secondary | Adversarial evaluation, using a subset |
-| [ChatGPT-Detector-Bias](https://huggingface.co/datasets/WxWx/ChatGPT-Detector-Bias) | 91 TOEFL essays and 88 US essays | Real non-native and native writing, plus GPT-polished versions | MIT on a mirror | No | Secondary | **Bias test only**, never for training |
+| [ChatGPT-Detector-Bias](https://huggingface.co/datasets/WxWx/ChatGPT-Detector-Bias) | 837 texts: 749 in `all_data.json`, plus 88 US essays that are only in the [authors' repository](https://github.com/Weixin-Liang/ChatGPT-Detector-Bias) | 91 TOEFL essays, 88 US essays, other human essays, GPT-3 and GPT-4 texts | MIT on the dataset card; the authors' repository has no LICENSE file at its root, and essays come from third parties | No | Official for files; secondary for licence | **Bias test only**, never for training |
 
-The bias set is small. One extra false positive moves the non-native rate by about 1.1 points, so the paper should report that rate with a Wilson confidence interval.
+The bias set is small. Two of the 91 TOEFL essays are duplicates, which leaves 89 distinct essays, so one extra false positive moves the non-native rate by about 1.1 points. The paper should report that rate with a Wilson confidence interval.
 
 ## Recommended core set
 
@@ -63,7 +63,7 @@ The bias set is small. One extra false positive moves the non-native rate by abo
 |---|---|---|---|---|
 | Image | FaceForensics++ c23 and a GenImage subset | Same sources, disjoint identities | NeuralTextures, Midjourney, BigGAN | Celeb-DF v2 |
 | Audio | ASVspoof 2019 LA train and dev | 2019 LA eval | A07–A18 except A16, which reuses A04; A19 also reuses A06 | ASVspoof 2021 DF and In-the-Wild |
-| Text | MAGE | Same source, disjoint prompts | One generator family chosen from the 2.1 manifest | HC3 |
+| Text | MAGE, split by estimated prompt | Same source, disjoint prompts | The LLaMA family: 7B, 13B, 30B, 65B | HC3, excluding rows that open like MAGE training text |
 
 Generators released after these datasets were built are absent from every test above. The paper must state that limit, and a small hand-collected set of recent generator outputs would be a useful extra test.
 

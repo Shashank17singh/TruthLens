@@ -26,6 +26,8 @@ Workers publish progress to Redis and API processes relay it to the WebSocket. T
 
 The pack allows either tracker. Colab and Kaggle sessions are temporary, so a local MLflow store would be lost with the session. Hydra handles the ablation runs through config overrides. Checkpoints are versioned in shared storage such as Google Drive, using names like `image-convnext-tiny-freq-1.0.0`.
 
+Preprocessing is the exception: it reads `ml/common/configs/preprocess.yaml` directly, because it has no sweeps.
+
 ## Conflicts and gaps in the prompts
 
 ### D6. The extension needs more than three permissions
@@ -76,6 +78,34 @@ Prompt 2.1 asks for stratification by label and generator while also keeping ide
 Group separation always wins, since it is what prevents leakage.
 
 Official splits are kept where a benchmark depends on them, such as ASVspoof.
+
+### D19. A group may span `test` and `unseen_test`
+
+Leakage means fitted data reaching evaluation. `test` and `unseen_test` are both evaluation splits, so a shared identity between them is harmless, and it lets a mixed face-swap identity contribute to both. A held-out sample in a group that reaches train or val is dropped and counted, so an unseen-generator score never benefits from a familiar face.
+
+### D20. Audio is stored trimmed and cut at load time
+
+Prompt 2.1 asks for 4-second clips. Storing one fixed clip per file would give training the same crop every epoch. Files are stored trimmed, training takes a random 4-second crop, and evaluation takes the first 4 seconds. Short audio is repeated, not padded with zeros, because a run of digital silence would be an easy false signal.
+
+### D21. Silence is trimmed for scientific reasons too
+
+Silence length correlates with the label in ASVspoof 2019, so a detector can score well without listening to the speech. Trimming removes that shortcut before any model sees the data.
+
+### D22. RetinaFace comes from `batch-face`
+
+`facenet-pytorch` pins PyTorch below 2.3 and NumPy below 2, which conflicts with Colab's current stack. `batch-face` provides RetinaFace with no such pins and also returns the five landmarks that prompt 2.3 can reuse.
+
+### D23. Text is normalized before anything else
+
+HC3's human answers are tokenized with spaces around punctuation and its ChatGPT answers are not. Without normalization, a model could reach high accuracy by reading spacing. All text passes through the same normalizer in training and in serving.
+
+### D24. MAGE does not use its published split
+
+The leakage check rejected MAGE's published split on the real data. After the length filter, 512 opening-word groups covering 13,144 rows (3.96%) span more than one split. One Reddit prompt alone has 142 texts across train and val, and some human texts recur with minor edits. These are real prompt overlaps, so a model would be evaluated on prompts it had already seen.
+
+MAGE therefore uses the grouped 70/15/15 split, which is what prompt 2.1 asks for. The cost is that scores cannot be compared directly with the MAGE paper, and the paper must say so.
+
+MAGE publishes no prompt ids. Grouping on the first 12 words links continuations to their human source, and it may join a few unrelated texts with the same stock opening, which is harmless. It cannot link topical or specified generations, because those do not reuse the human text. The LLaMA family is the unseen-generator set.
 
 ## Risks
 

@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+testpaths = ["ml"]
+pythonpath = ["."]
+addopts = "-q"
+markers = [
+  "network: downloads model weights or data",
+]

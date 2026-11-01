@@ -1,0 +1,18 @@
+# Data pipeline dependencies, pinned to the versions the tests ran against.
+# Install PyTorch separately: Colab already has it, and CPU machines can use
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+batch-face==1.5.4
+langdetect==1.0.9
+librosa==0.11.0
+numpy==2.4.6
+opencv-python-headless==5.0.0.93
+pandas==3.1.0
+pillow==13.0.0
+pyarrow==26.0.0
+pytest==9.2.0
+PyYAML==6.0.3
+requests==2.34.2
+scikit-image==0.26.0
+soundfile==0.14.0
+soxr==1.1.0
+tqdm==4.70.1

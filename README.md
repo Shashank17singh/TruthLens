@@ -11,5 +11,8 @@ Training runs on Colab or Kaggle GPUs. Serving runs on CPU.
 - [API contract](docs/api.md)
 - [Datasets, licences and sizes](docs/datasets.md)
 - [Design decisions](docs/decisions.md)
+- [Generated data cards](docs/datacards/)
+
+To prepare data, see the [ML guide](ml/README.md).
 
 The code is built one feature prompt at a time, from 2.1 to 2.11. Each prompt is tested and committed before the next one starts.

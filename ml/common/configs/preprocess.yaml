@@ -1,0 +1,21 @@
+# Preprocessing settings for every modality. Changing a value changes the data,
+# so re-run prepare and commit the regenerated data card.
+seed: 1337
+split_ratios: [0.70, 0.15, 0.15]
+
+image:
+  size: 224
+  frames_per_video: 10
+  face_margin: 1.3
+  face_threshold: 0.9
+
+audio:
+  sample_rate: 16000
+  clip_seconds: 4
+  min_seconds: 0.5
+  trim_top_db: 40
+
+text:
+  min_words: 50
+  max_words: 1000
+  language: en
