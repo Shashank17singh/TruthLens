@@ -1,19 +1,6 @@
-<div align="center">
+# TruthLens
 
-# TruthLens - Multi-Modal Deepfake Detection
-
-**Detects AI-generated and manipulated images, audio and text, and explains each result instead of only giving a score.**
-
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![timm](https://img.shields.io/badge/timm-Vision%20Models-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://github.com/huggingface/pytorch-image-models)
-[![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-CPU%20Inference-005CED?style=for-the-badge&logo=onnx&logoColor=white)](https://onnxruntime.ai/)
-[![Hydra](https://img.shields.io/badge/Hydra-Configs-89B4FA?style=for-the-badge&logoColor=black)](https://hydra.cc/)
-[![scikit-learn](https://img.shields.io/badge/Scikit--learn-Metrics-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
-
-</div>
-
----
+Detects AI-generated and manipulated images, audio and text, and explains each result instead of only giving a score.
 
 ## Overview
 
