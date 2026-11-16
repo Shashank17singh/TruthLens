@@ -8,7 +8,7 @@ Detectors that score well in a paper often fail on a new generator, or after an 
 
 Training runs on free Colab or Kaggle GPUs, and inference is designed to run on CPU through ONNX Runtime.
 
-> TruthLens is in development. The data pipeline and image detector are built and tested, but the image models have not been trained on real data yet, so there are no accuracy results to report. See [Roadmap](#roadmap) and [Known Limitations](#known-limitations).
+> TruthLens is in development. The image, audio and text detectors are built and tested. The text detector has real results from a CPU run, and the audio model is training on ASVspoof 2019. The image models have not been trained on real data, so there are no image accuracy results yet. See [Roadmap](#roadmap) and [Known Limitations](#known-limitations).
 
 ---
 
@@ -32,9 +32,24 @@ graph TD
     I --> J[ONNX Export]
     end
 
+    subgraph "Audio Detector"
+    E --> N(Mel, LFCC or CQT in the model)
+    N --> O(LCNN, ResNet-18, wav2vec2, WavLM)
+    O --> P[4-second Windows, Mean and Max]
+    end
+
+    subgraph "Text Detector"
+    E --> Q(GPT-2 Statistics)
+    E --> R(RoBERTa or DeBERTa)
+    Q --> S{Logistic Ensemble}
+    R --> S
+    S --> T[Sentence Scores and Confidence Band]
+    end
+
     subgraph "Planned"
-    J --> K[Audio and Text Models]
-    K --> L[FastAPI and Celery Service]
+    J --> L[FastAPI and Celery Service]
+    P --> L
+    T --> L
     L --> M[Web App and Chrome Extension]
     end
 
@@ -42,9 +57,9 @@ graph TD
     classDef core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
     classDef logic fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000;
 
-    class A,E,J io;
-    class B,F,G,I core;
-    class C,D,H logic;
+    class A,E,J,P,T io;
+    class B,F,G,I,N,O,Q,R core;
+    class C,D,H,S logic;
 ```
 
 - The frequency branch computes a DCT inside the model, so training and serving run the same code.
@@ -68,12 +83,16 @@ graph TD
 | **Honest Evaluation**          | Per-generator accuracy, AUC intervals that resample whole identities, and warnings on chance-level models |
 | **Verified ONNX Export**       | Each export must match PyTorch within 1e-3, and it records its checksum and CPU latency                   |
 | **Generated Results Tables**   | CSV and LaTeX tables built from evaluation output, so numbers are never typed by hand                     |
+| **Image Explanations**         | Grad-CAM, Grad-CAM++ or ViT attention rollout, regions named from face landmarks, and a sanity check       |
+| **Audio Detector**             | Mel, LFCC or CQT features, four model families, codec and reverb augmentation, and the official min t-DCF  |
+| **Text Detector**              | GPT-2 perplexity, burstiness, GLTR ranks and Binoculars, with optional RoBERTa or DeBERTa in the ensemble  |
+| **Per-Sentence Scores**        | Each sentence scored in context, a bootstrap confidence band, and a disclaimer on every result            |
 
 ---
 
 ## Measured Results
 
-These are real measurements. Accuracy will be added once the models are trained on real data.
+These are real measurements from an Intel Core i5-10210U laptop with 8 GB of memory and no GPU. Image accuracy will be added once those models are trained on real data.
 
 ### CPU Inference
 
@@ -86,6 +105,32 @@ ONNX Runtime with ImageNet weights at 224×224, on one thread of an Intel Core i
 | ViT-B/16        | 346       | 480      | 553                  |
 
 Times are medians, and size includes the frequency branch.
+
+### Text Detector
+
+The statistics-only ensemble, without a transformer, trained on 1,501 MAGE texts. Its threshold sits at the validation equal-error point.
+
+| Test set                                  | Texts | AUC (95% interval)     |
+| ----------------------------------------- | ----- | ---------------------- |
+| MAGE test                                 | 800   | 0.768 (0.737 to 0.801) |
+| MAGE, unseen LLaMA generators             | 500   | 81.4% of AI detected   |
+| HC3, excluding 497 rows that overlap MAGE | 500   | 0.932 (0.910 to 0.952) |
+| ChatGPT Detector Bias                     | 831   | 0.541 (0.498 to 0.581) |
+
+It flags 86.5% of human TOEFL essays by non-native writers as AI, against 25% of US 8th-grade essays. That is the bias Liang et al. found in commercial detectors, and it is why the detector must not be used to judge non-native writers. Replacing half of an AI text's sentences with human writing drops detection from 73% to 36%. Details are in the [text detector guide](ml/text/README.md).
+
+### Audio Inference
+
+ONNX Runtime on a 30-second clip, scored as 4-second windows. All eight variants matched PyTorch within 1.3e-6. The memory-starved laptop makes these times pessimistic.
+
+| Model    | Input    | 1 thread (ms) | 4 threads (ms) |
+| -------- | -------- | ------------- | -------------- |
+| LCNN     | LFCC     | 533           | 280            |
+| ResNet-18 | LFCC    | 940           | 640            |
+| wav2vec2 | waveform | 30,530        | 9,755          |
+| WavLM    | waveform | 21,809        | 10,915         |
+
+LCNN with LFCC is the model the service will deploy. EER and min t-DCF follow the official ASVspoof scoring script and matched it exactly on 50 random score sets.
 
 ### Prepared Text Data
 
@@ -103,12 +148,12 @@ The leakage check rejected MAGE's published split, because 13,144 rows (3.96%) s
 
 | Component       | Technology                                                |
 | --------------- | --------------------------------------------------------- |
-| Deep Learning   | Python 3.11, PyTorch, timm                                |
-| Data            | pandas, Albumentations, librosa, soundfile, OpenCV        |
+| Deep Learning   | Python 3.11, PyTorch, timm, Hugging Face Transformers     |
+| Data            | pandas, Albumentations, librosa, soundfile, OpenCV, ffmpeg |
 | Face Detection  | RetinaFace through batch-face                             |
 | Text Processing | langdetect, PyArrow                                       |
 | Experiments     | Hydra, Weights & Biases                                   |
-| Evaluation      | scikit-learn, SciPy, Matplotlib                           |
+| Evaluation      | scikit-learn, SciPy, Matplotlib, pytorch-grad-cam         |
 | Inference       | ONNX, ONNX Runtime                                        |
 | Testing         | Pytest                                                    |
 
@@ -120,11 +165,12 @@ The leakage check rejected MAGE's published split, because 13,144 rows (3.96%) s
 TruthLens/
 ├── ml/
 │   ├── common/           # Manifests, splits, checksums, sampling, metrics, data cards
-│   ├── image/            # Detector, training, evaluation, ONNX export, results tables
+│   ├── image/            # Detector, explanations, training, evaluation, ONNX export
 │   │   └── configs/      # Hydra configs for models and augmentations
-│   ├── audio/            # Dataset adapters and audio preprocessing
-│   ├── text/             # Dataset adapters and text cleaning
+│   ├── audio/            # Features, models, augmentation, long-audio scoring, export
+│   ├── text/             # Statistics, transformers, ensemble, robustness, explanations
 │   └── eval/results/     # Measured results
+├── notebooks/            # Colab notebooks for GPU training
 ├── docs/
 │   ├── architecture.md   # System design and planned structure
 │   ├── api.md            # API contract for the planned service
@@ -188,7 +234,14 @@ python -m ml.image.export checkpoints/image/<run>/<run>-best.pt
 python -m ml.image.results_table
 ```
 
-Colab steps and the full experiment grid are in the [image detector guide](ml/image/README.md), and dataset details are in the [ML guide](ml/README.md).
+Audio and text follow the same pattern:
+
+```bash
+python -m ml.audio.train model=lcnn feature=lfcc
+python -m ml.text.ensemble extract --manifest data/manifests/mage.csv --split train --limit 1500 --output data/features/text/mage-train.parquet
+```
+
+Each modality has its own guide: [image](ml/image/README.md), [audio](ml/audio/README.md) and [text](ml/text/README.md). GPU work runs from the notebooks in [notebooks/](notebooks/), and dataset details are in the [ML guide](ml/README.md).
 
 ---
 
@@ -197,9 +250,10 @@ Colab steps and the full experiment grid are in the [image detector guide](ml/im
 - [x] Dataset pipeline with leak-free splits
 - [x] Image detector, evaluation and ONNX export
 - [ ] Train the image models on real data
-- [ ] Grad-CAM heatmaps and plain-language explanations
-- [ ] Audio deepfake detector
-- [ ] AI-generated text detector
+- [x] Grad-CAM heatmaps and plain-language explanations
+- [x] Audio deepfake detector
+- [x] AI-generated text detector, with real CPU results
+- [ ] Finish audio training and fine-tune the text transformers on a GPU
 - [ ] FastAPI backend with Celery workers
 - [ ] React web app and Chrome extension
 - [ ] Signed PDF reports
@@ -210,10 +264,12 @@ Colab steps and the full experiment grid are in the [image detector guide](ml/im
 ## Known Limitations
 
 - The image models have not been trained on real data, and no training run has used a GPU yet. Mixed precision and Weights & Biases logging are therefore untested.
-- The image and audio adapters have only run on generated test files. Only the three text datasets above have been prepared for real.
+- The image adapters have only run on generated test files. ASVspoof 2019 LA and the three text datasets have been prepared for real.
+- The RoBERTa and DeBERTa detectors and the wav2vec2 and WavLM models have only been trained on tiny test data. Their real training needs the Colab notebooks.
+- The T5 paraphrase test has not run, because the paraphraser and GPT-2 do not fit in 8 GB of memory together.
 - Most datasets predate current generators, so results will say little about the newest models until recent samples are added.
 - MAGE publishes no prompt ids, so prompts are estimated from opening words. Topical and specified generations can still share a prompt across splits.
 - Several datasets restrict use to non-commercial research. See [datasets](docs/datasets.md) before any public release.
-- Results will be probabilistic and must not be used alone to make decisions about a person. Text detectors in particular can wrongly flag non-native English writers.
+- Results will be probabilistic and must not be used alone to make decisions about a person. The text detector flags most human essays by non-native English writers as AI.
 
 ---
