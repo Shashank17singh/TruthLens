@@ -1,0 +1,7 @@
+name: lcnn
+kind: lcnn
+pretrained: false
+dropout: 0.5
+batch_size: 32
+accumulation_steps: 1
+learning_rate: 0.0003

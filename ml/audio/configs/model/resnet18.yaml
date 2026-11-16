@@ -1,0 +1,7 @@
+name: resnet18
+kind: resnet
+backbone: resnet18.a1_in1k   # timm sums the ImageNet RGB filters into one input channel
+pretrained: true
+batch_size: 32
+accumulation_steps: 1
+learning_rate: 0.0003

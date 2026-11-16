@@ -6,8 +6,7 @@ import pytest
 from PIL import Image
 from skimage import data
 
-from ml.common.manifest import FAKE, REAL, REAL_GENERATOR, Record
-from ml.common.manifest import records_to_frame
+from ml.common.manifest import FAKE, REAL, REAL_GENERATOR, Record, records_to_frame
 from ml.common.splits import SplitConfig, assign_splits
 from ml.image import datasets, preprocess
 from ml.image.preprocess import Detection
@@ -66,7 +65,7 @@ def test_prepare_resizes_whole_images_to_png(tmp_path):
 def test_prepare_expands_video_to_frames_in_one_group(tmp_path):
     source = write_video(tmp_path / "raw" / "v.mp4")
     record = Record(str(source), FAKE, "toy", "gen", "person", domain="face")
-    detector = lambda rgb: [Detection((5.0, 5.0, 50.0, 50.0), 0.99)]  # noqa: E731
+    detector = lambda rgb: [Detection((5.0, 5.0, 50.0, 50.0), 0.99)]
     kept, _ = preprocess.prepare([record], tmp_path / "out", CONFIG, detector=detector)
     assert len(kept) == 3
     assert {item.group_id for item in kept} == {"person"}

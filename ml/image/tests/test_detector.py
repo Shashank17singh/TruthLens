@@ -19,12 +19,26 @@ from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
 from PIL import Image
 
-from ml.common.manifest import FAKE, REAL, REAL_GENERATOR, Record, records_to_frame, write_manifest
+from ml.common.manifest import (
+    FAKE,
+    REAL,
+    REAL_GENERATOR,
+    Record,
+    records_to_frame,
+    write_manifest,
+)
 from ml.common.splits import SplitConfig, assign_splits
+from ml.common.training import smooth_targets, warmup_cosine
 from ml.image import augment, export, results_table
 from ml.image.evaluate import evaluate
-from ml.image.model import DctSpectrum, FrequencyBranch, ImageDetector, dct_basis, load_checkpoint
-from ml.image.train import run_name, smooth_targets, train, warmup_cosine
+from ml.image.model import (
+    DctSpectrum,
+    FrequencyBranch,
+    ImageDetector,
+    dct_basis,
+    load_checkpoint,
+)
+from ml.image.train import run_name, train
 
 CONFIG_DIR = str(Path(__file__).parents[1] / "configs")
 SIZE = 64
@@ -152,7 +166,7 @@ def test_learning_rate_warms_up_then_decays_to_zero():
 def test_every_augmentation_can_be_switched_off(tmp_path):
     robust = experiment_config(tmp_path)["augment"]
     none = experiment_config(tmp_path, "augment=none")["augment"]
-    names = lambda config: {type(step).__name__ for step in augment.train_transform(config, 64, CNN_MEAN, CNN_STD, 0).transforms}  # noqa: E731
+    names = lambda config: {type(step).__name__ for step in augment.train_transform(config, 64, CNN_MEAN, CNN_STD, 0).transforms}
     assert {"RandomResizedCrop", "ColorJitter", "GaussianBlur", "Downscale", "ImageCompression"} <= names(robust)
     assert names(none) == {"HorizontalFlip", "Normalize", "ToTensorV2"}
 
@@ -231,7 +245,7 @@ def test_early_stopping_ends_a_stalled_run(toy_data, tmp_path):
 
 
 def test_evaluation_reports_every_required_metric_and_plot(trained, tmp_path):
-    best, root = trained
+    best, _ = trained
     output = tmp_path / "results"
     report = evaluate(best, None, None, output, batch_size=16, workers=0)
     for key in ("accuracy", "precision", "recall", "f1", "roc_auc", "confusion_matrix", "auc_interval"):
@@ -321,7 +335,7 @@ def test_results_table_is_built_from_files(trained, tmp_path):
     assert frame.loc[0, "model"] == "EfficientNet-B0"
     assert frame.loc[0, "branches"] == "RGB + frequency"
     assert frame.loc[0, "latency_ms"] > 0
-    assert frame.loc[0, "warning"] == False  # noqa: E712
+    assert frame.loc[0, "warning"] == False
     latex = results_table.to_latex(frame)
     assert r"\begin{tabular}" in latex
     assert "EfficientNet-B0" in latex

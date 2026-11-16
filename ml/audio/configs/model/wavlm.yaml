@@ -1,0 +1,10 @@
+name: wavlm
+kind: ssl
+backbone: microsoft/wavlm-base
+pretrained: true
+normalize_input: false  # its preprocessor_config.json sets do_normalize: false
+freeze_epochs: 2
+unfreeze_layers: 4
+batch_size: 8
+accumulation_steps: 4
+learning_rate: 0.0001

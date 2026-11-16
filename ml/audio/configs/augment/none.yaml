@@ -1,0 +1,5 @@
+name: none
+speed: {enabled: false, p: 0.0, factors: [1.0, 1.0]}
+reverb: {enabled: false, p: 0.0, rt60: [0.2, 0.8]}
+noise: {enabled: false, p: 0.0, snr_db: [5, 30]}
+codec: {enabled: false, p: 0.0, codecs: [mp3], bitrate_kbps: 64}

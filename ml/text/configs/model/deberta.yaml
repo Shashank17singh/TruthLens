@@ -1,0 +1,5 @@
+name: deberta
+backbone: microsoft/deberta-v3-small
+batch_size: 16
+accumulation_steps: 2
+learning_rate: 0.00003

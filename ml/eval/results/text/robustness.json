@@ -1,0 +1,29 @@
+{
+  "threshold": 0.6168237436990396,
+  "baseline_ai_detected": 0.7333333333333333,
+  "baseline_human_flagged": 0.32,
+  "human_edited_25": {
+    "samples": 150,
+    "ai_detected": 0.49333333333333335
+  },
+  "human_edited_50": {
+    "samples": 150,
+    "ai_detected": 0.36
+  },
+  "short_50_ai": {
+    "samples": 150,
+    "ai_detected": 0.36666666666666664
+  },
+  "short_50_human": {
+    "samples": 150,
+    "human_flagged": 0.22666666666666666
+  },
+  "short_75_ai": {
+    "samples": 150,
+    "ai_detected": 0.5066666666666667
+  },
+  "short_75_human": {
+    "samples": 150,
+    "human_flagged": 0.28
+  }
+}

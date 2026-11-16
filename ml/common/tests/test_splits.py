@@ -85,7 +85,7 @@ def test_unseen_generator_never_reaches_training():
     config = SplitConfig(heldout_generators=frozenset({"diffusion_a"}))
     frame = assign_splits(face_dataset(), config).frame
     assert set(frame.loc[frame["generator_name"] == "diffusion_a", "split"]) == {"unseen_test"}
-    assert (frame["split"] == "unseen_test").all() == False  # noqa: E712
+    assert (frame["split"] == "unseen_test").all() == False
     check_no_leakage(frame)
 
 

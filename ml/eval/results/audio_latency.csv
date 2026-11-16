@@ -1,0 +1,9 @@
+model,input,weights,format,size_mb,max_output_difference,machine,median_ms_30s_1t,median_ms_30s_4t
+resnet18,mel,pretrained,onnx,46.0,4.470348358154297e-07,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",1774.0,756.9
+resnet18,lfcc,pretrained,onnx,45.9,6.556510925292969e-07,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",940.0,639.6
+resnet18,cqt,pretrained,onnx,48.6,2.2351741790771484e-07,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",1605.5,588.7
+lcnn,mel,random,onnx,2.2,2.9802322387695312e-08,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",937.4,596.2
+lcnn,lfcc,random,onnx,2.2,2.2351741790771484e-08,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",533.2,280.2
+lcnn,cqt,random,onnx,4.9,3.3527612686157227e-08,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",855.7,477.0
+wav2vec2,waveform,pretrained,onnx,378.9,1.2516975402832031e-06,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",30530.1,9754.9
+wavlm,waveform,pretrained,onnx,379.5,8.121132850646973e-07,"Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",21808.5,10915.3

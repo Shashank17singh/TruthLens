@@ -72,8 +72,10 @@ asvspoof2019_la:
   access: manual
   homepage: https://datashare.ed.ac.uk/handle/10283/3336
   instructions: >-
-    Download LA.zip from the DataShare page and place it in data/raw/asvspoof2019_la/.
-    The direct link returned an HTML page when tested, so use a browser.
+    Download LA.zip (7.6 GB) into data/raw/asvspoof2019_la/ from
+    https://datashare.ed.ac.uk/bitstream/handle/10283/3336/LA.zip. A HEAD request
+    returns an HTML page, but a normal GET returns the file. The server drops long
+    transfers, so resume: repeat curl -L -C - -o LA.zip <url> until it is complete.
   split:
     strategy: official
     # A16 and A19 reuse the A04 and A06 algorithms, so they stay in the known-attack test.

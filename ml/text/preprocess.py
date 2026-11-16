@@ -18,7 +18,7 @@ LANGUAGE_SAMPLE_CHARS = 1500
 SPLIT_PRIORITY = {"test": 0, "val": 1, "train": 2, "": 3}
 
 _NOT_ALPHANUMERIC = re.compile(r"[\W_]+")
-_ZERO_WIDTH = re.compile("[​-‍⁠﻿]")
+_ZERO_WIDTH = re.compile("[\u200b-‍⁠﻿]")
 _SPACE_BEFORE_PUNCT = re.compile(r"\s+([,.;:!?%)\]}])")
 _SPACE_AFTER_OPEN = re.compile(r"([(\[{])\s+")
 _SPACED_QUOTES = re.compile(r'"\s+([^"]*?)\s+"')

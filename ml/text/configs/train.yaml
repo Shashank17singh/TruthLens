@@ -1,0 +1,34 @@
+# Fine-tune a transformer AI-text detector. GPU recommended; see notebooks/colab_text.ipynb.
+#   python -m ml.text.train model=roberta
+#   python -m ml.text.train model=deberta
+defaults:
+  - model: roberta
+  - _self_
+
+version: 1.0.0
+seed: 1337
+
+manifest: data/manifests/mage.csv
+data_root: data/processed
+checkpoint_dir: checkpoints/text
+
+max_length: 512
+stride: 128             # overlap between consecutive windows of a long text
+
+epochs: 4
+warmup_epochs: 1
+steps_per_epoch: null   # Caps an epoch so a run fits inside a free Colab session
+weight_decay: 0.01
+label_smoothing: 0.0
+max_grad_norm: 1.0
+patience: 2
+num_workers: 2
+amp: true
+device: auto
+
+tracker: wandb          # wandb or none; metrics.jsonl is always written
+wandb_project: truthlens-text
+
+hydra:
+  job:
+    chdir: false

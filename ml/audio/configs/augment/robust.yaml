@@ -1,0 +1,5 @@
+name: robust
+speed: {enabled: true, p: 0.3, factors: [0.9, 1.1]}
+reverb: {enabled: true, p: 0.3, rt60: [0.2, 0.8]}
+noise: {enabled: true, p: 0.4, snr_db: [5, 30]}
+codec: {enabled: true, p: 0.3, codecs: [mp3, opus], bitrate_kbps: 64}

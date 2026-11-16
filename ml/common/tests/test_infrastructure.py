@@ -13,7 +13,15 @@ import pytest
 from ml.common import balance, datacard
 from ml.common.checksums import ChecksumError, hash_file, verify_file, verify_or_record
 from ml.common.download import download, extract
-from ml.common.manifest import FAKE, REAL, REAL_GENERATOR, Record, combine, records_to_frame, write_manifest
+from ml.common.manifest import (
+    FAKE,
+    REAL,
+    REAL_GENERATOR,
+    Record,
+    combine,
+    records_to_frame,
+    write_manifest,
+)
 from ml.common.prepare import REGISTRY_PATH, load_yaml, stratified_limit
 
 
@@ -213,3 +221,21 @@ def test_seeded_numpy_is_repeatable():
 
 def test_manifest_balance_json_is_serializable():
     assert json.dumps(balance.balance_report(imbalanced_frame()))
+
+
+def test_manual_archive_checksum_is_recorded_only_after_it_extracts(tmp_path, monkeypatch):
+    from ml.common import prepare
+
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    with zipfile.ZipFile(raw / "data.zip", "w", zipfile.ZIP_STORED) as bundle:
+        bundle.writestr("clip.txt", "x" * 1000)
+    payload = (raw / "data.zip").read_bytes()
+    position = payload.index(b"x" * 1000) + 500
+    (raw / "data.zip").write_bytes(payload[:position] + b"y" + payload[position + 1 :])
+    recorded = []
+    monkeypatch.setattr(prepare, "verify_or_record", lambda path, key: recorded.append(key) or True)
+
+    with pytest.raises(zipfile.BadZipFile):
+        prepare.fetch("toy", {"access": "manual", "instructions": ""}, raw)
+    assert recorded == []

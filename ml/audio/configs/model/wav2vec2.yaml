@@ -1,0 +1,10 @@
+name: wav2vec2
+kind: ssl
+backbone: facebook/wav2vec2-base
+pretrained: true
+normalize_input: true   # its preprocessor_config.json sets do_normalize: true
+freeze_epochs: 2        # head only, then the top layers join
+unfreeze_layers: 4
+batch_size: 8
+accumulation_steps: 4
+learning_rate: 0.0001

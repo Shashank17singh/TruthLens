@@ -78,6 +78,8 @@ The merged manifest goes through the leakage check again, so content shared betw
 ## Training
 
 - [Image detector](image/README.md)
+- [Audio detector](audio/README.md)
+- [Text detector](text/README.md)
 
 ## Tests
 

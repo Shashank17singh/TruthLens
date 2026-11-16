@@ -1,6 +1,7 @@
 """Audio preparation: 16 kHz mono, silence trimmed, cut to 4-second clips at load time."""
 
 import hashlib
+import os
 from collections import Counter
 from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor
@@ -51,6 +52,11 @@ def fixed_clip(wave: np.ndarray, length: int, rng: np.random.Generator | None = 
 
 def _prepare_one(record: Record, output_dir: Path, config: dict) -> tuple[Record | None, str]:
     sample_rate = config["sample_rate"]
+    name = hashlib.sha256(f"{record.source_dataset}/{record.path}".encode()).hexdigest()[:24]
+    relative = f"audio/{name[:2]}/{name}.flac"
+    target = output_dir / relative
+    if target.exists():  # finished by an earlier, interrupted run
+        return replace(record, path=relative, content_hash=hash_file(target)), "output_records"
     try:
         wave = trim_silence(load_mono(Path(record.path), sample_rate), config["trim_top_db"])
     except (soundfile.LibsndfileError, RuntimeError, ValueError):
@@ -58,11 +64,11 @@ def _prepare_one(record: Record, output_dir: Path, config: dict) -> tuple[Record
     if wave.size < config["min_seconds"] * sample_rate:
         return None, "dropped_too_short"
 
-    name = hashlib.sha256(f"{record.source_dataset}/{record.path}".encode()).hexdigest()[:24]
-    relative = f"audio/{name[:2]}/{name}.flac"
-    target = output_dir / relative
     target.parent.mkdir(parents=True, exist_ok=True)
-    soundfile.write(target, wave, sample_rate, subtype="PCM_16", format="FLAC")
+    # Write then rename, so a crash never leaves a half-written clip that a resume would trust.
+    partial_path = target.with_suffix(".partial")
+    soundfile.write(partial_path, wave, sample_rate, subtype="PCM_16", format="FLAC")
+    os.replace(partial_path, target)
     return replace(record, path=relative, content_hash=hash_file(target)), "output_records"
 
 

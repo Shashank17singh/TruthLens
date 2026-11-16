@@ -16,8 +16,9 @@ import torch
 
 from ml.common import metrics, plots
 from ml.common.manifest import REAL_GENERATOR, read_manifest, unseen_evaluation_frame
+from ml.common.training import predict_logits
 from ml.image.augment import eval_transform
-from ml.image.data import eval_loader, predict_logits
+from ml.image.data import eval_loader
 from ml.image.model import load_checkpoint
 
 TARGET_PRECISION = 0.95

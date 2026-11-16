@@ -6,7 +6,6 @@
 """
 
 import argparse
-import dataclasses
 import importlib
 import json
 import os
@@ -44,15 +43,14 @@ def fetch(name: str, entry: dict, raw: Path) -> None:
         if "checksum" not in item and verify_or_record(target, f"{name}/{item['name']}"):
             print(f"recorded checksum for {item['name']}")
 
-    if entry["access"] == "manual":
-        if not raw.is_dir() or not any(raw.iterdir()):
-            sys.exit(f"{name} needs a manual download.\n{entry['instructions']}")
-        for archive in sorted(p for p in raw.iterdir() if p.name.endswith(ARCHIVE_SUFFIXES)):
-            if verify_or_record(archive, f"{name}/{archive.name}"):
-                print(f"recorded checksum for {archive.name}")
+    if entry["access"] == "manual" and (not raw.is_dir() or not any(raw.iterdir())):
+        sys.exit(f"{name} needs a manual download.\n{entry['instructions']}")
 
     for archive in sorted(p for p in raw.iterdir() if p.name.endswith(ARCHIVE_SUFFIXES)):
         extract(archive, raw)
+        # Record a manual archive only after it extracts, so a corrupt download is never locked in.
+        if entry["access"] == "manual" and verify_or_record(archive, f"{name}/{archive.name}"):
+            print(f"recorded checksum for {archive.name}")
 
 
 def stratified_limit(records: Sequence[Record], limit: int, seed: int) -> list[Record]:

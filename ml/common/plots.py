@@ -137,15 +137,21 @@ def precision_tradeoff_figure(
     _save(figure, path)
 
 
-def generator_figure(rows: list[dict], unseen: set[str], path: Path) -> None:
-    """Horizontal bars, sorted. Unseen generators differ by hatch as well as colour."""
-    rows = sorted(rows, key=lambda row: row["accuracy"])
+def generator_figure(
+    rows: list[dict], unseen: set[str], path: Path, value: str = "accuracy",
+    xlabel: str = "Accuracy at the chosen threshold", title: str = "Accuracy by generator",
+) -> None:
+    """Horizontal bars, sorted. Unseen generators differ by hatch as well as colour.
+
+    `value` names the column to plot, a rate in [0, 1]: accuracy for images, EER for audio.
+    """
+    rows = sorted(rows, key=lambda row: row[value])
     figure, axis = plt.subplots(figsize=(4.2, max(2.0, 0.3 * len(rows) + 1.2)))
     positions = np.arange(len(rows))
     is_unseen = [row["generator_name"] in unseen for row in rows]
     bars = axis.barh(
         positions,
-        [row["accuracy"] for row in rows],
+        [row[value] for row in rows],
         height=0.62,
         color=[ORANGE if flag else BLUE for flag in is_unseen],
         edgecolor=SURFACE,
@@ -153,11 +159,11 @@ def generator_figure(rows: list[dict], unseen: set[str], path: Path) -> None:
         hatch=["///" if flag else "" for flag in is_unseen],
     )
     for bar, row in zip(bars, rows):
-        axis.text(row["accuracy"] + 0.012, bar.get_y() + bar.get_height() / 2, f"{row['accuracy']:.1%}",
+        axis.text(row[value] + 0.012, bar.get_y() + bar.get_height() / 2, f"{row[value]:.1%}",
                   va="center", fontsize=7, color=MUTED)
     axis.set_yticks(positions, [row["generator_name"] for row in rows])
-    axis.set(xlim=(0, 1.13), xlabel="Accuracy at the chosen threshold")
-    axis.set_title("Accuracy by generator", pad=20 if unseen else 6)
+    axis.set(xlim=(0, 1.13), xlabel=xlabel)
+    axis.set_title(title, pad=20 if unseen else 6)
     axis.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
     axis.grid(axis="y", visible=False)
     if unseen:

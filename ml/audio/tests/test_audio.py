@@ -137,3 +137,12 @@ def test_in_the_wild_reads_meta_labels(tmp_path):
         (REAL, REAL_GENERATOR, "Alec"),
         (FAKE, UNKNOWN_GENERATOR, "Barack"),
     ]
+
+
+def test_prepare_resumes_without_decoding_finished_clips(tmp_path, monkeypatch):
+    source = write(tmp_path / "raw" / "a.wav", tone(2.0, 16000), 16000)
+    first, _ = preprocess.prepare([real_record(source)], tmp_path / "out", CONFIG)
+    monkeypatch.setattr(preprocess, "load_mono", lambda *args: pytest.fail("finished clip decoded again"))
+    second, stats = preprocess.prepare([real_record(source)], tmp_path / "out", CONFIG)
+    assert stats["output_records"] == 1
+    assert second == first

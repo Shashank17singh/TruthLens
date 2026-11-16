@@ -22,6 +22,8 @@ VIDEO_SUFFIXES = {".mp4", ".avi", ".mov"}
 class Detection:
     box: tuple[float, float, float, float]
     score: float
+    # RetinaFace's five points: left eye, right eye, nose, left and right mouth corners.
+    landmarks: tuple[tuple[float, float], ...] = ()
 
 
 FaceDetector = Callable[[np.ndarray], list[Detection]]
@@ -36,7 +38,10 @@ def retinaface_detector(threshold: float) -> FaceDetector:
 
     def detect(rgb: np.ndarray) -> list[Detection]:
         faces = model(rgb, cv=False, threshold=threshold)
-        return [Detection(tuple(float(v) for v in box), float(score)) for box, _, score in faces]
+        return [
+            Detection(tuple(float(v) for v in box), float(score), tuple((float(x), float(y)) for x, y in points))
+            for box, points, score in faces
+        ]
 
     return detect
 

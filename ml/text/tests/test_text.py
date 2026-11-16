@@ -3,9 +3,8 @@ import json
 import pandas as pd
 import pytest
 
-from ml.common.manifest import FAKE, REAL, REAL_GENERATOR
+from ml.common.manifest import FAKE, REAL, REAL_GENERATOR, Record
 from ml.text import datasets, preprocess
-from ml.common.manifest import Record
 
 CONFIG = {"min_words": 50, "max_words": 1000}
 ENGLISH = (
@@ -28,7 +27,7 @@ def test_normalize_removes_tokenizer_spacing():
 
 
 def test_normalize_removes_zero_width_characters_and_extra_space():
-    assert preprocess.normalize("a​ b  \n c") == "a b c"
+    assert preprocess.normalize("a\u200b b  \n c") == "a b c"
 
 
 def test_content_hash_ignores_case_and_punctuation():

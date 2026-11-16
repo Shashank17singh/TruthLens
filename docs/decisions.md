@@ -151,6 +151,76 @@ All six architecture variants, with ImageNet weights at 224×224, then passed wi
 
 Tracing with a single image hard-codes the batch size into the graph even when the dimension is declared dynamic, and a later batch of two then crashes at a reshape. The trace uses two images, and verification runs batches of 1, 2 and 4.
 
+### D35. ViT is explained with attention rollout, not Grad-CAM
+
+Grad-CAM needs a spatial feature map, and ViT has none until its tokens are reshaped into a grid, which is a guess about what the tokens mean. Attention rollout (Abnar and Zuidema, 2020) uses the model's own attention, averaged over heads, with the skip path added as an identity matrix. It is class-agnostic, so it shows where the model looked rather than what pushed it towards "fake". The UI must say which method produced a heatmap.
+
+### D36. Regions are local maxima, not repeated argmax
+
+The first version took the hottest pixel, boxed it, blanked the box and repeated. A test caught the flaw: the sloping edge left outside the box was reported as the next region. Local maxima found with a dilation filter cannot be an edge, and a peak inside an earlier box is skipped as a shoulder of that region.
+
+### D37. Face parts come from RetinaFace's five landmarks
+
+The detector already in the pipeline returns eyes, nose and mouth corners, so naming regions needs no second model. The hairline and chin are the top and bottom centre of the face box, and anything outside the box is background. Five points are coarse: a region between the nose and mouth is named after whichever is closer, and a cheek has no name of its own.
+
+### D38. The two-second limit is a benchmark, not a unit test
+
+On the development laptop with under 100 MB of free memory, one explanation took between 2 and 41 seconds as the system swapped, which says nothing about the code. The speed test runs only with `TRUTHLENS_PERF=1` on an idle machine, and the result belongs in the results folder with the machine named.
+
+### D39. Audio features are computed inside the model
+
+Log-mel, LFCC and CQT are fixed filterbanks written as convolutions, the same choice as the image DCT (D25). The model takes raw 16 kHz audio, so the server cannot compute features differently from training. The convolutional STFT matches librosa to within 1.2e-6 of the peak. The CQT starts at 50 Hz, because the default 32.7 Hz would need 8,000-sample filters, and speech carries little below 50 Hz.
+
+### D40. One training loop for every modality
+
+The image training loop moved to `ml/common/training.py`, with its loaders. Audio passes a hook that unfreezes the top transformer layers of wav2vec2 or WavLM after the frozen epochs. Every parameter is in the optimizer from the start, so unfreezing needs no new optimizer and resuming restores the same state.
+
+### D41. Codecs go through ffmpeg, through a file
+
+libsndfile can write MP3 and Opus, but it sets quality, not bitrate: its lowest MP3 setting gave 165 kbps at 16 kHz, so the prompt's 64 kbps was unreachable. ffmpeg encodes at an exact bitrate. The encoded clip goes to a temporary file, not a pipe, because ffmpeg writes the MP3 encoder delay into a header by seeking back, and without it the decoded clip was shifted. A test caught that shift.
+
+### D42. Long audio reports mean and max, thresholded at the validation EER
+
+Mean over windows suits a clip that is fake throughout. Max catches a short splice inside real speech but raises false alarms on long real recordings. Both are calibrated and reported. The decision threshold is the validation EER point, the usual operating point in anti-spoofing, and not the 95% precision target used for images.
+
+### D43. min t-DCF only with the official ASV scores
+
+The t-DCF needs the error rates of a speaker verification system working alongside the detector. Those come from the ASVspoof 2019 ASV score file, so min t-DCF is reported only when that file is given, and only for the ASVspoof 2019 evaluation set it belongs to.
+
+EER, the ASV threshold and the legacy t-DCF follow the official `eval_metrics.py` from `asvspoof-challenge/2021` line by line, including its quirks: the DET threshold sits on a score and false alarms count with `>=`. Against that script on 50 random score sets, ties included, all three values matched exactly (largest difference 0.0). The first version interpolated the EER; it was close but would not have matched published numbers.
+
+### D44. Audio windows are scored four at a time
+
+Scoring all 14 windows of a 30-second clip in one batch made wav2vec2 fail with an allocation error on the 8 GB laptop. Four windows at a time keeps peak memory low on a small CPU server and costs the CNN models almost nothing. The measured latencies in `ml/eval/results/audio_latency.csv` were taken with only 1.2 to 2.4 GB of memory free, so they are pessimistic. wav2vec2 and WavLM take 10 to 30 seconds per 30-second clip on this CPU, so the deployed audio model is LCNN with LFCC, at about 0.5 seconds.
+
+### D45. Binoculars with GPT-2 and DistilGPT-2
+
+Binoculars was published with Falcon-7B and its instruct model, which do not fit an 8 GB CPU machine. GPT-2 small as the performer and DistilGPT-2 as the observer share one tokenizer, so their next-token distributions line up token by token, and both run on a CPU. Perplexity, burstiness, the GLTR rank buckets and entropy come from the same GPT-2 pass, so the eight features cost two forward passes per text. DetectGPT was left out: it needs dozens of perturbed rewrites per text, which is far beyond this budget.
+
+### D46. Sentence scores and the confidence band reuse one pass
+
+Per-token values are kept after the forward pass. A sentence's score is the meta-classifier applied to that sentence's tokens, which were predicted with the full left context. The 90% band is a bootstrap over sentences. Neither needs another model pass, and short texts get wide bands, which is the honest result for them.
+
+### D47. Logistic regression as the meta-classifier
+
+Eight features, plus one transformer logit when a fine-tuned model is available, do not need gradient boosting. A scaled logistic regression trains in seconds, its standardized weights say which signals drive a decision, and it adds no dependency. LightGBM can replace it if more features are added.
+
+### D48. When a text is called mixed
+
+A score between 0.35 and 0.65 is `mixed`. A text is also `mixed` when at least a quarter of its words sit in sentences scored as AI and a quarter in sentences scored as human, whatever the overall score. That second rule exists for human-edited AI text, where an average hides the split.
+
+### D49. Transformer windows
+
+Training takes one random 512-token window of each text per step, so long texts are seen in full over several epochs. Validation uses the first window, which keeps early stopping cheap. Final scoring averages the logits of all windows, which overlap by 128 tokens. Windows travel through the shared training loop as one tensor, ids stacked on the attention mask.
+
+### D50. Integrated gradients by hand
+
+Captum is not installed and integrated gradients is a short loop: 32 midpoint steps from a baseline of padding embeddings, with special tokens left unchanged. The completeness gap, the difference between the summed attributions and the logit change, is returned with every explanation so a bad approximation is visible.
+
+### D51. Cross-dataset rows that open like training texts
+
+MAGE groups texts by their first 12 words. HC3 and MAGE use different group ids, so the check hashes each HC3 text's first 12 words the same way and drops rows that match a MAGE train or validation group. On the prepared data this finds exactly the 497 rows the HC3 data card describes.
+
 ## Risks
 
 ### D16. Dataset licences limit public release

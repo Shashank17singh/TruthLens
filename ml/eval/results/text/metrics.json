@@ -1,0 +1,524 @@
+{
+  "weights": {
+    "log_ppl": 0.499,
+    "burstiness": 0.1026,
+    "rank_1": -0.2248,
+    "rank_10": -0.071,
+    "rank_100": 1.0975,
+    "rank_1000": 0.1192,
+    "entropy": -0.7125,
+    "binoculars": 0.0295
+  },
+  "threshold": 0.6168237436990396,
+  "validation": {
+    "threshold": 0.6168237436990396,
+    "accuracy": 0.7176938369781312,
+    "precision": 0.7971014492753623,
+    "recall": 0.7189542483660131,
+    "f1": 0.7560137457044673,
+    "roc_auc": 0.7710095882684715,
+    "confusion_matrix": [
+      [
+        141,
+        56
+      ],
+      [
+        86,
+        220
+      ]
+    ],
+    "samples": 503,
+    "auc_interval": {
+      "low": 0.7256041569032822,
+      "high": 0.8104794942991739,
+      "rounds": 1000,
+      "groups": 479
+    },
+    "per_generator": [
+      {
+        "generator_name": "GLM130B",
+        "accuracy": 1.0,
+        "samples": 15
+      },
+      {
+        "generator_name": "bloom_7b",
+        "accuracy": 0.4666666666666667,
+        "samples": 15
+      },
+      {
+        "generator_name": "flan_t5_base",
+        "accuracy": 0.6666666666666666,
+        "samples": 3
+      },
+      {
+        "generator_name": "flan_t5_large",
+        "accuracy": 0.0,
+        "samples": 4
+      },
+      {
+        "generator_name": "flan_t5_small",
+        "accuracy": 0.5,
+        "samples": 2
+      },
+      {
+        "generator_name": "flan_t5_xl",
+        "accuracy": 0.2,
+        "samples": 5
+      },
+      {
+        "generator_name": "flan_t5_xxl",
+        "accuracy": 0.6666666666666666,
+        "samples": 9
+      },
+      {
+        "generator_name": "gpt-3.5-trubo",
+        "accuracy": 0.6285714285714286,
+        "samples": 35
+      },
+      {
+        "generator_name": "gpt_j",
+        "accuracy": 0.6923076923076923,
+        "samples": 13
+      },
+      {
+        "generator_name": "gpt_neox",
+        "accuracy": 0.6,
+        "samples": 10
+      },
+      {
+        "generator_name": "opt_1.3b",
+        "accuracy": 0.8,
+        "samples": 15
+      },
+      {
+        "generator_name": "opt_125m",
+        "accuracy": 0.6428571428571429,
+        "samples": 14
+      },
+      {
+        "generator_name": "opt_13b",
+        "accuracy": 0.75,
+        "samples": 12
+      },
+      {
+        "generator_name": "opt_2.7b",
+        "accuracy": 0.8571428571428571,
+        "samples": 14
+      },
+      {
+        "generator_name": "opt_30b",
+        "accuracy": 0.7857142857142857,
+        "samples": 14
+      },
+      {
+        "generator_name": "opt_350m",
+        "accuracy": 0.9285714285714286,
+        "samples": 14
+      },
+      {
+        "generator_name": "opt_6.7b",
+        "accuracy": 0.7142857142857143,
+        "samples": 14
+      },
+      {
+        "generator_name": "opt_iml_30b",
+        "accuracy": 0.7142857142857143,
+        "samples": 14
+      },
+      {
+        "generator_name": "opt_iml_max_1.3b",
+        "accuracy": 0.7857142857142857,
+        "samples": 14
+      },
+      {
+        "generator_name": "real",
+        "accuracy": 0.7157360406091371,
+        "samples": 197
+      },
+      {
+        "generator_name": "t0_11b",
+        "accuracy": 1.0,
+        "samples": 4
+      },
+      {
+        "generator_name": "t0_3b",
+        "accuracy": 0.5,
+        "samples": 4
+      },
+      {
+        "generator_name": "text-davinci-002",
+        "accuracy": 0.7241379310344828,
+        "samples": 29
+      },
+      {
+        "generator_name": "text-davinci-003",
+        "accuracy": 0.8181818181818182,
+        "samples": 33
+      }
+    ]
+  },
+  "mage-test": {
+    "threshold": 0.6168237436990396,
+    "accuracy": 0.70375,
+    "precision": 0.7627118644067796,
+    "recall": 0.7422680412371134,
+    "f1": 0.7523510971786834,
+    "roc_auc": 0.7679463262968417,
+    "confusion_matrix": [
+      [
+        203,
+        112
+      ],
+      [
+        125,
+        360
+      ]
+    ],
+    "samples": 800,
+    "auc_interval": {
+      "low": 0.7367309592982714,
+      "high": 0.8008774396728963,
+      "rounds": 1000,
+      "groups": 742
+    },
+    "per_generator": [
+      {
+        "generator_name": "GLM130B",
+        "accuracy": 0.9166666666666666,
+        "samples": 24
+      },
+      {
+        "generator_name": "bloom_7b",
+        "accuracy": 0.7391304347826086,
+        "samples": 23
+      },
+      {
+        "generator_name": "flan_t5_base",
+        "accuracy": 0.25,
+        "samples": 4
+      },
+      {
+        "generator_name": "flan_t5_large",
+        "accuracy": 0.16666666666666666,
+        "samples": 6
+      },
+      {
+        "generator_name": "flan_t5_small",
+        "accuracy": 0.3333333333333333,
+        "samples": 3
+      },
+      {
+        "generator_name": "flan_t5_xl",
+        "accuracy": 0.0,
+        "samples": 7
+      },
+      {
+        "generator_name": "flan_t5_xxl",
+        "accuracy": 0.35714285714285715,
+        "samples": 14
+      },
+      {
+        "generator_name": "gpt-3.5-trubo",
+        "accuracy": 0.875,
+        "samples": 56
+      },
+      {
+        "generator_name": "gpt_j",
+        "accuracy": 0.8,
+        "samples": 20
+      },
+      {
+        "generator_name": "gpt_neox",
+        "accuracy": 0.375,
+        "samples": 16
+      },
+      {
+        "generator_name": "opt_1.3b",
+        "accuracy": 0.8333333333333334,
+        "samples": 24
+      },
+      {
+        "generator_name": "opt_125m",
+        "accuracy": 0.8636363636363636,
+        "samples": 22
+      },
+      {
+        "generator_name": "opt_13b",
+        "accuracy": 0.35,
+        "samples": 20
+      },
+      {
+        "generator_name": "opt_2.7b",
+        "accuracy": 0.6956521739130435,
+        "samples": 23
+      },
+      {
+        "generator_name": "opt_30b",
+        "accuracy": 0.6818181818181818,
+        "samples": 22
+      },
+      {
+        "generator_name": "opt_350m",
+        "accuracy": 1.0,
+        "samples": 22
+      },
+      {
+        "generator_name": "opt_6.7b",
+        "accuracy": 0.7727272727272727,
+        "samples": 22
+      },
+      {
+        "generator_name": "opt_iml_30b",
+        "accuracy": 0.7391304347826086,
+        "samples": 23
+      },
+      {
+        "generator_name": "opt_iml_max_1.3b",
+        "accuracy": 0.8181818181818182,
+        "samples": 22
+      },
+      {
+        "generator_name": "real",
+        "accuracy": 0.6444444444444445,
+        "samples": 315
+      },
+      {
+        "generator_name": "t0_11b",
+        "accuracy": 0.5,
+        "samples": 6
+      },
+      {
+        "generator_name": "t0_3b",
+        "accuracy": 0.42857142857142855,
+        "samples": 7
+      },
+      {
+        "generator_name": "text-davinci-002",
+        "accuracy": 0.8260869565217391,
+        "samples": 46
+      },
+      {
+        "generator_name": "text-davinci-003",
+        "accuracy": 0.8867924528301887,
+        "samples": 53
+      }
+    ],
+    "human_false_positive_rate_by_domain": [
+      {
+        "domain": "cmv",
+        "false_positive_rate": 0.72,
+        "samples": 25
+      },
+      {
+        "domain": "eli5",
+        "false_positive_rate": 0.35,
+        "samples": 40
+      },
+      {
+        "domain": "roct",
+        "false_positive_rate": 0.8571428571428571,
+        "samples": 7
+      },
+      {
+        "domain": "sci_gen",
+        "false_positive_rate": 0.0,
+        "samples": 30
+      },
+      {
+        "domain": "squad",
+        "false_positive_rate": 0.2786885245901639,
+        "samples": 61
+      },
+      {
+        "domain": "tldr",
+        "false_positive_rate": 0.38461538461538464,
+        "samples": 13
+      },
+      {
+        "domain": "wp",
+        "false_positive_rate": 0.15384615384615385,
+        "samples": 26
+      },
+      {
+        "domain": "xsum",
+        "false_positive_rate": 0.65625,
+        "samples": 32
+      },
+      {
+        "domain": "yelp",
+        "false_positive_rate": 0.3333333333333333,
+        "samples": 81
+      }
+    ]
+  },
+  "mage-unseen": {
+    "threshold": 0.6168237436990396,
+    "accuracy": 0.814,
+    "precision": 1.0,
+    "recall": 0.814,
+    "f1": 0.8974641675854466,
+    "roc_auc": null,
+    "confusion_matrix": [
+      [
+        0,
+        0
+      ],
+      [
+        93,
+        407
+      ]
+    ],
+    "samples": 500,
+    "per_generator": [
+      {
+        "generator_name": "13B",
+        "accuracy": 0.84,
+        "samples": 125
+      },
+      {
+        "generator_name": "30B",
+        "accuracy": 0.8225806451612904,
+        "samples": 124
+      },
+      {
+        "generator_name": "65B",
+        "accuracy": 0.76,
+        "samples": 125
+      },
+      {
+        "generator_name": "7B",
+        "accuracy": 0.8333333333333334,
+        "samples": 126
+      }
+    ],
+    "human_false_positive_rate_by_domain": []
+  },
+  "hc3": {
+    "threshold": 0.6168237436990396,
+    "accuracy": 0.774,
+    "precision": 0.6655948553054662,
+    "recall": 0.9583333333333334,
+    "f1": 0.7855787476280834,
+    "roc_auc": 0.9317944705268648,
+    "confusion_matrix": [
+      [
+        180,
+        104
+      ],
+      [
+        9,
+        207
+      ]
+    ],
+    "samples": 500,
+    "auc_interval": {
+      "low": 0.9096217133550367,
+      "high": 0.9520126651976794,
+      "rounds": 1000,
+      "groups": 497
+    },
+    "per_generator": [
+      {
+        "generator_name": "chatgpt",
+        "accuracy": 0.9583333333333334,
+        "samples": 216
+      },
+      {
+        "generator_name": "real",
+        "accuracy": 0.6338028169014085,
+        "samples": 284
+      }
+    ],
+    "human_false_positive_rate_by_domain": [
+      {
+        "domain": "finance",
+        "false_positive_rate": 0.2777777777777778,
+        "samples": 18
+      },
+      {
+        "domain": "medicine",
+        "false_positive_rate": 0.0,
+        "samples": 3
+      },
+      {
+        "domain": "open_qa",
+        "false_positive_rate": 0.5,
+        "samples": 2
+      },
+      {
+        "domain": "reddit_eli5",
+        "false_positive_rate": 0.37254901960784315,
+        "samples": 255
+      },
+      {
+        "domain": "wiki_csai",
+        "false_positive_rate": 0.5,
+        "samples": 6
+      }
+    ]
+  },
+  "detector_bias": {
+    "threshold": 0.6168237436990396,
+    "accuracy": 0.4657039711191336,
+    "precision": 0.4890829694323144,
+    "recall": 0.255125284738041,
+    "f1": 0.33532934131736525,
+    "roc_auc": 0.5413218818279021,
+    "confusion_matrix": [
+      [
+        275,
+        117
+      ],
+      [
+        327,
+        112
+      ]
+    ],
+    "samples": 831,
+    "auc_interval": {
+      "low": 0.4983914518240701,
+      "high": 0.5811735487852818,
+      "rounds": 1000,
+      "groups": 831
+    },
+    "per_generator": [
+      {
+        "generator_name": "gpt3",
+        "accuracy": 0.3448275862068966,
+        "samples": 203
+      },
+      {
+        "generator_name": "gpt4",
+        "accuracy": 0.17796610169491525,
+        "samples": 236
+      },
+      {
+        "generator_name": "real",
+        "accuracy": 0.701530612244898,
+        "samples": 392
+      }
+    ],
+    "human_false_positive_rate_by_domain": [
+      {
+        "domain": "CS224N_real_145",
+        "false_positive_rate": 0.0,
+        "samples": 145
+      },
+      {
+        "domain": "CollegeEssay_real_70",
+        "false_positive_rate": 0.2571428571428571,
+        "samples": 70
+      },
+      {
+        "domain": "HewlettStudentEssay_real_88",
+        "false_positive_rate": 0.25,
+        "samples": 88
+      },
+      {
+        "domain": "TOEFL_real_91",
+        "false_positive_rate": 0.8651685393258427,
+        "samples": 89
+      }
+    ]
+  }
+}
