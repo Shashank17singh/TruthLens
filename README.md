@@ -243,6 +243,18 @@ python -m ml.text.ensemble extract --manifest data/manifests/mage.csv --split tr
 
 Each modality has its own guide: [image](ml/image/README.md), [audio](ml/audio/README.md) and [text](ml/text/README.md). GPU work runs from the notebooks in [notebooks/](notebooks/), and dataset details are in the [ML guide](ml/README.md).
 
+### 6. Run the Web Application
+
+The frontend is built with React 18, TypeScript (strict mode), Vite, Tailwind CSS, and WaveSurfer.js.
+
+```bash
+cd frontend
+pnpm install
+pnpm test     # Vitest unit test suite (10 tests)
+pnpm build    # Production bundle check
+pnpm dev      # Starts Vite dev server on http://localhost:3000
+```
+
 ---
 
 ## Roadmap
@@ -255,8 +267,9 @@ Each modality has its own guide: [image](ml/image/README.md), [audio](ml/audio/R
 - [x] AI-generated text detector, with real CPU results
 - [ ] Finish audio training and fine-tune the text transformers on a GPU
 - [x] FastAPI backend with Celery workers
-- [ ] React web app and Chrome extension
-- [ ] Signed PDF reports
+- [x] React web application with multi-modal explainability and verification
+- [ ] Chrome extension
+- [x] Signed PDF reports and HMAC verification
 - [ ] Robustness and adversarial evaluation
 
 ---
