@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>TruthLens Verification Report - {{ report_id }}</title>
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; margin: 40px; color: #111827; }
+    .header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 24px; }
+    .title { font-size: 26px; font-weight: bold; color: #1e3a8a; }
+    .subtitle { font-size: 14px; color: #6b7280; }
+    .verdict-box { background: #f3f4f6; border-left: 6px solid #2563eb; padding: 16px; margin: 20px 0; border-radius: 4px; }
+    .verdict-title { font-size: 20px; font-weight: bold; }
+    .meta-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+    .meta-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
+    .meta-table td.label { font-weight: bold; width: 200px; color: #4b5563; }
+    .qr-container { margin-top: 30px; text-align: center; }
+    .disclaimer { margin-top: 40px; font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">TruthLens Verification Report</div>
+    <div class="subtitle">Autonomous Multi-Modal Deepfake & AI-Content Analysis</div>
+  </div>
+
+  <div class="verdict-box">
+    <div class="verdict-title">{{ result.verdict_label }} (Probability: {{ "%.2f"|format(result.probability * 100) }}%)</div>
+    <p>{{ result.explanation }}</p>
+  </div>
+
+  <table class="meta-table">
+    <tr>
+      <td class="label">Report ID</td>
+      <td>{{ report_id }}</td>
+    </tr>
+    <tr>
+      <td class="label">Date & Time (UTC)</td>
+      <td>{{ date }}</td>
+    </tr>
+    <tr>
+      <td class="label">Modality</td>
+      <td>{{ analysis.modality }}</td>
+    </tr>
+    <tr>
+      <td class="label">Original File SHA-256</td>
+      <td><code>{{ analysis.sha256 or "N/A" }}</code></td>
+    </tr>
+    <tr>
+      <td class="label">Model & Version</td>
+      <td>{{ result.model_name }} (v{{ result.model_version }})</td>
+    </tr>
+    <tr>
+      <td class="label">Confidence Band (90%)</td>
+      <td>{{ result.confidence_low }} - {{ result.confidence_high }}</td>
+    </tr>
+  </table>
+
+  {% if qr_data_uri %}
+  <div class="qr-container">
+    <img src="{{ qr_data_uri }}" width="120" height="120" alt="Verification QR Code">
+    <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">Scan to view online verification summary</div>
+  </div>
+  {% endif %}
+
+  <div class="disclaimer">
+    <strong>Limitations & Disclaimer:</strong> {{ result.disclaimer }}
+  </div>
+</body>
+</html>

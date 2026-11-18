@@ -254,7 +254,7 @@ Each modality has its own guide: [image](ml/image/README.md), [audio](ml/audio/R
 - [x] Audio deepfake detector
 - [x] AI-generated text detector, with real CPU results
 - [ ] Finish audio training and fine-tune the text transformers on a GPU
-- [ ] FastAPI backend with Celery workers
+- [x] FastAPI backend with Celery workers
 - [ ] React web app and Chrome extension
 - [ ] Signed PDF reports
 - [ ] Robustness and adversarial evaluation

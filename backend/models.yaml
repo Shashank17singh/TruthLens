@@ -1,0 +1,34 @@
+version: "1.0.0"
+models:
+  image:
+    name: "image-convnext-tiny-freq"
+    version: "1.0.0"
+    onnx_file: "checkpoints/onnx_benchmark/bench-convnext_tiny-freq.onnx"
+    pytorch_checkpoint: null
+    image_size: 224
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+    decision_threshold: 0.50
+    temperature: 1.0
+    bias: 0.0
+    disclaimer: "Results are probabilistic and must not be used alone to make decisions about a person."
+
+  audio:
+    name: "audio-lcnn-lfcc"
+    version: "1.0.0"
+    onnx_file: "checkpoints/onnx_benchmark/bench-audio-lcnn-lfcc.onnx"
+    pytorch_checkpoint: "checkpoints/audio/audio-lcnn-lfcc-robust-1.0.0/audio-lcnn-lfcc-robust-1.0.0-best.pt"
+    sample_rate: 16000
+    clip_seconds: 4.0
+    window_overlap: 0.5
+    decision_threshold: 0.50
+    temperature: 1.0
+    bias: 0.0
+    disclaimer: "Results are probabilistic and must not be used alone to make decisions about a person."
+
+  text:
+    name: "text-stats-ensemble"
+    version: "1.0.0"
+    meta_file: "checkpoints/text/meta.joblib"
+    decision_threshold: 0.50
+    disclaimer: "This result is probabilistic. Detectors make mistakes, and they flag non-native English writers more often. Never use it alone to decide academic misconduct or any other penalty."

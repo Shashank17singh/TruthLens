@@ -1,7 +1,14 @@
 [tool.pytest.ini_options]
-testpaths = ["ml"]
+testpaths = ["ml", "backend/tests"]
 pythonpath = ["."]
 addopts = "-q"
 markers = [
   "network: downloads model weights or data",
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = ["B008"]
+
