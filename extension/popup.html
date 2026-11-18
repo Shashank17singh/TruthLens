@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TruthLens Inspector</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      width: 340px;
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 14px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0f172a;
+        color: #f8fafc;
+      }
+    }
+
+    .tl-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-header {
+        border-bottom-color: #1e293b;
+      }
+    }
+
+    .tl-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tl-brand-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: #4f46e5;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tl-brand-name {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* Toggle switch */
+    .tl-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+
+    .tl-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .tl-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: 0.2s;
+      border-radius: 22px;
+    }
+
+    .tl-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .tl-slider {
+      background-color: #4f46e5;
+    }
+
+    input:checked + .tl-slider:before {
+      transform: translateX(18px);
+    }
+
+    /* Status Banner */
+    .tl-banner {
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .tl-banner-ok {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .tl-banner-warn {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-banner-ok { background: rgba(6, 95, 70, 0.2); color: #34d399; border-color: rgba(6, 95, 70, 0.4); }
+      .tl-banner-warn { background: rgba(146, 64, 14, 0.2); color: #fbbf24; border-color: rgba(146, 64, 14, 0.4); }
+    }
+
+    .tl-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tl-recent-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .tl-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .tl-card:hover {
+      background: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-card {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      .tl-card:hover {
+        background: #334155;
+      }
+    }
+
+    .tl-card-left {
+      overflow: hidden;
+      margin-right: 8px;
+    }
+
+    .tl-card-title {
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 190px;
+    }
+
+    .tl-card-sub {
+      font-size: 9px;
+      color: #94a3b8;
+      text-transform: capitalize;
+    }
+
+    .tl-card-badge {
+      padding: 3px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tl-badge-real { background: #ecfdf5; color: #047857; }
+    .tl-badge-uncertain { background: #fffbeb; color: #b45309; }
+    .tl-badge-fake { background: #fff1f2; color: #be123c; }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-badge-real { background: rgba(4, 120, 87, 0.3); color: #34d399; }
+      .tl-badge-uncertain { background: rgba(180, 83, 9, 0.3); color: #fbbf24; }
+      .tl-badge-fake { background: rgba(190, 18, 60, 0.3); color: #fb7185; }
+    }
+
+    .tl-empty {
+      text-align: center;
+      padding: 24px 10px;
+      color: #94a3b8;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .tl-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 11px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-footer {
+        border-top-color: #1e293b;
+      }
+    }
+
+    .tl-btn-link {
+      background: none;
+      border: none;
+      color: #4f46e5;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 11px;
+    }
+
+    .tl-btn-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="tl-header">
+    <div class="tl-brand">
+      <div class="tl-brand-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <span class="tl-brand-name">TruthLens</span>
+    </div>
+
+    <label class="tl-switch" title="Enable/Disable extension inspection">
+      <input type="checkbox" id="tl-toggle" checked />
+      <span class="tl-slider"></span>
+    </label>
+  </div>
+
+  <div id="tl-api-banner" class="tl-banner tl-banner-warn">
+    <span id="tl-api-status">API Key: Not configured</span>
+    <a href="#" id="tl-config-link" class="tl-btn-link">Setup</a>
+  </div>
+
+  <div class="tl-section-title">
+    <span>Recent Inspections</span>
+    <button id="tl-clear-btn" class="tl-btn-link" style="color: #94a3b8; font-weight: normal;">Clear</button>
+  </div>
+
+  <div id="tl-recent-container" class="tl-recent-list">
+    <!-- Populated by popup.ts -->
+  </div>
+
+  <div class="tl-footer">
+    <button id="tl-options-btn" class="tl-btn-link">Extension Settings</button>
+    <a href="http://localhost:3000" target="_blank" class="tl-btn-link">Open Web App &rarr;</a>
+  </div>
+
+  <script type="module" src="./src/popup/popup.ts"></script>
+</body>
+</html>

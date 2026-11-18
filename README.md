@@ -255,6 +255,19 @@ pnpm build    # Production bundle check
 pnpm dev      # Starts Vite dev server on http://localhost:3000
 ```
 
+### 7. Build the Chrome Extension
+
+The extension is built with TypeScript and Vite for Chrome Manifest V3.
+
+```bash
+cd extension
+pnpm install
+pnpm build    # Compiles to extension/dist/
+pnpm package  # Packages truthlens-extension.zip for Web Store distribution
+```
+
+To load in Chrome: Navigate to `chrome://extensions/`, enable Developer mode, and click **Load unpacked** pointing to `extension/dist/`.
+
 ---
 
 ## Roadmap
@@ -268,7 +281,7 @@ pnpm dev      # Starts Vite dev server on http://localhost:3000
 - [ ] Finish audio training and fine-tune the text transformers on a GPU
 - [x] FastAPI backend with Celery workers
 - [x] React web application with multi-modal explainability and verification
-- [ ] Chrome extension
+- [x] Chrome extension (Manifest V3) with Shadow DOM overlay
 - [x] Signed PDF reports and HMAC verification
 - [ ] Robustness and adversarial evaluation
 

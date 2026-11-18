@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TruthLens Settings</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 32px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0b0f19;
+        color: #f8fafc;
+      }
+    }
+
+    .tl-container {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-container {
+        background: #111827;
+        border-color: #1f2937;
+      }
+    }
+
+    .tl-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-header {
+        border-bottom-color: #1f2937;
+      }
+    }
+
+    .tl-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #4f46e5;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tl-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .tl-subtitle {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .tl-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .tl-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 13px;
+      outline: none;
+      background: #ffffff;
+      color: inherit;
+    }
+
+    input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      input {
+        background: #1f2937;
+        border-color: #374151;
+      }
+    }
+
+    .tl-hint {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .tl-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s;
+    }
+
+    .tl-btn-primary {
+      background: #4f46e5;
+      color: white;
+      flex: 1;
+    }
+
+    .tl-btn-primary:hover {
+      background: #4338ca;
+    }
+
+    .tl-btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .tl-btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-btn-secondary {
+        background: #1f2937;
+        color: #e5e7eb;
+        border-color: #374151;
+      }
+      .tl-btn-secondary:hover {
+        background: #374151;
+      }
+    }
+
+    .tl-alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .tl-alert-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .tl-alert-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tl-alert-success { background: rgba(6, 95, 70, 0.2); color: #34d399; border-color: rgba(6, 95, 70, 0.4); }
+      .tl-alert-error { background: rgba(153, 27, 27, 0.2); color: #f87171; border-color: rgba(153, 27, 27, 0.4); }
+    }
+  </style>
+</head>
+<body>
+  <div class="tl-container">
+    <div class="tl-header">
+      <div class="tl-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="tl-title">TruthLens Extension Settings</div>
+        <div class="tl-subtitle">Configure backend endpoints and API credentials</div>
+      </div>
+    </div>
+
+    <form id="tl-options-form" class="tl-form">
+      <div class="tl-field">
+        <label for="tl-api-url">TruthLens Server API URL</label>
+        <input type="url" id="tl-api-url" placeholder="http://localhost:8000" required />
+        <span class="tl-hint">Default local development server: http://localhost:8000</span>
+      </div>
+
+      <div class="tl-field">
+        <label for="tl-api-key">User API Key</label>
+        <input type="password" id="tl-api-key" placeholder="tl_live_xxxxxxxxxxxxxxxx" required />
+        <span class="tl-hint">Generate an API key in the TruthLens web app under the "API Keys" page.</span>
+      </div>
+
+      <div id="tl-alert" class="tl-alert"></div>
+
+      <div class="tl-actions">
+        <button type="button" id="tl-test-btn" class="tl-btn-secondary">Test Connection</button>
+        <button type="submit" class="tl-btn-primary">Save Settings</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module" src="./src/options/options.ts"></script>
+</body>
+</html>
