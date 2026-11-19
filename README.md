@@ -1,12 +1,5 @@
 # TruthLens: Multi-Modal Deepfake Detection & Forensic Attribution Platform
 
-[![Vercel](https://img.shields.io/badge/Vercel-Live%20Demo-black?logo=vercel)](https://truth-lens-two-self.vercel.app/)
-[![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face-ZeroGPU%20Running-orange?logo=huggingface)](https://huggingface.co/spaces/shashank17singh/TruthLens)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://python.org)
-[![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org)
-
 Detects AI-generated and manipulated images, audio, and text with explainable forensic artifacts (Grad-CAM heatmaps, 2D DCT frequency spectra), tamper-evident HMAC-SHA256 signed PDF audit trails, and multi-platform client applications.
 
 > **Live Deployments:**
