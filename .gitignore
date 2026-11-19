@@ -39,6 +39,11 @@ coverage/
 *.out
 *.synctex.gz
 
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
 # OS and editors
 .DS_Store
 Thumbs.db
