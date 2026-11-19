@@ -99,7 +99,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !disabled && inputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
+          className={`relative border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200 ${
             isDragOver
               ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/30 scale-[1.01]'
               : 'border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-100/60 dark:hover:bg-slate-800/40'
@@ -148,8 +148,8 @@ export const Dropzone: React.FC<DropzoneProps> = ({
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
                 {selectedFile.name}
               </p>
-              <p className="text-xs text-slate-500 font-mono">
-                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+              <p className="text-xs text-slate-500">
+                <span className="font-mono">{(selectedFile.size / (1024 * 1024)).toFixed(2)}</span> MB
               </p>
             </div>
           </div>

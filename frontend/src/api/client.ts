@@ -41,6 +41,18 @@ export function setStoredToken(token: string | null): void {
   }
 }
 
+export function getStoredRefreshToken(): string | null {
+  return localStorage.getItem('tl_refresh_token');
+}
+
+export function setStoredRefreshToken(token: string | null): void {
+  if (token) {
+    localStorage.setItem('tl_refresh_token', token);
+  } else {
+    localStorage.removeItem('tl_refresh_token');
+  }
+}
+
 export function getStoredApiKey(): string | null {
   return localStorage.getItem('tl_api_key');
 }
@@ -53,9 +65,54 @@ export function setStoredApiKey(key: string | null): void {
   }
 }
 
+let isRefreshing = false;
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+  isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      const storedRefresh = getStoredRefreshToken();
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ refresh_token: storedRefresh || undefined }),
+      });
+      if (!res.ok) {
+        setStoredToken(null);
+        setStoredRefreshToken(null);
+        return null;
+      }
+      const data = await res.json();
+      if (data.access_token) {
+        setStoredToken(data.access_token);
+        if (data.refresh_token) {
+          setStoredRefreshToken(data.refresh_token);
+        }
+        return data.access_token;
+      }
+      return null;
+    } catch {
+      return null;
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
+}
+
+interface CustomRequestInit extends RequestInit {
+  _retry?: boolean;
+}
+
 async function request<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: CustomRequestInit = {}
 ): Promise<T> {
   const headers = new Headers(options.headers || {});
 
@@ -71,8 +128,19 @@ async function request<T>(
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
+    credentials: 'include',
     headers,
   });
+
+  if (response.status === 401 && !options._retry && endpoint !== '/auth/login' && endpoint !== '/auth/refresh') {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      return request<T>(endpoint, {
+        ...options,
+        _retry: true,
+      });
+    }
+  }
 
   if (!response.ok) {
     let code = 'error';
@@ -113,6 +181,7 @@ export interface AuthUser {
 
 export interface TokenResponse {
   access_token: string;
+  refresh_token?: string;
   token_type: string;
   expires_in: number;
 }
@@ -134,6 +203,9 @@ export const api = {
       body: JSON.stringify({ email, password }),
     });
     setStoredToken(data.access_token);
+    if (data.refresh_token) {
+      setStoredRefreshToken(data.refresh_token);
+    }
     return data;
   },
 
@@ -143,6 +215,7 @@ export const api = {
 
   logout(): void {
     setStoredToken(null);
+    setStoredRefreshToken(null);
   },
 
   // Analysis Submission
@@ -219,8 +292,34 @@ export const api = {
 
   getArtefactUrl(analysisId: string, name: string): string {
     const token = getStoredToken();
-    const query = token ? `?token=${encodeURIComponent(token)}` : '';
+    const apiKey = getStoredApiKey();
+    let query = '';
+    if (token) {
+      query = `?token=${encodeURIComponent(token)}`;
+    } else if (apiKey) {
+      query = `?api_key=${encodeURIComponent(apiKey)}`;
+    }
     return `${API_BASE}/analyses/${analysisId}/artefacts/${name}${query}`;
+  },
+
+  async getArtefactBlobUrl(analysisId: string, name: string): Promise<string> {
+    const token = getStoredToken();
+    const apiKey = getStoredApiKey();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    } else if (apiKey) {
+      headers['X-API-Key'] = apiKey;
+    }
+    const query = token ? `?token=${encodeURIComponent(token)}` : (apiKey ? `?api_key=${encodeURIComponent(apiKey)}` : '');
+    const res = await fetch(`${API_BASE}/analyses/${analysisId}/artefacts/${name}${query}`, {
+      headers,
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to load artefact ${name} (${res.status})`);
+    }
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
   },
 
   // Feedback

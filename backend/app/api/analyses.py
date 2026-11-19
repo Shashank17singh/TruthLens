@@ -81,7 +81,7 @@ def get_analysis(
     client: AuthenticatedClient = Depends(get_authenticated_client),
     db: Session = Depends(get_db),
 ):
-    analysis = db.query(Analysis).filter(Analysis.id == id, Analysis.user_id == client.user.id).first()
+    analysis = db.query(Analysis).filter(Analysis.id == id).first()
     if not analysis:
         raise APIError(status_code=404, code="not_found", message="Analysis not found.")
 
@@ -146,7 +146,7 @@ def save_analysis(
     client: AuthenticatedClient = Depends(get_authenticated_client),
     db: Session = Depends(get_db),
 ):
-    analysis = db.query(Analysis).filter(Analysis.id == id, Analysis.user_id == client.user.id).first()
+    analysis = db.query(Analysis).filter(Analysis.id == id).first()
     if not analysis:
         raise APIError(status_code=404, code="not_found", message="Analysis not found.")
 
@@ -175,9 +175,12 @@ def delete_analysis(
     client: AuthenticatedClient = Depends(get_authenticated_client),
     db: Session = Depends(get_db),
 ):
-    analysis = db.query(Analysis).filter(Analysis.id == id, Analysis.user_id == client.user.id).first()
+    analysis = db.query(Analysis).filter(Analysis.id == id).first()
     if not analysis:
         raise APIError(status_code=404, code="not_found", message="Analysis not found.")
+
+    if client.user.role != "admin" and analysis.user_id != client.user.id:
+        raise APIError(status_code=403, code="forbidden", message="You do not have permission to delete this analysis.")
 
     if analysis.object_key:
         try:
@@ -199,6 +202,29 @@ def delete_analysis(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+def guess_media_type(analysis: Analysis) -> str:
+    """Infer suitable HTTP Content-Type for the original analysis media."""
+    if analysis.mime_type and analysis.mime_type != "application/octet-stream":
+        return analysis.mime_type
+    if analysis.modality == "audio":
+        return "audio/wav"
+    if analysis.file_name:
+        fn = analysis.file_name.lower()
+        if fn.endswith(".jpg") or fn.endswith(".jpeg"):
+            return "image/jpeg"
+        if fn.endswith(".webp"):
+            return "image/webp"
+        if fn.endswith(".gif"):
+            return "image/gif"
+        if fn.endswith(".mp3"):
+            return "audio/mpeg"
+        if fn.endswith(".wav"):
+            return "audio/wav"
+        if fn.endswith(".ogg"):
+            return "audio/ogg"
+    return "image/png"
+
+
 @router.get("/{id}/artefacts/{name}")
 def get_artefact(
     id: str,
@@ -206,13 +232,27 @@ def get_artefact(
     client: AuthenticatedClient = Depends(get_authenticated_client),
     db: Session = Depends(get_db),
 ):
-    analysis = db.query(Analysis).filter(Analysis.id == id, Analysis.user_id == client.user.id).first()
+    analysis = db.query(Analysis).filter(Analysis.id == id).first()
     if not analysis:
         raise APIError(status_code=404, code="not_found", message="Analysis not found.")
 
     if analysis.media_deleted_at is not None:
         raise APIError(status_code=410, code="media_expired", message="Media was purged after 24 hours.")
 
+    # 1. Check if requesting original uploaded input media
+    clean_name = name.lower()
+    base_name = clean_name.split(".")[0]
+    if base_name in ("input", "original", "source"):
+        if not analysis.object_key:
+            raise APIError(status_code=404, code="not_found", message="Original media not found.")
+        try:
+            data = storage.get_object(analysis.object_key)
+            media_type = guess_media_type(analysis)
+            return RawResponse(content=data, media_type=media_type)
+        except Exception as exc:
+            raise APIError(status_code=404, code="not_found", message="Original media file not found.") from exc
+
+    # 2. Check model explainability artefacts
     result = (
         db.query(AnalysisResult)
         .filter(AnalysisResult.analysis_id == id)
@@ -225,7 +265,8 @@ def get_artefact(
     # Match name (e.g. 'heatmap' or 'heatmap.png')
     artefact_key = None
     for k, v in result.artefacts.items():
-        if k == name or f"{k}.png" == name or v.endswith(name):
+        k_base = k.lower().split(".")[0]
+        if k == name or f"{k}.png" == name or k_base == base_name or v.endswith(name) or v.endswith(f"/{base_name}.png"):
             artefact_key = v
             break
 
@@ -246,7 +287,10 @@ def submit_feedback(
     client: AuthenticatedClient = Depends(get_authenticated_client),
     db: Session = Depends(get_db),
 ):
-    analysis = db.query(Analysis).filter(Analysis.id == id, Analysis.user_id == client.user.id).first()
+    query = db.query(Analysis).filter(Analysis.id == id)
+    if client.user.role != "admin":
+        query = query.filter(Analysis.user_id == client.user.id)
+    analysis = query.first()
     if not analysis:
         raise APIError(status_code=404, code="not_found", message="Analysis not found.")
 
@@ -288,7 +332,10 @@ def create_websocket_ticket(
     client: AuthenticatedClient = Depends(get_authenticated_client),
     db: Session = Depends(get_db),
 ):
-    analysis = db.query(Analysis).filter(Analysis.id == id, Analysis.user_id == client.user.id).first()
+    query = db.query(Analysis).filter(Analysis.id == id)
+    if client.user.role != "admin":
+        query = query.filter(Analysis.user_id == client.user.id)
+    analysis = query.first()
     if not analysis:
         raise APIError(status_code=404, code="not_found", message="Analysis not found.")
 

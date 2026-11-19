@@ -83,7 +83,7 @@ export const ApiKeysPage: React.FC = () => {
         {isLoading ? (
           <div className="p-12 flex flex-col items-center justify-center space-y-3">
             <Loader2 className="w-6 h-6 animate-spin text-brand-600" />
-            <span className="text-xs text-slate-500">Loading API keys...</span>
+            <span className="text-xs text-slate-500">Loading API keys…</span>
           </div>
         ) : error ? (
           <div className="p-8 text-center text-xs text-rose-600 space-y-1">
@@ -103,7 +103,7 @@ export const ApiKeysPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
                 <tr>
                   <th className="py-3 px-4">Key Name</th>
                   <th className="py-3 px-4">Prefix</th>
@@ -122,8 +122,8 @@ export const ApiKeysPage: React.FC = () => {
                     <td className="py-3.5 px-4 font-mono text-slate-600 dark:text-slate-400">
                       {k.key_prefix}••••••••
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-600 dark:text-slate-400">
-                      {k.rate_limit_per_min} req/min
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
+                      <span className="font-mono">{k.rate_limit_per_min}</span> req/min
                     </td>
                     <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
                       {new Date(k.created_at).toLocaleDateString()}

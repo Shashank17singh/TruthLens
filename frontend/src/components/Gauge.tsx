@@ -138,7 +138,7 @@ export const Gauge: React.FC<GaugeProps> = ({
             strokeDasharray={arcLength}
             strokeDashoffset={progressOffset}
             strokeLinecap="round"
-            className="transition-all duration-700 ease-out"
+            className="transition-[stroke-dashoffset] duration-700 ease-out"
           />
 
           {/* Ticks: 0%, 50%, 100% */}
@@ -165,7 +165,7 @@ export const Gauge: React.FC<GaugeProps> = ({
             x={cx}
             y={cy + 4}
             textAnchor="middle"
-            className="text-[10px] font-semibold tracking-wider uppercase fill-slate-500 dark:fill-slate-400"
+            className="text-[10px] font-medium fill-slate-500 dark:fill-slate-400"
           >
             AI Probability
           </text>
@@ -176,7 +176,7 @@ export const Gauge: React.FC<GaugeProps> = ({
       <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
         <span className="font-medium">95% CI:</span>
         <span className="font-mono text-slate-700 dark:text-slate-300">
-          [{lowPercent}% – {highPercent}%]
+          [{lowPercent}%, {highPercent}%]
         </span>
       </div>
 

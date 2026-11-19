@@ -149,7 +149,7 @@ export const VerifyPage: React.FC = () => {
             <button
               type="submit"
               disabled={verifyMutation.isPending || (!file && !reportId.trim() && !sha256.trim())}
-              className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-xs shadow flex items-center gap-2 transition-all"
+              className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-xs shadow flex items-center gap-2 transition-colors whitespace-nowrap"
             >
               {verifyMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
               Verify Cryptographic Signature
@@ -160,7 +160,7 @@ export const VerifyPage: React.FC = () => {
         {/* Verification Result Seal */}
         {verifyResult && (
           <div
-            className={`p-6 rounded-2xl border transition-all animate-in zoom-in-95 duration-200 ${
+            className={`p-6 rounded-2xl border transition-colors motion-safe:animate-in motion-safe:zoom-in-95 duration-200 ${
               verifyResult.genuine
                 ? 'bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800'
                 : 'bg-rose-50/60 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800'
@@ -195,7 +195,7 @@ export const VerifyPage: React.FC = () => {
                       : 'Cryptographic Verification Failed'}
                   </h3>
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                       verifyResult.genuine
                         ? 'bg-emerald-200/80 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100'
                         : 'bg-rose-200/80 dark:bg-rose-900 text-rose-900 dark:text-rose-100'
@@ -213,19 +213,19 @@ export const VerifyPage: React.FC = () => {
                 </p>
 
                 {verifyResult.report_id && (
-                  <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div className="text-slate-600 dark:text-slate-400">
-                      <span className="font-semibold block text-[10px] uppercase text-slate-400">
+                      <span className="font-semibold block text-[10px] text-slate-400">
                         Report ID:
                       </span>
-                      {verifyResult.report_id}
+                      <span className="font-mono">{verifyResult.report_id}</span>
                     </div>
                     {verifyResult.issued_at && (
                       <div className="text-slate-600 dark:text-slate-400">
-                        <span className="font-semibold block text-[10px] uppercase text-slate-400">
+                        <span className="font-semibold block text-[10px] text-slate-400">
                           Issued At:
                         </span>
-                        {new Date(verifyResult.issued_at).toLocaleString()}
+                        <span className="font-mono">{new Date(verifyResult.issued_at).toLocaleString()}</span>
                       </div>
                     )}
                   </div>

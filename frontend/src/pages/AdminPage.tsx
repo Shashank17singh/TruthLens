@@ -47,7 +47,7 @@ export const AdminPage: React.FC = () => {
       {statsLoading ? (
         <div className="p-12 flex flex-col items-center justify-center space-y-3">
           <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
-          <p className="text-xs text-slate-500">Loading operations telemetry...</p>
+          <p className="text-xs text-slate-500">Loading operations telemetry…</p>
         </div>
       ) : statsError ? (
         <div className="p-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
@@ -59,8 +59,8 @@ export const AdminPage: React.FC = () => {
           {/* KPI Metrics Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Total Analyses
+              <span className="text-[11px] font-semibold text-slate-500">
+                Total analyses
               </span>
               <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">
                 {stats?.total_analyses ?? 0}
@@ -71,8 +71,8 @@ export const AdminPage: React.FC = () => {
             </div>
 
             <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Feedback Accuracy
+              <span className="text-[11px] font-semibold text-slate-500">
+                Feedback accuracy
               </span>
               <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1.5">
                 <CheckCircle className="w-5 h-5" />
@@ -84,8 +84,8 @@ export const AdminPage: React.FC = () => {
             </div>
 
             <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Average Latency
+              <span className="text-[11px] font-semibold text-slate-500">
+                Average latency
               </span>
               <div className="text-2xl font-extrabold text-brand-600 dark:text-brand-400 font-mono flex items-center gap-1.5">
                 <Clock className="w-5 h-5" />
@@ -95,21 +95,21 @@ export const AdminPage: React.FC = () => {
             </div>
 
             <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                Modality Distribution
+              <span className="text-[11px] font-semibold text-slate-500">
+                Modality distribution
               </span>
-              <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1 pt-1 font-mono">
+              <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1 pt-1">
                 <div className="flex justify-between">
                   <span>Image:</span>
-                  <span className="font-bold">{stats?.modality_breakdown?.image ?? 0}</span>
+                  <span className="font-mono font-bold">{stats?.modality_breakdown?.image ?? 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Audio:</span>
-                  <span className="font-bold">{stats?.modality_breakdown?.audio ?? 0}</span>
+                  <span className="font-mono font-bold">{stats?.modality_breakdown?.audio ?? 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Text:</span>
-                  <span className="font-bold">{stats?.modality_breakdown?.text ?? 0}</span>
+                  <span className="font-mono font-bold">{stats?.modality_breakdown?.text ?? 0}</span>
                 </div>
               </div>
             </div>
@@ -134,8 +134,8 @@ export const AdminPage: React.FC = () => {
                       <span className="font-bold text-slate-900 dark:text-white capitalize">
                         {m.modality}
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300 font-mono text-[10px]">
-                        v{m.version}
+                      <span className="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300 text-[10px]">
+                        v<span className="font-mono">{m.version}</span>
                       </span>
                     </div>
                     <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px]">
@@ -161,7 +161,7 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {fbLoading ? (
-              <div className="p-8 text-center text-xs text-slate-500">Loading feedback log...</div>
+              <div className="p-8 text-center text-xs text-slate-500">Loading feedback log…</div>
             ) : fbError ? (
               <div className="p-8 text-center text-xs text-rose-500">Failed to load feedback records.</div>
             ) : feedbackData?.items.length === 0 ? (
@@ -169,7 +169,7 @@ export const AdminPage: React.FC = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold">
                     <tr>
                       <th className="py-3 px-4">Analysis ID</th>
                       <th className="py-3 px-4">Accuracy</th>
@@ -182,7 +182,7 @@ export const AdminPage: React.FC = () => {
                     {feedbackData?.items.map((fb) => (
                       <tr key={fb.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
                         <td className="py-3 px-4 font-mono text-[11px] text-brand-600 dark:text-brand-400">
-                          {fb.analysis_id.slice(0, 16)}...
+                          {fb.analysis_id.slice(0, 16)}…
                         </td>
                         <td className="py-3 px-4">
                           {fb.is_correct ? (
@@ -199,7 +199,7 @@ export const AdminPage: React.FC = () => {
                           {fb.reported_label || 'Confirmed by user'}
                         </td>
                         <td className="py-3 px-4 max-w-xs truncate text-slate-500">
-                          {fb.comment || '—'}
+                          {fb.comment || '-'}
                         </td>
                         <td className="py-3 px-4 font-mono text-[11px] text-slate-400">
                           {new Date(fb.created_at).toLocaleDateString()}

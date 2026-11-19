@@ -113,6 +113,28 @@ def test_submit_image_analysis(mock_run, client: TestClient, auth_headers):
     assert analysis["result"]["verdict"] == "likely_fake"
     assert analysis["result"]["probability"] == 0.88
 
+    # Test artefact retrieval via query param token (?token=...)
+    token = auth_headers["Authorization"].split(" ")[1]
+    res_heat = client.get(f"/api/v1/analyses/{analysis_id}/artefacts/heatmap?token={token}")
+    assert res_heat.status_code == 200
+    assert res_heat.content == b"PNG_HEATMAP_DATA"
+
+    res_spec = client.get(f"/api/v1/analyses/{analysis_id}/artefacts/spectrum?token={token}")
+    assert res_spec.status_code == 200
+    assert res_spec.content == b"PNG_SPECTRUM_DATA"
+
+    # Test original input media retrieval via ?token=...
+    res_input = client.get(f"/api/v1/analyses/{analysis_id}/artefacts/input?token={token}")
+    assert res_input.status_code == 200
+    assert res_input.content == image_data
+
+    # Test artefact retrieval with missing/invalid token returns 401
+    res_unauth = client.get(f"/api/v1/analyses/{analysis_id}/artefacts/heatmap")
+    assert res_unauth.status_code == 401
+
+    res_bad_tok = client.get(f"/api/v1/analyses/{analysis_id}/artefacts/heatmap?token=invalid_token")
+    assert res_bad_tok.status_code == 401
+
 
 @patch("backend.app.worker.tasks.run_audio_inference", return_value=MOCK_AUDIO_RESULT)
 def test_submit_audio_analysis(mock_run, client: TestClient, api_key_headers):

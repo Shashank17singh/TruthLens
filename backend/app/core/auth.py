@@ -34,18 +34,25 @@ def rate_limit_unauthenticated(request: Request) -> dict[str, str]:
 
 
 def get_current_user(
+    request: Request = None,
     authorization: Annotated[str | None, Header()] = None,
     db: Session = Depends(get_db),
 ) -> User:
-    """Extract and authenticate User from Bearer JWT."""
-    if not authorization or not authorization.startswith("Bearer "):
+    """Extract and authenticate User from Bearer JWT (header or query param)."""
+    token = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ", 1)[1]
+    elif request is not None and request.query_params.get("token"):
+        q_tok = request.query_params.get("token", "").strip()
+        token = q_tok.split(" ", 1)[1] if q_tok.startswith("Bearer ") else q_tok
+
+    if not token:
         raise APIError(
             status_code=401,
             code="invalid_token",
             message="Missing or invalid Authorization header.",
         )
 
-    token = authorization.split(" ", 1)[1]
     try:
         payload = decode_token(token)
     except Exception as exc:
@@ -83,15 +90,16 @@ def get_authenticated_client(
     x_api_key: Annotated[str | None, Header()] = None,
     db: Session = Depends(get_db),
 ) -> AuthenticatedClient:
-    """Authenticate via either JWT Bearer token or X-API-Key and enforce rate limits."""
+    """Authenticate via either JWT Bearer token or X-API-Key (headers or query params) and enforce rate limits."""
     now = datetime.now(UTC)
 
-    # 1. Try API Key first
-    if x_api_key:
-        if not x_api_key.startswith("tl_"):
+    # 1. Try API Key first (Header or query parameter)
+    api_key_val = x_api_key or request.query_params.get("api_key")
+    if api_key_val:
+        if not api_key_val.startswith("tl_"):
             raise APIError(status_code=401, code="invalid_api_key", message="Invalid API key format.")
 
-        key_hash = hash_api_key(x_api_key)
+        key_hash = hash_api_key(api_key_val)
         api_key_row = db.query(ApiKey).filter(ApiKey.key_hash == key_hash).first()
 
         if not api_key_row or api_key_row.revoked_at is not None:
@@ -110,9 +118,16 @@ def get_authenticated_client(
 
         return AuthenticatedClient(user=api_key_row.user, api_key=api_key_row, rate_limit_headers=headers)
 
-    # 2. Try JWT Bearer
+    # 2. Try JWT Bearer (Header or query parameter)
+    token_val = None
     if authorization and authorization.startswith("Bearer "):
-        user = get_current_user(authorization=authorization, db=db)
+        token_val = authorization.split(" ", 1)[1]
+    elif request.query_params.get("token"):
+        q_tok = request.query_params.get("token", "").strip()
+        token_val = q_tok.split(" ", 1)[1] if q_tok.startswith("Bearer ") else q_tok
+
+    if token_val:
+        user = get_current_user(authorization=f"Bearer {token_val}", db=db)
         headers = enforce_rate_limit(f"user:{user.id}", settings.RATE_LIMIT_USER)
         return AuthenticatedClient(user=user, api_key=None, rate_limit_headers=headers)
 

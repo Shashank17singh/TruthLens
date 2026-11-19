@@ -53,7 +53,7 @@ export const App: React.FC = () => {
                     <span className="font-bold text-slate-700 dark:text-slate-300">
                       TruthLens
                     </span>
-                    <span>— Open Forensic Multi-Modal Detection System</span>
+                    <span>: Open Forensic Multi-Modal Detection System</span>
                   </div>
 
                   <div className="flex items-center gap-4 text-[11px]">

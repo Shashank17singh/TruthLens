@@ -146,10 +146,18 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
             {"box": [10, 10, 50, 50], "score": round(max(0.1, probability * 0.7), 2), "part": "background"},
         ]
 
-    if face_detected:
-        explanation_text = "Unusual texture detected around the mouth and hairline."
+    if verdict == "likely_real":
+        explanation_text = "Natural spectral power falloff and coherent optical textures consistent with authentic camera capture."
+    elif verdict == "uncertain":
+        if face_detected:
+            explanation_text = "Facial boundary textures fall within the borderline confidence interval. Corroborating contextual review recommended."
+        else:
+            explanation_text = "Complex specular reflections, fine geometric patterns, or optical bokeh fall within the borderline decision band. Manual review recommended."
     else:
-        explanation_text = "High-frequency artifacts and texture inconsistencies detected in focal regions."
+        if face_detected:
+            explanation_text = "Unusual generative synthesis texture detected around facial contours and hairline boundaries."
+        else:
+            explanation_text = "High-frequency artifacts and periodic spectral anomalies detected in focal regions."
 
     latency_ms = int((time.perf_counter() - start_time) * 1000)
 
