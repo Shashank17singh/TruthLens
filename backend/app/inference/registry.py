@@ -99,7 +99,7 @@ class ModelRegistry:
 
         if self._text_pair is None:
             from ml.text.features import ModelPair
-            self._text_pair = ModelPair()
+            self._text_pair = ModelPair.pretrained(device="cpu")
             logger.info("Loaded Text GPT-2 / DistilGPT-2 model pair")
 
         return self._text_meta, self._text_pair, info
