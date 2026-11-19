@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
@@ -12,6 +12,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { AdminPage } from './pages/AdminPage';
 import { VerifyPage } from './pages/VerifyPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { ShieldCheck, Cpu, Lock } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -41,31 +42,51 @@ export const App: React.FC = () => {
                   <Route path="/keys" element={<ApiKeysPage />} />
                   <Route path="/admin" element={<AdminPage />} />
                   <Route path="/verify" element={<VerifyPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </main>
 
               {/* Footer */}
               <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur text-xs text-slate-500 py-6">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-brand-600" />
-                    <span className="font-bold text-slate-700 dark:text-slate-300">
-                      TruthLens
-                    </span>
-                    <span>: Open Forensic Multi-Modal Detection System</span>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-brand-600" />
+                      <span className="font-bold text-slate-700 dark:text-slate-300">
+                        TruthLens
+                      </span>
+                      <span>: Open Forensic Multi-Modal Detection System</span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4 text-[11px]">
+                      <span className="flex items-center gap-1 text-slate-400">
+                        <Cpu className="w-3.5 h-3.5" /> CPU-Optimized ONNX
+                      </span>
+                      <span className="flex items-center gap-1 text-slate-400">
+                        <Lock className="w-3.5 h-3.5" /> 24h Privacy Purge
+                      </span>
+                      <Link to="/verify" className="hover:text-brand-600 dark:hover:text-brand-400">
+                        HMAC Verification
+                      </Link>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-[11px]">
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <Cpu className="w-3.5 h-3.5" /> CPU-Optimized ONNX
-                    </span>
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <Lock className="w-3.5 h-3.5" /> 24h Privacy Purge
-                    </span>
-                    <Link to="/verify" className="hover:text-brand-600 dark:hover:text-brand-400">
-                      HMAC Verification
-                    </Link>
+                  <div className="pt-3 border-t border-slate-200/70 dark:border-slate-800/70 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
+                    <p>© {new Date().getFullYear()} TruthLens. Built by Shashank Singh.</p>
+                    <div className="flex items-center gap-4">
+                      <a href="https://github.com/Shashank17singh/TruthLens" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 dark:hover:text-slate-300">
+                        GitHub
+                      </a>
+                      <a href="https://shashank17singh.github.io" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 dark:hover:text-slate-300">
+                        Portfolio
+                      </a>
+                      <a href="mailto:shashanksingh1709@gmail.com" className="hover:text-slate-600 dark:hover:text-slate-300">
+                        Email
+                      </a>
+                      <a href="tel:+917905851722" className="hover:text-slate-600 dark:hover:text-slate-300">
+                        +91 79058 51722
+                      </a>
+                    </div>
                   </div>
                 </div>
               </footer>
