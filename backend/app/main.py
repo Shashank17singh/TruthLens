@@ -1,6 +1,13 @@
 """Main FastAPI application entrypoint."""
 
+import logging
 from contextlib import asynccontextmanager
+
+logger = logging.getLogger(__name__)
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from backend.app.api.admin import router as admin_router
 from backend.app.api.analyses import router as analyses_router
@@ -14,9 +21,6 @@ from backend.app.api.websocket import router as websocket_router
 from backend.app.core.config import settings
 from backend.app.core.errors import APIError, api_error_handler, error_response
 from backend.app.db.session import create_tables
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 
 @asynccontextmanager

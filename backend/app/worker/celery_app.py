@@ -2,10 +2,11 @@
 
 import logging
 
-from backend.app.core.config import settings
 from celery import Celery
 from celery.signals import worker_process_init
 from kombu import Exchange, Queue
+
+from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

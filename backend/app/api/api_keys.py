@@ -2,15 +2,16 @@
 
 from datetime import UTC, datetime
 
+from fastapi import APIRouter, Depends, Response, status
+from pydantic import BaseModel, Field
+from sqlalchemy import desc
+from sqlalchemy.orm import Session
+
 from backend.app.core.auth import get_current_user
 from backend.app.core.errors import APIError
 from backend.app.core.security import generate_api_key
 from backend.app.db.models import ApiKey, User
 from backend.app.db.session import get_db
-from fastapi import APIRouter, Depends, Response, status
-from pydantic import BaseModel, Field
-from sqlalchemy import desc
-from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api-keys", tags=["api_keys"])
 

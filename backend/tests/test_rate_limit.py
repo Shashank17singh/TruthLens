@@ -3,6 +3,7 @@
 import uuid
 
 import pytest
+
 from backend.app.core.errors import APIError
 from backend.app.core.rate_limit import check_rate_limit, enforce_rate_limit
 
@@ -11,7 +12,7 @@ def test_rate_limit_allows_under_limit():
     key = f"test_key_{uuid.uuid4().hex}"
     limit = 5
 
-    for i in range(limit):
+    for _ in range(limit):
         res = check_rate_limit(key, limit)
         assert res.allowed is True
         assert res.limit == limit

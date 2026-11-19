@@ -1,3 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "truthlens"
+version = "1.0.0"
+description = "Multi-modal deepfake and AI-content detection platform"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+include = ["backend*", "ml*"]
+
 [tool.pytest.ini_options]
 testpaths = ["ml", "backend/tests"]
 pythonpath = ["."]
@@ -8,7 +22,9 @@ markers = [
 
 [tool.ruff]
 line-length = 120
+extend-exclude = ["notebooks", "*.ipynb"]
 
 [tool.ruff.lint]
-ignore = ["B008"]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["B008", "E501", "E402", "B904", "B905", "E712", "E731"]
 

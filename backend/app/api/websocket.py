@@ -6,11 +6,12 @@ import logging
 import time
 
 import redis.asyncio as aioredis
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
+
 from backend.app.api.analyses import ws_tickets
 from backend.app.core.config import settings
 from backend.app.db.models import Analysis
 from backend.app.db.session import SessionLocal
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 
 logger = logging.getLogger(__name__)
 

@@ -7,6 +7,7 @@ from typing import Any
 import joblib
 import onnxruntime
 import yaml
+
 from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class ModelRegistry:
             }
             return
 
-        with open(self.config_path, "r", encoding="utf-8") as file:
+        with open(self.config_path, encoding="utf-8") as file:
             self.config = yaml.safe_load(file) or {}
 
     def get_model_info(self, modality: str) -> dict[str, Any]:

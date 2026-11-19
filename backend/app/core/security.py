@@ -9,6 +9,7 @@ from typing import Any
 
 import bcrypt
 import jwt
+
 from backend.app.core.config import settings
 
 

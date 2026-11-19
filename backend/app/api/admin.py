@@ -1,11 +1,12 @@
 """Admin operational endpoints."""
 
-from backend.app.core.auth import get_current_admin
-from backend.app.db.models import Analysis, AnalysisResult, Feedback, User
-from backend.app.db.session import get_db
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
+
+from backend.app.core.auth import get_current_admin
+from backend.app.db.models import Analysis, AnalysisResult, Feedback, User
+from backend.app.db.session import get_db
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

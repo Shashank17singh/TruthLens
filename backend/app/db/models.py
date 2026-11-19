@@ -2,8 +2,6 @@
 
 from datetime import UTC, datetime
 
-from backend.app.core.security import generate_uuidv7
-from backend.app.db.base import Base
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -18,6 +16,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import JSON
+
+from backend.app.core.security import generate_uuidv7
+from backend.app.db.base import Base
 
 
 def utcnow() -> datetime:

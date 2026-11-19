@@ -3,6 +3,8 @@
 import io
 
 import pytest
+from PIL import Image
+
 from backend.app.validation.antivirus import scan_bytes
 from backend.app.validation.exif import strip_exif
 from backend.app.validation.file_type import (
@@ -11,7 +13,6 @@ from backend.app.validation.file_type import (
     validate_file_content,
 )
 from backend.app.validation.url_fetch import is_public_ip, validate_target_url
-from PIL import Image
 
 
 def test_magic_number_image_detection():

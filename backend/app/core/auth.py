@@ -3,14 +3,15 @@
 from datetime import UTC, datetime
 from typing import Annotated, NamedTuple
 
+from fastapi import Depends, Header, Request
+from sqlalchemy.orm import Session
+
 from backend.app.core.config import settings
 from backend.app.core.errors import APIError
 from backend.app.core.rate_limit import enforce_rate_limit
 from backend.app.core.security import decode_token, hash_api_key
 from backend.app.db.models import ApiKey, User
 from backend.app.db.session import get_db
-from fastapi import Depends, Header, Request
-from sqlalchemy.orm import Session
 
 
 class AuthenticatedClient(NamedTuple):

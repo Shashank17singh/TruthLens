@@ -2,10 +2,11 @@
 
 from collections.abc import Generator
 
-from backend.app.core.config import settings
-from backend.app.db.base import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+
+from backend.app.core.config import settings
+from backend.app.db.base import Base
 
 # SQLite needs check_same_thread=False
 connect_args = {}

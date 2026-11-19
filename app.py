@@ -14,15 +14,14 @@ os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "True")
 os.environ.setdefault("DATABASE_URL", "sqlite:///./truthlens.db")
 os.environ.setdefault("MODELS_YAML_PATH", str(BASE_DIR / "backend" / "models.yaml"))
 os.environ.setdefault("STORAGE_LOCAL_FALLBACK_DIR", str(BASE_DIR / "data" / "storage"))
-os.environ["CORS_ORIGINS"] = '["*"]'
 
 import gradio as gr
 import spaces
-from PIL import Image
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from PIL import Image
 
 # Import backend routers and pipelines
 from backend.app.api.admin import router as admin_router
@@ -34,6 +33,7 @@ from backend.app.api.health import router as health_router
 from backend.app.api.models import router as models_router
 from backend.app.api.reports import router as reports_router
 from backend.app.api.websocket import router as websocket_router
+from backend.app.core.config import settings
 from backend.app.db.session import create_tables
 from backend.app.inference.image import run_image_inference
 from backend.app.inference.text import run_text_inference
@@ -69,7 +69,7 @@ def predict_image(input_img):
 
         return summary, heatmap_img, spectrum_img
     except Exception as e:
-        return f"Inference error: {str(e)}", None, None
+        return f"Inference error: {e!s}", None, None
 
 
 @spaces.GPU
@@ -83,7 +83,7 @@ def predict_text(input_text: str):
         explanation = result.get("explanation", "")
         return f"Verdict: {verdict}\nAI Probability: {prob}%\n\nExplanation:\n{explanation}"
     except Exception as e:
-        return f"Inference error: {str(e)}"
+        return f"Inference error: {e!s}"
 
 
 # Build Gradio UI with ZeroGPU support
@@ -125,7 +125,7 @@ with gr.Blocks(title="TruthLens - Multi-Modal Deepfake Detection") as demo:
 # Mount all FastAPI routes onto demo.app
 demo.app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

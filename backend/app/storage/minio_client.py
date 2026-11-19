@@ -5,8 +5,9 @@ import logging
 from datetime import timedelta
 from pathlib import Path
 
-from backend.app.core.config import settings
 from minio import Minio
+
+from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

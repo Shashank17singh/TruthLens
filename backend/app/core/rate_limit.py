@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import NamedTuple
 
 import redis
+
 from backend.app.core.config import settings
 from backend.app.core.errors import APIError
 
