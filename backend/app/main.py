@@ -38,7 +38,7 @@ app = FastAPI(
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,12 +51,12 @@ app.add_exception_handler(APIError, api_error_handler)
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception(f"Unhandled server error: {exc}")
     return JSONResponse(
         status_code=500,
         content=error_response(
             code="internal_error",
             message="An unexpected server error occurred.",
-            details={"detail": str(exc)},
         ),
     )
 
