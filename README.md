@@ -268,6 +268,19 @@ pnpm package  # Packages truthlens-extension.zip for Web Store distribution
 
 To load in Chrome: Navigate to `chrome://extensions/`, enable Developer mode, and click **Load unpacked** pointing to `extension/dist/`.
 
+### 8. Generate and Verify Forensic PDF Reports
+
+Reports are rendered asynchronously via Celery using WeasyPrint (HTML+CSS) with fallback to ReportLab (pure Python). Each report includes a dynamic verdict banner, visual evidence (Grad-CAM heatmap, acoustic timeline, or highlighted text spans), inspection metadata, cryptographic HMAC-SHA256 signature, and an embedded QR code linking to the public verdict page.
+
+```bash
+# Run report generation and tamper-detection unit tests
+pytest backend/tests/test_reports.py -v
+
+# Verification via API (file upload or report ID / sha256)
+curl -X POST http://localhost:8000/api/v1/verify \
+  -F "file=@report.pdf"
+```
+
 ---
 
 ## Roadmap

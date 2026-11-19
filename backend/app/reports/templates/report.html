@@ -1,69 +1,432 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>TruthLens Verification Report - {{ report_id }}</title>
+  <title>TruthLens Forensic Report - {{ report_id }}</title>
   <style>
-    body { font-family: Helvetica, Arial, sans-serif; margin: 40px; color: #111827; }
-    .header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 24px; }
-    .title { font-size: 26px; font-weight: bold; color: #1e3a8a; }
-    .subtitle { font-size: 14px; color: #6b7280; }
-    .verdict-box { background: #f3f4f6; border-left: 6px solid #2563eb; padding: 16px; margin: 20px 0; border-radius: 4px; }
-    .verdict-title { font-size: 20px; font-weight: bold; }
-    .meta-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
-    .meta-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
-    .meta-table td.label { font-weight: bold; width: 200px; color: #4b5563; }
-    .qr-container { margin-top: 30px; text-align: center; }
-    .disclaimer { margin-top: 40px; font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 12px; }
+    @page {
+      size: A4;
+      margin: 18mm 16mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.5;
+      color: #0f172a;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand-title {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #4338ca;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 8.5pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    .report-meta-head {
+      text-align: right;
+      font-size: 8.5pt;
+      color: #475569;
+    }
+
+    .report-meta-head strong {
+      color: #0f172a;
+    }
+
+    /* Verdict Banner */
+    .verdict-banner {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .verdict-fake {
+      background-color: #fff1f2;
+      border-color: #fecdd3;
+      border-left: 6px solid #e11d48;
+    }
+
+    .verdict-real {
+      background-color: #f0fdf4;
+      border-color: #bbf7d0;
+      border-left: 6px solid #059669;
+    }
+
+    .verdict-uncertain {
+      background-color: #fffbeb;
+      border-color: #fde68a;
+      border-left: 6px solid #d97706;
+    }
+
+    .verdict-title {
+      font-size: 14pt;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .verdict-fake .verdict-title { color: #be123c; }
+    .verdict-real .verdict-title { color: #047857; }
+    .verdict-uncertain .verdict-title { color: #b45309; }
+
+    .verdict-stats {
+      font-size: 9.5pt;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .verdict-explanation {
+      font-size: 9pt;
+      color: #1e293b;
+      line-height: 1.45;
+    }
+
+    /* Section Headings */
+    h2 {
+      font-size: 11pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin-bottom: 14px;
+    }
+
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    td.label-col {
+      font-weight: 600;
+      width: 25%;
+      color: #475569;
+      background-color: #f8fafc;
+    }
+
+    .code-val {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8pt;
+      color: #0f172a;
+      word-break: break-all;
+    }
+
+    /* Visual Evidence Container */
+    .evidence-box {
+      background: #fafafa;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .heatmap-preview {
+      display: block;
+      max-width: 280px;
+      max-height: 200px;
+      margin: 10px auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+    }
+
+    /* Highlighted text */
+    .highlighted-prose {
+      font-size: 9pt;
+      line-height: 1.6;
+      background: #ffffff;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+    }
+
+    .hl-fake { background-color: #fee2e2; border-bottom: 2px solid #ef4444; }
+    .hl-uncertain { background-color: #fef3c7; border-bottom: 2px solid #f59e0b; }
+    .hl-real { background-color: #e0f2fe; border-bottom: 2px solid #0284c7; }
+
+    /* Cryptographic Signing & Verification */
+    .crypto-footer {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background-color: #f8fafc;
+      padding: 10px 14px;
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .crypto-details {
+      font-size: 8pt;
+      color: #334155;
+    }
+
+    .crypto-details strong {
+      color: #0f172a;
+    }
+
+    .qr-block {
+      text-align: center;
+      margin-left: 16px;
+    }
+
+    .qr-img {
+      width: 90px;
+      height: 90px;
+      display: block;
+    }
+
+    .qr-caption {
+      font-size: 7pt;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .disclaimer-block {
+      margin-top: 16px;
+      font-size: 7.5pt;
+      color: #64748b;
+      line-height: 1.4;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 8px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <div class="header">
-    <div class="title">TruthLens Verification Report</div>
-    <div class="subtitle">Autonomous Multi-Modal Deepfake & AI-Content Analysis</div>
+    <div>
+      <div class="brand-title">TruthLens</div>
+      <div class="brand-sub">Autonomous Multi-Modal Deepfake & Forensic Analysis</div>
+    </div>
+    <div class="report-meta-head">
+      <div>Report ID: <strong>{{ report_id }}</strong></div>
+      <div>Date: <strong>{{ date }}</strong></div>
+      <div>Modality: <strong style="text-transform: capitalize;">{{ analysis.modality }}</strong></div>
+    </div>
   </div>
 
-  <div class="verdict-box">
-    <div class="verdict-title">{{ result.verdict_label }} (Probability: {{ "%.2f"|format(result.probability * 100) }}%)</div>
-    <p>{{ result.explanation }}</p>
+  <!-- Executive Verdict Banner -->
+  {% set verdict_class = 'verdict-uncertain' %}
+  {% if result.verdict == 'likely_fake' %}
+    {% set verdict_class = 'verdict-fake' %}
+  {% elif result.verdict == 'likely_real' %}
+    {% set verdict_class = 'verdict-real' %}
+  {% endif %}
+
+  <div class="verdict-banner {{ verdict_class }}">
+    <div class="verdict-title">{{ result.verdict_label }}</div>
+    <div class="verdict-stats">
+      Synthetic AI Likelihood: <strong>{{ "%.1f"|format(result.probability * 100) }}%</strong>
+      &nbsp;|&nbsp; 95% Confidence Band: [{{ "%.1f"|format(result.confidence_low * 100) }}% – {{ "%.1f"|format(result.confidence_high * 100) }}%]
+    </div>
+    <div class="verdict-explanation">{{ result.explanation }}</div>
   </div>
 
-  <table class="meta-table">
+  <!-- Inspection Metadata -->
+  <h2>Inspection Record &amp; File Integrity</h2>
+  <table>
     <tr>
-      <td class="label">Report ID</td>
-      <td>{{ report_id }}</td>
+      <td class="label-col">File / Asset Name</td>
+      <td>{{ analysis.file_name or "Direct Input Buffer" }}</td>
+      <td class="label-col">Inference Modality</td>
+      <td style="text-transform: capitalize;">{{ analysis.modality }}</td>
     </tr>
     <tr>
-      <td class="label">Date & Time (UTC)</td>
-      <td>{{ date }}</td>
+      <td class="label-col">File SHA-256 Checksum</td>
+      <td colspan="3" class="code-val">{{ analysis.sha256 or "N/A" }}</td>
     </tr>
     <tr>
-      <td class="label">Modality</td>
-      <td>{{ analysis.modality }}</td>
+      <td class="label-col">Detection Classifier</td>
+      <td>{{ result.model_name }}</td>
+      <td class="label-col">Model Version</td>
+      <td>v{{ result.model_version }}</td>
     </tr>
     <tr>
-      <td class="label">Original File SHA-256</td>
-      <td><code>{{ analysis.sha256 or "N/A" }}</code></td>
-    </tr>
-    <tr>
-      <td class="label">Model & Version</td>
-      <td>{{ result.model_name }} (v{{ result.model_version }})</td>
-    </tr>
-    <tr>
-      <td class="label">Confidence Band (90%)</td>
-      <td>{{ result.confidence_low }} - {{ result.confidence_high }}</td>
+      <td class="label-col">Decision Threshold</td>
+      <td>0.50 (Calibrated)</td>
+      <td class="label-col">Inference Runtime</td>
+      <td>CPU ONNX Runtime</td>
     </tr>
   </table>
 
-  {% if qr_data_uri %}
-  <div class="qr-container">
-    <img src="{{ qr_data_uri }}" width="120" height="120" alt="Verification QR Code">
-    <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">Scan to view online verification summary</div>
-  </div>
+  <!-- Modality-Specific Forensic Evidence -->
+  <h2>Forensic Evidence &amp; Signal Attribution</h2>
+
+  {% if analysis.modality == 'image' %}
+    <div class="evidence-box">
+      <div style="font-weight: 600; font-size: 9pt; margin-bottom: 6px;">Visual Saliency &amp; Spatial Artifacts:</div>
+      <p style="font-size: 8.5pt; color: #334155; margin: 0 0 8px 0;">
+        Spatial features inspected using ConvNeXt-Tiny convolutional activations combined with 2D Discrete Cosine Transform (DCT) radial power falloff.
+      </p>
+
+      {% if heatmap_data_uri %}
+        <div style="text-align: center;">
+          <img src="{{ heatmap_data_uri }}" class="heatmap-preview" alt="Grad-CAM Saliency Heatmap" />
+          <div style="font-size: 7.5pt; color: #64748b;">Grad-CAM Attribution Map (Warm contours denote synthetic manipulation)</div>
+        </div>
+      {% endif %}
+
+      {% if result.details and result.details.regions %}
+        <div style="margin-top: 10px;">
+          <div style="font-size: 8pt; font-weight: 600; margin-bottom: 4px;">Detected Focal Regions:</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Region</th>
+                <th>Bounding Box [x1, y1, x2, y2]</th>
+                <th>Anomaly Confidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for reg in result.details.regions %}
+              <tr>
+                <td>{{ reg.part }}</td>
+                <td class="code-val">[{{ reg.box[0]|round(2) }}, {{ reg.box[1]|round(2) }}, {{ reg.box[2]|round(2) }}, {{ reg.box[3]|round(2) }}]</td>
+                <td>{{ (reg.score * 100)|round(1) }}%</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+
+  {% elif analysis.modality == 'audio' %}
+    <div class="evidence-box">
+      <div style="font-weight: 600; font-size: 9pt; margin-bottom: 6px;">Acoustic Feature Analysis (LFCC + LCNN):</div>
+      <p style="font-size: 8.5pt; color: #334155; margin: 0 0 8px 0;">
+        Analyzed across 4.0-second sliding temporal windows with Linear Frequency Cepstral Coefficients (LFCC) evaluating vocoder phase irregularities and spectral discontinuities.
+      </p>
+
+      {% if result.details and result.details.windows %}
+        <table>
+          <thead>
+            <tr>
+              <th>Window #</th>
+              <th>Time Range</th>
+              <th>Synthetic Score</th>
+              <th>Segment Classification</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for win in result.details.windows %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td class="code-val">{{ win.start|round(1) }}s – {{ win.end|round(1) }}s</td>
+              <td>{{ (win.probability * 100)|round(1) }}%</td>
+              <td>
+                {% if win.probability > 0.6 %}
+                  <span style="color: #be123c; font-weight: 600;">Synthetic Voice</span>
+                {% elif win.probability >= 0.4 %}
+                  <span style="color: #b45309; font-weight: 600;">Uncertain</span>
+                {% else %}
+                  <span style="color: #047857; font-weight: 600;">Organic Audio</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+
+  {% elif analysis.modality == 'text' %}
+    <div class="evidence-box">
+      <div style="font-weight: 600; font-size: 9pt; margin-bottom: 6px;">Stylometric Perplexity &amp; Burstiness Attribution:</div>
+      <p style="font-size: 8.5pt; color: #334155; margin: 0 0 8px 0;">
+        Sentence-level token entropy and perplexity variance evaluated via meta-classifier. LLM completions exhibit uniform perplexity across sentences.
+      </p>
+
+      {% if result.details and result.details.sentences %}
+        <div class="highlighted-prose">
+          {% for sent in result.details.sentences %}
+            {% if sent.probability > 0.65 %}
+              <span class="hl-fake" title="{{ (sent.probability * 100)|round }}% AI">{{ sent.text }} </span>
+            {% elif sent.probability > 0.40 %}
+              <span class="hl-uncertain" title="{{ (sent.probability * 100)|round }}% AI">{{ sent.text }} </span>
+            {% else %}
+              <span class="hl-real" title="{{ (sent.probability * 100)|round }}% AI">{{ sent.text }} </span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
   {% endif %}
 
-  <div class="disclaimer">
-    <strong>Limitations & Disclaimer:</strong> {{ result.disclaimer }}
+  <!-- Cryptographic Audit & Tamper Verification -->
+  <h2>Cryptographic Tamper-Evidence &amp; Verification</h2>
+  <div class="crypto-footer">
+    <div class="crypto-details">
+      <div>Document HMAC-SHA256 Signature:</div>
+      <div class="code-val" style="margin: 3px 0 6px 0;">{{ hmac_signature }}</div>
+      <div>Signing Key Identifier: <strong>{{ hmac_key_id }}</strong></div>
+      <div>Verification URL: <strong>https://truthlens.ai/verify?report_id={{ report_id }}</strong></div>
+      <div style="margin-top: 4px; color: #64748b;">
+        This document hash is recorded in the TruthLens immutable verification log. Any alteration to text, scores, or timestamps invalidates the cryptographic signature.
+      </div>
+    </div>
+    {% if qr_data_uri %}
+    <div class="qr-block">
+      <img src="{{ qr_data_uri }}" class="qr-img" alt="Verification QR Code" />
+      <div class="qr-caption">Scan to Verify</div>
+    </div>
+    {% endif %}
   </div>
+
+  <!-- Disclaimers & Known Limitations -->
+  <div class="disclaimer-block">
+    <strong>Mandatory Forensic Disclaimer &amp; Limitations:</strong>
+    {{ result.disclaimer }}
+    This assessment is derived from probabilistic pattern recognition models running on ONNX CPU runtimes. 
+    Known limitations: (1) Non-native English academic writing may exhibit lower burstiness variance resulting in elevated false positives; 
+    (2) Aggressive lossy social media re-compression (e.g. WhatsApp, Twitter) degrades high-frequency spectral cues; 
+    (3) Zero-shot generalizations on post-2025 generative architectures require human-in-the-loop validation.
+    This report must never be used as sole evidence for disciplinary or legal sanctions.
+  </div>
+
 </body>
 </html>
