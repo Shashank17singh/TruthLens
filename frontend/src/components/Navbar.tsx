@@ -23,13 +23,16 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = [
+  const baseNavLinks = [
     { name: 'Analyze', path: '/analyze', icon: Sparkles },
     { name: 'History', path: '/history', icon: Clock },
     { name: 'API Keys', path: '/keys', icon: KeyRound },
     { name: 'Verify Report', path: '/verify', icon: FileCheck2 },
-    { name: 'Admin', path: '/admin', icon: Layers },
   ];
+
+  const navLinks = user?.role === 'admin'
+    ? [...baseNavLinks, { name: 'Admin', path: '/admin', icon: Layers }]
+    : baseNavLinks;
 
   const isActive = (path: string) => location.pathname === path;
 
