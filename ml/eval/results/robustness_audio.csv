@@ -1,0 +1,7 @@
+Perturbation,Parameter,Accuracy,EER_Pct,ROC_AUC
+Clean Baseline,None,0.952,2.14,0.988
+MP3 Compression,128 kbps,0.938,3.42,0.973
+MP3 Compression,64 kbps,0.884,6.85,0.925
+Additive Noise,SNR=20 dB,0.916,4.9,0.956
+Additive Noise,SNR=10 dB,0.835,11.2,0.882
+Phone-band Filter,300-3400 Hz,0.792,14.85,0.839

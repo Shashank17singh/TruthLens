@@ -1,0 +1,8 @@
+modality,train_dataset,test_dataset,in_domain_score,cross_domain_score,metric_name,absolute_drop,relative_retention_pct
+Image,FaceForensics++,Celeb-DF-v2,0.962,0.841,ROC-AUC,0.121,87.42
+Image,FaceForensics++,WildDeepfake,0.962,0.763,ROC-AUC,0.199,79.31
+Image,FaceForensics++,DiffusionFace,0.962,0.718,ROC-AUC,0.244,74.64
+Audio,ASVspoof 2019 LA,FakeAVCeleb (Audio),0.978,0.835,ROC-AUC,0.143,85.38
+Audio,ASVspoof 2019 LA,In-The-Wild Audio,0.978,0.789,ROC-AUC,0.189,80.67
+Text,MAGE / HC3 (Wikipedia/News),Student Essays (TOEFL / Non-Native),0.954,0.721,ROC-AUC,0.233,75.58
+Text,MAGE / HC3 (Wikipedia/News),OpenWebText LLM-Completions,0.954,0.862,ROC-AUC,0.092,90.36

@@ -281,6 +281,20 @@ curl -X POST http://localhost:8000/api/v1/verify \
   -F "file=@report.pdf"
 ```
 
+### 9. Robustness and Adversarial Evaluation
+
+Evaluates image, audio, and text detectors against distribution shifts, social-media degradation pipelines, cross-dataset transfers, and gradient-based adversarial attacks (FGSM/PGD).
+
+```bash
+# Run multi-modal robustness evaluation and plot generation
+python -m ml.eval.robustness
+
+# Run unit tests
+pytest ml/eval/tests/test_robustness.py -v
+```
+
+Publication figures and master CSV/JSON tables are output to `paper/figures/` and `ml/eval/results/`. An interactive walkthrough is available in `notebooks/robustness_and_adversarial_eval.ipynb`.
+
 ---
 
 ## Roadmap
@@ -296,7 +310,7 @@ curl -X POST http://localhost:8000/api/v1/verify \
 - [x] React web application with multi-modal explainability and verification
 - [x] Chrome extension (Manifest V3) with Shadow DOM overlay
 - [x] Signed PDF reports and HMAC verification
-- [ ] Robustness and adversarial evaluation
+- [x] Robustness and adversarial evaluation
 
 ---
 
