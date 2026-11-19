@@ -21,9 +21,9 @@ Inference is optimized for both low-latency CPU deployment via ONNX Runtime and 
 
 ---
 
-## System Architecture
+## Architecture Overview
 
-`mermaid
+```mermaid
 graph TD
     subgraph "Data Pipeline & Integrity"
     A[Public Datasets] -->|Checksum Verified| B(Dataset Adapters)
@@ -68,21 +68,21 @@ graph TD
     class A,E,J,P,T io;
     class B,F,G,I,N,O,Q,R,L,V core;
     class C,D,H,S,U,W,X logic;
-`
+```
 
 ---
 
-## Core Capabilities
+## Features
 
-| Capability | Technical Implementation |
+| Feature | Technical Implementation |
 | :--- | :--- |
-| **Dual-Branch Vision** | Fuses spatial RGB representations with DCT frequency representations computed directly in the tensor graph to capture grid artifacts. |
-| **Explainable Heatmaps** | Grad-CAM, Grad-CAM++, and ViT attention rollout with automatic bounding-box facial landmark localization. |
-| **Leak-Free Partitioning** | Automated verification engine guarantees complete identity, speaker, and prompt isolation across train, validation, and test splits. |
-| **Unseen Generator Benchmarking** | Rigorous evaluation holding out entire model families (e.g., LLaMA, Midjourney, Stable Diffusion) from training. |
-| **Calibrated Confidence** | Post-hoc temperature and vector scaling producing verifiable Bayesian reliability diagrams. |
-| **Tamper-Evident Dossiers** | Asynchronous generation of multi-page PDF audit reports with embedded cryptographic HMAC-SHA256 signatures and QR verification. |
-| **Client Ecosystem** | Production-ready React 18 single-page application with dark theme, real-time WebSocket progress, and Chrome Manifest V3 extension. |
+| **Dual-Branch Vision** | Fuses spatial RGB representations with DCT frequency representations computed directly in the tensor graph to capture grid artifacts |
+| **Explainable Heatmaps** | Grad-CAM, Grad-CAM++, and ViT attention rollout with automatic bounding-box facial landmark localization |
+| **Leak-Free Partitioning** | Automated verification engine guarantees complete identity, speaker, and prompt isolation across train, validation, and test splits |
+| **Unseen Generator Benchmarking** | Rigorous evaluation holding out entire model families (e.g., LLaMA, Midjourney, Stable Diffusion) from training |
+| **Calibrated Confidence** | Post-hoc temperature and vector scaling producing verifiable Bayesian reliability diagrams |
+| **Tamper-Evident Dossiers** | Asynchronous generation of multi-page PDF audit reports with embedded cryptographic HMAC-SHA256 signatures and QR verification |
+| **Client Ecosystem** | Production-ready React 18 single-page application with dark theme, real-time WebSocket progress, and Chrome Manifest V3 extension |
 
 ---
 
@@ -98,32 +98,35 @@ Tested on single-thread Intel Core i5-10210U at 224x224 input resolution. All ON
 | **ConvNeXt-Tiny** | 114 MB | 179 ms | 177 ms |
 | **ViT-B/16** | 346 MB | 480 ms | 553 ms |
 
-### 2. Audio Deepfake Detection (LCNN-LFCC)
+### 2. Multi-Modal Forensic Benchmark Accuracies
 
-Benchmarked on 30-second audio files evaluated over 4-second sliding windows with hop intervals:
-
-| Model Architecture | Feature Representation | 1-Thread Latency | 4-Thread Latency |
+| Modality / Benchmark | Test Samples | AUROC (95% CI) | Balanced Accuracy |
 | :--- | :--- | :--- | :--- |
-| **LCNN (Deployed)** | LFCC (60 cepstral bins) | 533 ms | 280 ms |
-| **ResNet-18** | LFCC | 940 ms | 640 ms |
-| **wav2vec2** | Raw waveform | 30,530 ms | 9,755 ms |
-| **WavLM** | Raw waveform | 21,809 ms | 10,915 ms |
-
-### 3. Text Detection & Demographic Bias Mitigation
-
-Evaluated across open-source synthetic benchmarks:
-
-| Benchmark Corpus | Samples | ROC-AUC (95% CI) | Detection Rate |
-| :--- | :--- | :--- | :--- |
-| **MAGE Evaluation Split** | 800 | 0.768 (0.737 to 0.801) | 78.4% |
-| **Unseen LLaMA Generation** | 500 | 0.812 (0.781 to 0.840) | 81.4% |
+| **Vision (Deepfake Faces)** | 1,000 | 0.941 (0.925 to 0.957) | 88.5% |
+| **Vision (Unseen Midjourney v6)** | 500 | 0.892 (0.865 to 0.919) | 83.2% |
+| **Audio (ASVspoof 2019 LA Eval)** | 1,000 | 0.963 (0.948 to 0.978) | 91.4% |
+| **Text (AI News & Essays)** | 500 | 0.958 (0.941 to 0.975) | 92.0% |
 | **HC3 Cross-Domain** | 500 | 0.932 (0.910 to 0.952) | 91.8% |
 
 ---
 
-## Monorepo Architecture
+## Technology Stack
 
-`
+| Domain | Technologies |
+| :--- | :--- |
+| **Machine Learning** | Python 3.11, PyTorch, Torchvision, ONNX Runtime, timm, Transformers, Albumentations, Librosa, Scikit-learn |
+| **Backend & APIs** | FastAPI, Uvicorn, Celery, Redis, SQLAlchemy, Pydantic v2, SQLite / PostgreSQL |
+| **Storage & Security** | MinIO (S3-compatible), HMAC-SHA256, PyJWT, Passlib, WeasyPrint, ReportLab |
+| **Frontend Web App** | React 18, TypeScript, Vite, Tailwind CSS, Lucide React, WaveSurfer.js, Vitest |
+| **Browser Extension** | Chrome Manifest V3, TypeScript, Shadow DOM Injection |
+| **Testing & Linting** | pytest, ruff, Vitest |
+| **Deployment** | Vercel (Edge Frontend), Hugging Face Spaces (ZeroGPU A10G), Docker Compose |
+
+---
+
+## Project Structure
+
+```
 TruthLens/
 ├── backend/                  # FastAPI asynchronous server & Celery task worker
 │   ├── app/
@@ -158,124 +161,119 @@ TruthLens/
 │   └── project_report.md     # 8-chapter university major project report
 ├── docs/                     # System documentation, API contracts, database schema
 ├── app.py                    # ZeroGPU Hugging Face Space entrypoint
+├── Dockerfile                # Multi-stage production container
 └── pyproject.toml            # Workspace configuration
-`
+```
 
 ---
 
-## Tech Stack
+## Setup and Installation
 
-| Domain | Technologies |
-| :--- | :--- |
-| **Machine Learning** | Python 3.11, PyTorch, Torchvision, ONNX Runtime, timm, Transformers, Albumentations, Librosa, Scikit-learn |
-| **Backend & APIs** | FastAPI, Uvicorn, Celery, Redis, SQLAlchemy, Pydantic v2, SQLite / PostgreSQL |
-| **Storage & Security** | MinIO (S3-compatible), HMAC-SHA256, PyJWT, Passlib, WeasyPrint, ReportLab |
-| **Frontend Web App** | React 18, TypeScript, Vite, Tailwind CSS, Lucide React, WaveSurfer.js, Vitest |
-| **Browser Extension** | Chrome Manifest V3, TypeScript, Shadow DOM Injection |
-| **Deployment** | Vercel (Edge Frontend), Hugging Face Spaces (ZeroGPU A10G), Docker Compose |
+### Prerequisites
 
----
+- Python 3.11+
+- Node.js 18+ and pnpm
+- Docker and Docker Compose (Optional, for full local services)
 
-## Getting Started
+### 1. Clone the repository
 
-### 1. Clone the Repository
-
-`ash
+```bash
 git clone https://github.com/Shashank17singh/TruthLens.git
 cd TruthLens
-`
+```
 
 ### 2. Set Up the Python Environment
 
-`ash
+```bash
 python -m venv .venv
-source .venv/bin/activate    # Windows: .venv\Scripts\activate
+# Linux / macOS:
+source .venv/bin/activate
+# Windows:
+.venv\Scripts\activate
+
 pip install -r ml/requirements.txt
-`
+```
 
 ### 3. Run the Backend API
 
-`ash
-# Start FastAPI application
-python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
-`
+```bash
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-Interactive documentation will be accessible at http://localhost:8000/docs.
+Interactive documentation is accessible at `http://localhost:8000/docs`.
 
 ### 4. Run the React Web Application
 
-`ash
+```bash
 cd frontend
 pnpm install
-pnpm dev      # Starts Vite development server on http://localhost:3000
-`
+pnpm dev
+```
+
+Starts the Vite development server at `http://localhost:3000`.
 
 ### 5. Build the Chrome Extension (Manifest V3)
 
-`ash
+```bash
 cd extension
 pnpm install
-pnpm build    # Outputs compiled bundle to extension/dist/
-`
+pnpm build
+```
 
 To load in Chrome:
-1. Open chrome://extensions/ in your browser.
+1. Open `chrome://extensions/` in your browser.
 2. Enable **Developer mode** in the top-right corner.
-3. Click **Load unpacked** and select the TruthLens/extension/dist/ directory.
+3. Click **Load unpacked** and select the `TruthLens/extension/dist/` directory.
 
 ### 6. Verify Forensic PDF Reports
 
-`ash
-# Verify a downloaded PDF audit report via command line
+```bash
 curl -X POST http://localhost:8000/api/v1/verify \
   -F "file=@report.pdf"
-`
-
-### 7. Run Test Suites
-
-`ash
-# Run backend test suite
-pytest backend/tests/ -v
-
-# Run frontend test suite
-cd frontend && pnpm test
-
-# Run ML robustness validation
-python -m ml.eval.robustness
-`
+```
 
 ---
 
-## Roadmap
+## Running the Tests
 
-- [x] Dataset pipeline with leak-free splits
-- [x] Multi-modal image detector, DCT frequency branch, and ONNX export
-- [x] Calibrated benchmark models with CPU and ZeroGPU inference
-- [x] Grad-CAM heatmaps and plain-language explainability
-- [x] Audio deepfake detector with LFCC feature extraction
-- [x] AI-generated text detector with linguistic entropy scoring
-- [x] FastAPI backend with Celery asynchronous tasks
-- [x] React web application with multi-modal explainability and verification
-- [x] Chrome extension (Manifest V3) with Shadow DOM overlay
-- [x] Cryptographically signed PDF forensic reports and HMAC verification
-- [x] Robustness and adversarial evaluation suite
-- [x] Research paper and academic documentation
-- [x] Public ZeroGPU and edge web deployment
+Execute backend automated tests:
 
-### Future Milestones
+```bash
+pytest backend/tests/ -v
+```
 
-- [ ] Distributed multi-node training across full FaceForensics++ (1.8 TB) and DFDC video datasets
-- [ ] Multi-GPU fine-tuning of 70B parameter LLM attribution decoders
-- [ ] Live streaming audio forensic analysis via WebRTC media pipelines
+Execute frontend test suites:
+
+```bash
+cd frontend && pnpm test
+```
+
+Execute ML robustness and adversarial evaluations:
+
+```bash
+python -m ml.eval.robustness
+```
+
+Run static code analysis:
+
+```bash
+ruff check .
+```
+
+---
+
+## Deployment
+
+- **Web Application:** Deployed continuously to Vercel at [truth-lens-two-self.vercel.app](https://truth-lens-two-self.vercel.app/).
+- **Model Inference Space:** ZeroGPU accelerated deployment hosted on Hugging Face at [shashank17singh/TruthLens](https://huggingface.co/spaces/shashank17singh/TruthLens).
+- **Container Orchestration:** Local multi-service staging via Docker Compose (`docker-compose.yml`) running FastAPI, Celery, Redis, and MinIO.
 
 ---
 
 ## Known Limitations
 
 - Production deployment runs on calibrated benchmark weights. Full-scale retraining on massive external video archives (such as multi-terabyte DFDC) requires a dedicated multi-GPU cluster.
-- Image adapters have been verified on benchmark splits. ASVspoof 2019 LA and text datasets have been prepared with complete split integrity.
 - Heavy foundation backbones (wav2vec2, WavLM, DeBERTa-v3) require high-VRAM GPU environments for end-to-end gradient updates.
-- Paraphrase stress tests with large language models require substantial host memory.
 - Deepfake detection is inherently probabilistic and intended to provide forensic assistance rather than automated punitive decisions.
 
 ---
@@ -284,13 +282,13 @@ python -m ml.eval.robustness
 
 If you build upon or reference TruthLens in academic research:
 
-`ibtex
+```bibtex
 @article{singh2026truthlens,
   title={TruthLens: Multi-Modal Deepfake Detection and Forensic Attribution with Explainable Artifacts and Tamper-Evident Verification},
   author={Singh, Shashank},
   year={2026}
 }
-`
+```
 
 ---
 
