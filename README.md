@@ -295,6 +295,19 @@ pytest ml/eval/tests/test_robustness.py -v
 
 Publication figures and master CSV/JSON tables are output to `paper/figures/` and `ml/eval/results/`. An interactive walkthrough is available in `notebooks/robustness_and_adversarial_eval.ipynb`.
 
+### 10. Research Paper and Documentation
+
+The project includes an IEEE conference paper template (`paper/main.tex`, `paper/references.bib`, and compiled `paper/main.pdf`), along with a comprehensive university major project report (`paper/project_report.md`) covering Chapters 1--8 and 15 defended viva questions.
+
+```bash
+# Compile IEEE conference paper (requires pdflatex and bibtex)
+cd paper
+pdflatex -interaction=nonstopmode main.tex
+bibtex main
+pdflatex -interaction=nonstopmode main.tex
+pdflatex -interaction=nonstopmode main.tex
+```
+
 ---
 
 ## Roadmap
@@ -311,6 +324,7 @@ Publication figures and master CSV/JSON tables are output to `paper/figures/` an
 - [x] Chrome extension (Manifest V3) with Shadow DOM overlay
 - [x] Signed PDF reports and HMAC verification
 - [x] Robustness and adversarial evaluation
+- [x] Research paper and academic documentation
 
 ---
 
