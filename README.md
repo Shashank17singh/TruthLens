@@ -2,6 +2,8 @@
 
 Detects AI-generated and manipulated images, audio and text, and explains each result instead of only giving a score.
 
+![TruthLens multi-modal forensic evidence and attribution platform](truthlens.png)
+
 ## Overview
 
 Detectors that score well in a paper often fail on a new generator, or after an image has been compressed by a social network. TruthLens is built around measuring that gap. Every dataset goes through a pipeline that refuses to write a split if the same identity, speaker or prompt reaches both training and evaluation, and every experiment holds out generators the model never sees.
