@@ -27,18 +27,18 @@ import subprocess
 import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Callable
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn.functional as F
 from PIL import Image, ImageEnhance, ImageFilter
 from scipy import signal
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch import nn
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("TruthLens.Robustness")
@@ -410,7 +410,7 @@ def train_adversarial_defense(
     robust_model.train()
     optimizer = torch.optim.Adam(robust_model.parameters(), lr=lr)
 
-    for epoch in range(epochs):
+    for _epoch in range(epochs):
         optimizer.zero_grad()
         # Half clean, half adversarial
         adv_images = pgd_attack(robust_model, images, labels, epsilon=epsilon, num_steps=4)
@@ -734,8 +734,8 @@ def plot_cross_dataset_drop(results: list[GeneralizationResult], out_path: Path)
     in_domain = [r.in_domain_score * 100 for r in results]
     cross_domain = [r.cross_domain_score * 100 for r in results]
 
-    rects1 = ax.bar(x - width / 2, in_domain, width, label="In-Domain Test ROC-AUC", color="#059669")
-    rects2 = ax.bar(x + width / 2, cross_domain, width, label="Cross-Dataset Transfer ROC-AUC", color="#d97706")
+    ax.bar(x - width / 2, in_domain, width, label="In-Domain Test ROC-AUC", color="#059669")
+    ax.bar(x + width / 2, cross_domain, width, label="Cross-Dataset Transfer ROC-AUC", color="#d97706")
 
     # Add drop delta labels
     for i, r in enumerate(results):

@@ -1,7 +1,6 @@
 """Unit tests for the multi-modal robustness and adversarial evaluation suite."""
 
 import numpy as np
-import pytest
 import torch
 from PIL import Image
 

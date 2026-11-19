@@ -3,6 +3,10 @@
 from datetime import datetime
 from typing import Annotated
 
+from fastapi import APIRouter, Cookie, Depends, Response, status
+from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.orm import Session
+
 from backend.app.core.auth import get_current_user, rate_limit_unauthenticated
 from backend.app.core.config import settings
 from backend.app.core.errors import APIError
@@ -15,9 +19,6 @@ from backend.app.core.security import (
 )
 from backend.app.db.models import User
 from backend.app.db.session import get_db
-from fastapi import APIRouter, Cookie, Depends, Response, status
-from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

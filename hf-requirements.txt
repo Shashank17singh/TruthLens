@@ -19,6 +19,7 @@ pillow>=10.4.0
 onnxruntime>=1.19.0
 pyyaml>=6.0.2
 httpx>=0.27.0
+pytest>=8.0.0
 opencv-python-headless
 batch-face
 grad-cam

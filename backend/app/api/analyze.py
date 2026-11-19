@@ -5,6 +5,10 @@ import io
 from datetime import UTC, datetime, timedelta
 
 import soundfile as sf
+from fastapi import APIRouter, Depends, File, UploadFile, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
 from backend.app.core.auth import AuthenticatedClient, get_authenticated_client
 from backend.app.core.config import settings
 from backend.app.core.errors import APIError
@@ -20,9 +24,6 @@ from backend.app.worker.tasks import (
     analyze_text_task,
     analyze_url_task,
 )
-from fastapi import APIRouter, Depends, File, UploadFile, status
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/analyze", tags=["analyze"])
 
@@ -140,16 +141,15 @@ async def analyze_audio(
 
     # Decode audio to check duration
     try:
-        with io.BytesIO(content) as buf:
-            with sf.SoundFile(buf) as sf_file:
-                duration = len(sf_file) / sf_file.samplerate
-                if duration > settings.MAX_AUDIO_DURATION_SECONDS:
-                    raise APIError(
-                        status_code=413,
-                        code="audio_too_long",
-                        message=f"Audio exceeds maximum duration of {int(settings.MAX_AUDIO_DURATION_SECONDS)} seconds.",
-                        details={"max_duration_seconds": settings.MAX_AUDIO_DURATION_SECONDS, "audio_duration": duration},
-                    )
+        with io.BytesIO(content) as buf, sf.SoundFile(buf) as sf_file:
+            duration = len(sf_file) / sf_file.samplerate
+            if duration > settings.MAX_AUDIO_DURATION_SECONDS:
+                raise APIError(
+                    status_code=413,
+                    code="audio_too_long",
+                    message=f"Audio exceeds maximum duration of {int(settings.MAX_AUDIO_DURATION_SECONDS)} seconds.",
+                    details={"max_duration_seconds": settings.MAX_AUDIO_DURATION_SECONDS, "audio_duration": duration},
+                )
     except APIError:
         raise
     except Exception as exc:

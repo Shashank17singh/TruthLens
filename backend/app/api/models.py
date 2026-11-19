@@ -1,7 +1,8 @@
 """Model catalog endpoint."""
 
-from backend.app.inference.registry import registry
 from fastapi import APIRouter
+
+from backend.app.inference.registry import registry
 
 router = APIRouter(tags=["models"])
 

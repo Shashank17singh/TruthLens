@@ -1,8 +1,9 @@
 """Health and readiness check endpoints."""
 
-from backend.app.db.session import engine
 from fastapi import APIRouter, Response, status
 from sqlalchemy import text
+
+from backend.app.db.session import engine
 
 router = APIRouter(tags=["health"])
 

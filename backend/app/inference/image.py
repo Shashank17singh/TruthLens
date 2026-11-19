@@ -6,8 +6,9 @@ from typing import Any
 
 import cv2
 import numpy as np
-from backend.app.inference.registry import registry
 from PIL import Image
+
+from backend.app.inference.registry import registry
 
 
 def softmax(x: np.ndarray) -> np.ndarray:

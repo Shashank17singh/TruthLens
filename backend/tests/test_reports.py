@@ -4,7 +4,8 @@ import hashlib
 import io
 from datetime import UTC, datetime
 
-import pytest
+from fastapi.testclient import TestClient
+
 from backend.app.core.security import generate_uuidv7
 from backend.app.db.models import Analysis, AnalysisResult, Report, User
 from backend.app.reports.generator import (
@@ -16,7 +17,6 @@ from backend.app.reports.generator import (
     verify_report_hmac,
 )
 from backend.app.storage.minio_client import storage
-from fastapi.testclient import TestClient
 
 
 def test_qr_generation():

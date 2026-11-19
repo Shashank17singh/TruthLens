@@ -7,10 +7,10 @@ import io
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import jinja2
 import qrcode
+
 from backend.app.core.config import settings
 from backend.app.db.models import Analysis, AnalysisResult, Report
 from backend.app.db.session import SessionLocal
@@ -113,13 +113,15 @@ def render_reportlab_pdf(
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.platypus import (
         HRFlowable,
-        Image as RLImage,
         KeepTogether,
         Paragraph,
         SimpleDocTemplate,
         Spacer,
         Table,
         TableStyle,
+    )
+    from reportlab.platypus import (
+        Image as RLImage,
     )
 
     verdict_label = getattr(result, "verdict_label", None) or get_verdict_label(analysis.modality, result.verdict)
@@ -144,14 +146,6 @@ def render_reportlab_pdf(
         fontSize=20,
         leading=24,
         textColor=colors.HexColor("#4338ca"),
-    )
-    brand_sub_style = ParagraphStyle(
-        "BrandSub",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8,
-        leading=10,
-        textColor=colors.HexColor("#64748b"),
     )
     verdict_title_style = ParagraphStyle(
         "VerdictTitle",
@@ -378,9 +372,9 @@ def render_pdf_bytes(report_id: str, analysis: Analysis, result: AnalysisResult,
     hmac_display_sig = sign_report(report_id, temp_hash)
 
     verdict_label = getattr(result, "verdict_label", None) or get_verdict_label(analysis.modality, result.verdict)
-    setattr(result, "verdict_label", verdict_label)
+    result.verdict_label = verdict_label
     disclaimer = getattr(result, "disclaimer", None) or "Results are probabilistic and must not be used alone to make decisions about a person."
-    setattr(result, "disclaimer", disclaimer)
+    result.disclaimer = disclaimer
 
     template = jinja_env.get_template("report.html")
     html_out = template.render(

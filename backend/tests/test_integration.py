@@ -5,10 +5,11 @@ import io
 import numpy as np
 import pytest
 import soundfile as sf
+from PIL import Image
+
 from backend.app.core.config import settings
 from backend.app.inference.audio import run_audio_inference
 from backend.app.inference.image import run_image_inference
-from PIL import Image
 
 
 def generate_test_image_bytes(size: int = 224) -> bytes:

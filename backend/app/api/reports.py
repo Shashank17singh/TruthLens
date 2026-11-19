@@ -3,6 +3,11 @@
 import hashlib
 import secrets
 
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, status
+from fastapi.responses import Response as RawResponse
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
 from backend.app.core.auth import (
     AuthenticatedClient,
     get_authenticated_client,
@@ -14,10 +19,6 @@ from backend.app.db.models import Analysis, AnalysisResult, Report
 from backend.app.db.session import get_db
 from backend.app.reports.generator import render_report_task, verify_report_hmac
 from backend.app.storage.minio_client import storage
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, status
-from fastapi.responses import Response as RawResponse
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["reports"])
 
@@ -94,7 +95,7 @@ def get_report_pdf(
     db: Session = Depends(get_db),
 ):
     """Download the raw signed PDF report."""
-    clean_id = id[:-4] if id.endswith(".pdf") else id
+    clean_id = id.removesuffix(".pdf")
     report = db.query(Report).filter(Report.id == clean_id).first()
     if not report:
         raise APIError(status_code=404, code="not_found", message="Report not found.")
