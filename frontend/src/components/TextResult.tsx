@@ -38,19 +38,19 @@ export const TextResult: React.FC<TextResultProps> = ({ details, rawText }) => {
       {/* Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase">Total Words</span>
+          <span className="text-[11px] font-semibold text-slate-500">Total words</span>
           <div className="text-lg font-bold font-mono text-slate-800 dark:text-slate-200 mt-0.5">
             {textDetails?.word_count || 0}
           </div>
         </div>
         <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase">Sentences</span>
+          <span className="text-[11px] font-semibold text-slate-500">Sentences</span>
           <div className="text-lg font-bold font-mono text-slate-800 dark:text-slate-200 mt-0.5">
             {sentences.length}
           </div>
         </div>
         <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase">Max AI Probability</span>
+          <span className="text-[11px] font-semibold text-slate-500">Max AI probability</span>
           <div className="text-lg font-bold font-mono text-rose-600 dark:text-rose-400 mt-0.5">
             {sentences.length > 0
               ? `${(Math.max(...sentences.map((s) => s.probability)) * 100).toFixed(0)}%`
@@ -58,7 +58,7 @@ export const TextResult: React.FC<TextResultProps> = ({ details, rawText }) => {
           </div>
         </div>
         <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase">Min AI Probability</span>
+          <span className="text-[11px] font-semibold text-slate-500">Min AI probability</span>
           <div className="text-lg font-bold font-mono text-teal-600 dark:text-teal-400 mt-0.5">
             {sentences.length > 0
               ? `${(Math.min(...sentences.map((s) => s.probability)) * 100).toFixed(0)}%`
@@ -70,7 +70,7 @@ export const TextResult: React.FC<TextResultProps> = ({ details, rawText }) => {
       {/* Main Text Breakdown Box */}
       <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
             <FileText className="w-4 h-4 text-brand-500" />
             Sentence-Level Attribution
           </h4>
@@ -96,7 +96,7 @@ export const TextResult: React.FC<TextResultProps> = ({ details, rawText }) => {
                 onMouseEnter={() => setHoveredSentence(s)}
                 onMouseLeave={() => setHoveredSentence(null)}
                 onClick={() => setSelectedSentence(s)}
-                className={`inline cursor-pointer px-1 py-0.5 rounded transition-all mr-1.5 ${getHighlightStyle(
+                className={`inline cursor-pointer px-1 py-0.5 rounded transition-colors mr-1.5 ${getHighlightStyle(
                   s.probability
                 )} ${
                   activeSentence?.start === s.start

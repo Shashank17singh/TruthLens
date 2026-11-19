@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Shield,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { Dropzone } from '../components/Dropzone';
 import {
@@ -59,6 +60,76 @@ export const AnalyzePage: React.FC = () => {
 
   const wordCount = textContent.trim() ? textContent.trim().split(/\s+/).length : 0;
   const charCount = textContent.length;
+
+  const sampleAIText =
+    'The accelerated integration of multi-modal generative intelligence models across contemporary institutional ecosystems represents a transformative paradigm shift of unprecedented magnitude. Furthermore, optimizing computational throughput across distributed inference pipelines inherently facilitates continuous knowledge distillation. Consequently, verifiable cryptographic watermarking remains paramount for sustained epistemic integrity.';
+
+  const sampleHumanText =
+    'Early this morning, the harbor fog was so dense that none of the fishing trawlers could leave the dock until well past seven. We sat in the small coffee shack by the pier, drinking black tea from paper cups and listening to the low groan of the buoy horn out in the bay while waiting for the sun to break through the cloud cover.';
+
+  const loadSampleImage = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 320;
+    canvas.height = 320;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const grad = ctx.createLinearGradient(0, 0, 320, 320);
+      grad.addColorStop(0, '#064e3b');
+      grad.addColorStop(0.5, '#047857');
+      grad.addColorStop(1, '#065f46');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 320, 320);
+
+      ctx.beginPath();
+      ctx.ellipse(160, 160, 80, 110, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = '#10b981';
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('TruthLens Forensic Sample', 160, 155);
+      ctx.font = '12px monospace';
+      ctx.fillText('Visual Synthetic Test', 160, 185);
+    }
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], 'forensic_sample_image.png', { type: 'image/png' });
+        setSelectedImage(file);
+        setErrorMessage(null);
+      }
+    }, 'image/png');
+  };
+
+  const loadSampleAudio = () => {
+    const sampleRate = 16000;
+    const numSamples = sampleRate * 2;
+    const buffer = new ArrayBuffer(44 + numSamples * 2);
+    const view = new DataView(buffer);
+    view.setUint32(0, 0x52494646, false);
+    view.setUint32(4, 36 + numSamples * 2, true);
+    view.setUint32(8, 0x57415645, false);
+    view.setUint32(12, 0x666d7420, false);
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    view.setUint32(36, 0x64617461, false);
+    view.setUint32(40, numSamples * 2, true);
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sampleRate;
+      const sample = Math.sin(2 * Math.PI * 440 * t) * 0.4 * 32767;
+      view.setInt16(44 + i * 2, sample, true);
+    }
+    const blob = new Blob([buffer], { type: 'audio/wav' });
+    const file = new File([blob], 'forensic_sample_audio.wav', { type: 'audio/wav' });
+    setSelectedAudio(file);
+    setErrorMessage(null);
+  };
 
   const ensureAuthenticated = async () => {
     if (!user) {
@@ -300,9 +371,20 @@ export const AnalyzePage: React.FC = () => {
                 onFileSelect={setSelectedImage}
                 disabled={isSubmitting}
               />
-              <p className="text-[11px] text-slate-500">
-                Stripping EXIF metadata automatically before pipeline processing. Supports ConvNeXt-Tiny spatial features and 2D DCT radial spectrum.
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                <span>
+                  Stripping EXIF metadata automatically before pipeline processing. Supports ConvNeXt-Tiny and 2D DCT radial spectrum.
+                </span>
+                <button
+                  type="button"
+                  onClick={loadSampleImage}
+                  disabled={isSubmitting}
+                  className="text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  Try sample image
+                </button>
+              </div>
             </div>
           )}
 
@@ -315,19 +397,45 @@ export const AnalyzePage: React.FC = () => {
                 onFileSelect={setSelectedAudio}
                 disabled={isSubmitting}
               />
-              <p className="text-[11px] text-slate-500">
-                Evaluates LFCC coefficients across 4-second temporal sliding windows via LCNN architecture.
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                <span>
+                  Evaluates LFCC coefficients across 4-second temporal sliding windows via LCNN architecture.
+                </span>
+                <button
+                  type="button"
+                  onClick={loadSampleAudio}
+                  disabled={isSubmitting}
+                  className="text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  Try sample audio
+                </button>
+              </div>
             </div>
           )}
 
           {activeTab === 'text' && (
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <span>Enter English prose or article excerpt:</span>
-                <span className={`font-mono ${wordCount < 10 ? 'text-amber-500' : 'text-slate-400'}`}>
-                  {wordCount} words / {charCount} chars {wordCount < 10 && '(min. 10 words)'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTextContent(sampleAIText)}
+                    className="text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    Load AI sample
+                  </button>
+                  <span className="text-slate-300 dark:text-slate-700">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setTextContent(sampleHumanText)}
+                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  >
+                    Load human sample
+                  </button>
+                </div>
               </div>
               <textarea
                 rows={8}
@@ -337,6 +445,14 @@ export const AnalyzePage: React.FC = () => {
                 placeholder="Paste suspicious text, news article, or AI-generated essay here to analyze burstiness, perplexity variance, and vocabulary entropy..."
                 className="w-full p-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 font-serif leading-relaxed"
               />
+              <div className="flex justify-between text-xs text-slate-500">
+                <span className={wordCount < 10 ? 'text-amber-500' : 'text-slate-400'}>
+                  <span className="font-mono">{wordCount}</span> words {wordCount < 10 && '(min. 10 words required)'}
+                </span>
+                <span>
+                  <span className="font-mono">{charCount}</span> characters
+                </span>
+              </div>
             </div>
           )}
 
@@ -405,12 +521,12 @@ export const AnalyzePage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-brand-500/20 flex items-center justify-center gap-2 transition-all"
+            className="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-brand-500/20 flex items-center justify-center gap-2 transition-colors whitespace-nowrap"
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Processing Forensic Pipeline...
+                Processing Forensic Pipeline…
               </>
             ) : (
               <>
@@ -425,10 +541,10 @@ export const AnalyzePage: React.FC = () => {
       {/* Progress Dialog Overlay when Submitting */}
       {isSubmitting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-6 shadow-2xl animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-6 shadow-2xl motion-safe:animate-in motion-safe:zoom-in-95 duration-150">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 mx-auto flex items-center justify-center shadow-inner">
-                <Shield className="w-6 h-6 animate-pulse" />
+                <Shield className="w-6 h-6 motion-safe:animate-pulse" />
               </div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Forensic Pipeline in Progress
@@ -436,8 +552,8 @@ export const AnalyzePage: React.FC = () => {
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Executing anti-spoofing classifiers on CPU runtime
                 {currentAnalysisId && (
-                  <span className="block font-mono text-[10px] text-slate-400 mt-0.5">
-                    ID: {currentAnalysisId.slice(0, 18)}...
+                  <span className="block text-[10px] text-slate-400 mt-0.5">
+                    ID: <span className="font-mono">{currentAnalysisId.slice(0, 18)}…</span>
                   </span>
                 )}
               </p>
@@ -445,16 +561,16 @@ export const AnalyzePage: React.FC = () => {
 
             {/* Progress bar */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-mono">
-                <span className="text-brand-600 dark:text-brand-400 uppercase font-semibold">
+              <div className="flex justify-between text-xs">
+                <span className="text-brand-600 dark:text-brand-400 font-semibold">
                   Stage: {progressStage}
                 </span>
-                <span className="text-slate-500 font-bold">{progressPercent}%</span>
+                <span className="text-slate-500 font-mono font-bold">{progressPercent}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-brand-600 to-indigo-500 transition-all duration-300 rounded-full"
-                  style={{ width: `${progressPercent}%` }}
+                  className="h-full bg-gradient-to-r from-brand-600 to-indigo-500 origin-left transition-transform duration-300 rounded-full"
+                  style={{ transform: `scaleX(${progressPercent / 100})`, width: '100%' }}
                 />
               </div>
             </div>

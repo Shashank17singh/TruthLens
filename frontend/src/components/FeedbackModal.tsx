@@ -83,7 +83,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsCorrect(true)}
-                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-all ${
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-colors ${
                   isCorrect === true
                     ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-500/30'
                     : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
@@ -96,7 +96,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsCorrect(false)}
-                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-all ${
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-colors ${
                   isCorrect === false
                     ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 ring-2 ring-rose-500/30'
                     : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'

@@ -15,7 +15,7 @@ describe('Gauge Component', () => {
 
     expect(screen.getByText('85%')).toBeInTheDocument();
     expect(screen.getByText('Likely AI-Generated')).toBeInTheDocument();
-    expect(screen.getByText('[78% – 91%]')).toBeInTheDocument();
+    expect(screen.getByText('[78%, 91%]')).toBeInTheDocument();
   });
 
   it('exposes accessible ARIA meter attributes', () => {

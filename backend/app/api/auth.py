@@ -45,6 +45,11 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+    refresh_token: str | None = None
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str | None = None
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
@@ -88,6 +93,7 @@ def login(req: LoginRequest, response: Response, db: Session = Depends(get_db)):
 
     return TokenResponse(
         access_token=access_token,
+        refresh_token=refresh_token,
         expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
@@ -96,13 +102,15 @@ def login(req: LoginRequest, response: Response, db: Session = Depends(get_db)):
 def refresh(
     response: Response,
     refresh_token: Annotated[str | None, Cookie()] = None,
+    req: RefreshTokenRequest | None = None,
     db: Session = Depends(get_db),
 ):
-    if not refresh_token:
-        raise APIError(status_code=401, code="invalid_token", message="Missing refresh token cookie.")
+    token_to_use = refresh_token or (req.refresh_token if req else None)
+    if not token_to_use:
+        raise APIError(status_code=401, code="invalid_token", message="Missing refresh token.")
 
     try:
-        payload = decode_token(refresh_token)
+        payload = decode_token(token_to_use)
     except Exception as exc:
         raise APIError(status_code=401, code="invalid_token", message="Invalid or expired refresh token.") from exc
 
@@ -128,6 +136,7 @@ def refresh(
 
     return TokenResponse(
         access_token=new_access_token,
+        refresh_token=new_refresh_token,
         expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 

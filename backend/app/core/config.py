@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "truthlens-dev-jwt-secret-key-change-in-production-32chars"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 120
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     HMAC_KEY: str = "truthlens-dev-hmac-key-change-in-production-32chars"
     HMAC_KEY_ID: str = "k1"

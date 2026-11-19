@@ -117,7 +117,7 @@ export const AudioResult: React.FC<AudioResultProps> = ({
             <button
               onClick={togglePlay}
               disabled={!isReady}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow transition-all disabled:opacity-50"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow transition-colors active:scale-95 disabled:opacity-50"
               aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
@@ -129,7 +129,7 @@ export const AudioResult: React.FC<AudioResultProps> = ({
                 }
               }}
               disabled={!isReady}
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95"
               title="Restart"
             >
               <RotateCcw className="w-4 h-4" />
@@ -137,12 +137,12 @@ export const AudioResult: React.FC<AudioResultProps> = ({
           </div>
 
           {activeWindow && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-mono">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">
               <span className="text-slate-400">
-                Segment [{activeWindow.start.toFixed(1)}s - {activeWindow.end.toFixed(1)}s]:
+                Segment [<span className="font-mono">{activeWindow.start.toFixed(1)}</span>s - <span className="font-mono">{activeWindow.end.toFixed(1)}</span>s]:
               </span>
               <span
-                className={`font-bold ${
+                className={`font-semibold ${
                   activeWindow.probability > 0.6
                     ? 'text-rose-600 dark:text-rose-400'
                     : activeWindow.probability >= 0.4
@@ -150,7 +150,7 @@ export const AudioResult: React.FC<AudioResultProps> = ({
                     : 'text-teal-600 dark:text-teal-400'
                 }`}
               >
-                {(activeWindow.probability * 100).toFixed(0)}% AI
+                <span className="font-mono">{(activeWindow.probability * 100).toFixed(0)}%</span> AI
               </span>
             </div>
           )}
@@ -161,8 +161,8 @@ export const AudioResult: React.FC<AudioResultProps> = ({
       {windows.length > 0 && (
         <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Temporal Window Heatmap (4-second segments)
+            <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              Temporal window heatmap (4-second segments)
             </h4>
             <div className="flex items-center gap-3 text-[11px] text-slate-500">
               <span className="flex items-center gap-1">
@@ -191,7 +191,7 @@ export const AudioResult: React.FC<AudioResultProps> = ({
                   title={`Segment ${idx + 1}: ${win.start.toFixed(1)}s-${win.end.toFixed(1)}s (${(
                     win.probability * 100
                   ).toFixed(0)}% AI)`}
-                  className={`h-full rounded transition-all cursor-pointer border ${getWindowColor(
+                  className={`h-full rounded transition-opacity hover:opacity-90 cursor-pointer border ${getWindowColor(
                     win.probability
                   )} ${isSelected ? 'ring-2 ring-brand-500 ring-offset-1' : ''}`}
                 />
@@ -209,20 +209,20 @@ export const AudioResult: React.FC<AudioResultProps> = ({
       {audioDetails?.aggregate && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase">Mean Probability</span>
+            <span className="text-[11px] font-medium text-slate-500">Mean probability</span>
             <div className="text-lg font-bold font-mono text-slate-800 dark:text-slate-200 mt-0.5">
               {(audioDetails.aggregate.mean * 100).toFixed(1)}%
             </div>
           </div>
           <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase">Peak Synthetic Window</span>
+            <span className="text-[11px] font-medium text-slate-500">Peak synthetic window</span>
             <div className="text-lg font-bold font-mono text-rose-600 dark:text-rose-400 mt-0.5 flex items-center gap-1">
               <AlertTriangle className="w-4 h-4" />
               {(audioDetails.aggregate.max * 100).toFixed(1)}%
             </div>
           </div>
           <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 col-span-2 sm:col-span-1">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase">Total Slices</span>
+            <span className="text-[11px] font-medium text-slate-500">Total slices</span>
             <div className="text-lg font-bold font-mono text-slate-800 dark:text-slate-200 mt-0.5">
               {windows.length} windows
             </div>

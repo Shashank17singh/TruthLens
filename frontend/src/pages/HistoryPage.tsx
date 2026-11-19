@@ -139,7 +139,7 @@ export const HistoryPage: React.FC = () => {
         {isLoading ? (
           <div className="p-12 flex flex-col items-center justify-center space-y-3">
             <Loader2 className="w-6 h-6 animate-spin text-brand-600" />
-            <span className="text-xs text-slate-500">Loading analysis records...</span>
+            <span className="text-xs text-slate-500">Loading analysis records…</span>
           </div>
         ) : error ? (
           <div className="p-12 text-center text-xs text-rose-600 space-y-1">
@@ -165,7 +165,7 @@ export const HistoryPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
                 <tr>
                   <th className="py-3 px-4">Modality</th>
                   <th className="py-3 px-4">Subject / File</th>
@@ -199,7 +199,7 @@ export const HistoryPage: React.FC = () => {
                     </td>
 
                     <td className="py-3.5 px-4 font-mono">
-                      {item.result ? `${(item.result.probability * 100).toFixed(0)}%` : '—'}
+                      {item.result ? `${(item.result.probability * 100).toFixed(0)}%` : '-'}
                     </td>
 
                     <td className="py-3.5 px-4">
