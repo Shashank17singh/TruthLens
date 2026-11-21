@@ -22,6 +22,9 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://truthlens-forensic.vercel.app",
+        "https://truthlens-forensic-self.vercel.app",
+        "https://truth-lens-two-self.vercel.app",
     ]
 
     # Security

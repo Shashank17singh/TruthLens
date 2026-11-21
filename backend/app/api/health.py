@@ -8,6 +8,7 @@ from backend.app.db.session import engine
 router = APIRouter(tags=["health"])
 
 
+@router.get("/health")
 @router.get("/healthz")
 def healthz():
     """Liveness probe: returns 200 when the process is alive."""
