@@ -10,6 +10,7 @@ export const AuthModal: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [socialNotice, setSocialNotice] = useState<string | null>(null);
 
   if (!isAuthModalOpen) return null;
 
@@ -182,6 +183,45 @@ export const AuthModal: React.FC = () => {
             {tab === 'login' ? 'Sign In' : 'Create Account'}
           </button>
         </form>
+
+        <div className="relative my-3 text-center text-[11px] text-slate-400">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+          </div>
+          <span className="relative bg-white dark:bg-slate-900 px-2 text-slate-500">or continue with</span>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setSocialNotice(
+                  `GitHub ${tab === 'login' ? 'sign-in' : 'account creation'} is not available yet. Please use email/password or Instant Demo.`
+                )
+              }
+              className="flex-1 py-1.5 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              GitHub
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setSocialNotice(
+                  `Google ${tab === 'login' ? 'sign-in' : 'account creation'} is not available yet. Please use email/password or Instant Demo.`
+                )
+              }
+              className="flex-1 py-1.5 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              Google
+            </button>
+          </div>
+          {socialNotice && (
+            <p className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 text-[11px] text-center">
+              {socialNotice}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
