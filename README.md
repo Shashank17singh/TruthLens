@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="logo.svg" width="72" height="72" alt="TruthLens Logo" />
-</p>
-
 # TruthLens: Multi-Modal Deepfake Detection & Forensic Attribution Platform
 
 Detects AI-generated and manipulated images, audio, and text with explainable forensic artifacts (Grad-CAM heatmaps, 2D DCT frequency spectra), tamper-evident HMAC-SHA256 signed PDF audit trails, and multi-platform client applications.
