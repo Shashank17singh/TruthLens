@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  ShieldCheck,
   Sun,
   Moon,
   Menu,
@@ -42,9 +41,12 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
-                <ShieldCheck className="w-5 h-5" />
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-[#0b1120] border border-sky-500/25 flex items-center justify-center shadow-md shadow-brand-500/10 group-hover:scale-105 transition-transform">
+                <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 6.5L8.5 10V15.5C8.5 20.5 11.8 24.8 16 26C20.2 24.8 23.5 20.5 23.5 15.5V10L16 6.5Z" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12.5 15.5L15 18L20 13" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
