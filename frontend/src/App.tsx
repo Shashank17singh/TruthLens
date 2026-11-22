@@ -80,7 +80,7 @@ export const App: React.FC = () => {
                       <a href="https://shashank17singh.github.io" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 dark:hover:text-slate-300">
                         Portfolio
                       </a>
-                      <a href="mailto:shashanksingh1709@gmail.com" className="hover:text-slate-600 dark:hover:text-slate-300">
+                      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=shashanksingh1709@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 dark:hover:text-slate-300">
                         Email
                       </a>
                       <a href="tel:+917905851722" className="hover:text-slate-600 dark:hover:text-slate-300">
