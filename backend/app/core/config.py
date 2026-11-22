@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,7 @@ class Settings(BaseSettings):
 
     API_V1_PREFIX: str = "/api/v1"
     PROJECT_NAME: str = "TruthLens"
+    ENVIRONMENT: str = "development"
 
     # CORS
     CORS_ORIGINS: list[str] = [
@@ -30,10 +32,19 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "truthlens-dev-jwt-secret-key-change-in-production-32chars"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 120
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     HMAC_KEY: str = "truthlens-dev-hmac-key-change-in-production-32chars"
     HMAC_KEY_ID: str = "k1"
+
+    @model_validator(mode="after")
+    def _validate_production_secrets(self) -> "Settings":
+        if self.ENVIRONMENT == "production":
+            if "dev-" in self.SECRET_KEY or len(self.SECRET_KEY) < 32:
+                raise ValueError("SECRET_KEY must be a secure random secret of 32+ characters in production")
+            if "dev-" in self.HMAC_KEY or len(self.HMAC_KEY) < 32:
+                raise ValueError("HMAC_KEY must be a secure random secret of 32+ characters in production")
+        return self
 
     # Database
     DATABASE_URL: str = "sqlite:///./truthlens.db"
