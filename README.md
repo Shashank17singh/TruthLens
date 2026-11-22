@@ -3,8 +3,12 @@
 Detects AI-generated and manipulated images, audio, and text with explainable forensic artifacts (Grad-CAM heatmaps, 2D DCT frequency spectra), tamper-evident HMAC-SHA256 signed PDF audit trails, and multi-platform client applications.
 
 > **Live Deployments:**
-> * **Interactive Web Platform (Vercel):** [truth-lens-two-self.vercel.app](https://truth-lens-two-self.vercel.app/)
+> * **Interactive Web Platform (Vercel):** [truthlens-forensic.vercel.app](https://truthlens-forensic.vercel.app/)
 > * **ZeroGPU Model Space (Hugging Face):** [shashank17singh/TruthLens](https://huggingface.co/spaces/shashank17singh/TruthLens)
+>
+> **Demo Account:**
+> * **Email:** `demo@truthlens.ai`
+> * **Password:** `DemoPassword123!`
 
 ---
 
