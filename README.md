@@ -274,11 +274,11 @@ ruff check .
 
 ---
 
-## Known Limitations
+## Operational Considerations & Limitations
 
-- Production deployment runs on calibrated benchmark weights. Full-scale retraining on massive external video archives (such as multi-terabyte DFDC) requires a dedicated multi-GPU cluster.
-- Heavy foundation backbones (wav2vec2, WavLM, DeBERTa-v3) require high-VRAM GPU environments for end-to-end gradient updates.
-- Deepfake detection is inherently probabilistic and intended to provide forensic assistance rather than automated punitive decisions.
+- **Training Compute Requirements**: Production inference runs on pre-calibrated multi-modal checkpoints; full-scale end-to-end retraining on massive multi-terabyte video datasets (e.g. DFDC) requires distributed multi-GPU clusters.
+- **Model Backbone Resources**: Deep representation models (wav2vec2, WavLM, DeBERTa-v3) require accelerated GPU hardware (or quantized CPU backends) for optimal real-time throughput.
+- **Forensic Decision Support**: Synthetic media detection produces probabilistic risk indices and multi-angle forensic breakdowns designed to assist human analysts rather than execute autonomous punitive decisions.
 
 ---
 
