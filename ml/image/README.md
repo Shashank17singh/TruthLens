@@ -4,6 +4,8 @@ Run every command from the repository root. Paths below assume `image_core` has 
 
 ## Train on Colab
 
+[notebooks/colab_image.ipynb](../../notebooks/colab_image.ipynb) does the whole run on real images: it copies a seeded subset of GenImage ADM (20,000 fakes and 20,000 ImageNet originals) and 4,000 BigGAN fakes out of the Kaggle archives, prepares them, trains ConvNeXt-Tiny with the frequency branch, then evaluates on the held-out ADM test split and on BigGAN as an unseen generator, exports ONNX and packs the results. The steps below are the same run by hand.
+
 Save checkpoints to Google Drive, because a free session's disk disappears when it ends.
 
 ```python
