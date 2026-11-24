@@ -18,6 +18,7 @@ stride: 128             # overlap between consecutive windows of a long text
 epochs: 4
 warmup_epochs: 1
 steps_per_epoch: null   # Caps an epoch so a run fits inside a free Colab session
+max_minutes: null       # Stops after the epoch that would overrun this; rerun the command to resume
 weight_decay: 0.01
 label_smoothing: 0.0
 max_grad_norm: 1.0

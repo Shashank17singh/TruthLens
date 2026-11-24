@@ -233,6 +233,16 @@ def test_resume_continues_from_the_last_epoch(trained, tmp_path, capsys):
     assert "epoch 0:" not in captured
 
 
+def test_time_budget_stops_after_one_epoch_and_a_rerun_resumes(toy_data, tmp_path, capsys):
+    config = experiment_config(toy_data, "epochs=3", "max_minutes=0.000001", f"checkpoint_dir={tmp_path.as_posix()}")
+    path = train(config)
+    assert len((path.parent / "metrics.jsonl").read_text(encoding="utf-8").splitlines()) == 1
+    assert "time budget" in capsys.readouterr().out
+    train(config)
+    assert "resuming" in capsys.readouterr().out
+    assert len((path.parent / "metrics.jsonl").read_text(encoding="utf-8").splitlines()) == 2
+
+
 def test_early_stopping_ends_a_stalled_run(toy_data, tmp_path):
     config = experiment_config(
         toy_data, "patience=1", "epochs=30", "model.learning_rate=1e-9", "warmup_epochs=0",

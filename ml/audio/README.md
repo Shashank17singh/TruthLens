@@ -15,7 +15,7 @@ python -m ml.audio.train model=wav2vec2                           # GPU recommen
 python -m ml.audio.train augment=none                             # ablation without augmentation
 ```
 
-Re-running a command resumes from its last epoch. `steps_per_epoch` caps an epoch, which is useful on a CPU or inside a Colab session. The `robust` augmentation applies speed change, synthetic reverberation, coloured noise and an MP3 or Opus round trip at 64 kbps.
+Re-running a command resumes from its last epoch. `steps_per_epoch` caps an epoch, which is useful on a CPU or inside a Colab session. `max_minutes=75` stops a run before the epoch that would overrun 75 minutes, so it ends cleanly inside a free Colab session; run the same command again to continue. The notebooks also run on Kaggle, whose Save & Run All mode has no idle limit. The `robust` augmentation applies speed change, synthetic reverberation, coloured noise and an MP3 or Opus round trip at 64 kbps.
 
 ## Evaluate
 

@@ -128,8 +128,14 @@ def fit(
         print(f"resuming {name} at epoch {start_epoch}, best val AUC {best_auc:.4f}")
 
     tracker = Tracker(directory, name, config, config["tracker"], config["wandb_project"])
+    budget = config["max_minutes"] and config["max_minutes"] * 60
+    run_started, epoch_seconds = time.perf_counter(), 0.0
     for epoch in range(start_epoch, config["epochs"]):
         if stale_epochs >= config["patience"]:
+            break
+        # Stop before an epoch that would overrun the budget; last.pt lets the same command resume.
+        if budget and epoch > start_epoch and time.perf_counter() - run_started + epoch_seconds > budget:
+            print(f"time budget of {config['max_minutes']} minutes reached after epoch {epoch - 1}; rerun to resume")
             break
         if before_epoch is not None:
             before_epoch(model, epoch)
@@ -188,6 +194,7 @@ def fit(
             },
             step=(epoch + 1) * updates_per_epoch,
         )
+        epoch_seconds = time.perf_counter() - started
         print(f"epoch {epoch}: loss {total_loss / batches:.4f}, val AUC {auc:.4f}, best {best_auc:.4f}")
 
     tracker.finish()
