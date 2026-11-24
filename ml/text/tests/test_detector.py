@@ -10,7 +10,13 @@ from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
 from sklearn.linear_model import LogisticRegression
 from tokenizers import Tokenizer, models, pre_tokenizers, processors, trainers
-from transformers import GPT2Config, GPT2LMHeadModel, PreTrainedTokenizerFast
+from transformers import (
+    AutoConfig,
+    AutoModelForSequenceClassification,
+    GPT2Config,
+    GPT2LMHeadModel,
+    PreTrainedTokenizerFast,
+)
 
 from ml.text import detector, ensemble, explain, robustness
 from ml.text.datasets import prompt_group
@@ -21,7 +27,7 @@ from ml.text.features import (
     summarize,
     text_features,
 )
-from ml.text.model import encode_windows, load_checkpoint, score_text
+from ml.text.model import build_model, encode_windows, load_checkpoint, score_text
 from ml.text.train import train
 
 CONFIG_DIR = str(Path(__file__).resolve().parents[1] / "configs")
@@ -207,6 +213,16 @@ def test_label_rules():
     assert detector.label_for(0.1, [sentence(0.1)]) == "likely human"
     assert detector.label_for(0.5, [sentence(0.5)]) == "mixed"
     assert detector.label_for(0.7, [sentence(0.9), sentence(0.1)]) == "mixed"
+
+
+def test_half_precision_checkpoint_loads_as_float32_for_training(tmp_path, tokenizer):
+    # deberta-v3-small is published in fp16; GradScaler refuses fp16 weights.
+    architecture = AutoConfig.for_model(**TINY_ENCODER, num_labels=1)
+    AutoModelForSequenceClassification.from_config(architecture).half().save_pretrained(tmp_path / "fp16")
+    config = experiment_config(tmp_path, tokenizer)
+    config["model"].update(backbone=(tmp_path / "fp16").as_posix(), overrides=None)
+    model, _ = build_model(config)
+    assert {parameter.dtype for parameter in model.parameters()} == {torch.float32}
 
 
 def test_windows_overlap_and_keep_special_tokens(tokenizer):

@@ -3,13 +3,10 @@
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
 \usepackage{graphicx}
-\graphicspath{{figures/}{paper/figures/}{./}}
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
-\usepackage{multirow}
 \usepackage{url}
 \usepackage{hyperref}
 
@@ -22,285 +19,187 @@
 
 \begin{document}
 
-\title{TruthLens: Explainable Multi-Modal Deepfake and Synthetic Content Detection with Asynchronous CPU Inference}
+\title{TruthLens: Explainable Multi-Modal Detection of Synthetic Images, Audio and Text}
 
-\author{\IEEEauthorblockN{Anonymous Authors}
-\IEEEauthorblockA{\textit{Department of Computer Science and Engineering} \\
-\textit{Research Repository Major Project}\\
-TruthLens Open-Source Initiative}
+\author{\IEEEauthorblockN{Shashank Singh}
+\IEEEauthorblockA{\url{https://github.com/Shashank17singh/TruthLens}}
 }
 
 \maketitle
 
 \begin{abstract}
-The rapid proliferation of synthetic media across visual, acoustic, and linguistic domains presents severe challenges to digital forensics, information integrity, and automated content verification. Existing forensic detectors are typically domain-siloed, report uncalibrated scalar scores devoid of interpretable rationale, and suffer severe performance degradation under lossy compression, out-of-distribution generators, and adversarial perturbations. In this paper, we present TruthLens, an integrated multi-modal forensic architecture designed for unified image, audio, and text synthetic content attribution. TruthLens couples: (1) a dual-branch ConvNeXt-Tiny and Discrete Cosine Transform (DCT) image classifier with Grad-CAM region localization; (2) a Light CNN (LCNN) with Max-Feature-Map activations over Linear Frequency Cepstral Coefficients (LFCC) for temporal audio deepfake localization; and (3) an ensemble meta-classifier evaluating linguistic perplexity, burstiness, and GLTR token ranks. To enable real-world deployment on resource-constrained infrastructure, all models are compiled to ONNX runtimes optimized for sub-300\,ms multi-threaded CPU execution. We evaluate TruthLens across extensive perturbation suites, cross-dataset transfer benchmarks, and white-box FGSM/PGD adversarial attacks, demonstrating significant robustness recovery via adversarial training. Finally, TruthLens integrates an asynchronous FastAPI-Celery serving pipeline, a reactive web dashboard, a Manifest V3 browser extension, and cryptographically verified, tamper-evident forensic PDF reports.
+TruthLens is an open-source system that scores images, audio and text for signs of machine generation and explains each score. It pairs an RGB backbone with a 2D DCT frequency branch and Grad-CAM for images, a Light CNN over LFCC features for audio, and, for text, a logistic regression over GPT-2 statistics and a fine-tuned RoBERTa logit. Every dataset is split so that identities, speakers or prompts never cross between training and test. On the MAGE test set, the text ensemble reaches 0.997 AUC (95\% interval 0.997 to 0.998), detects 90.1\% of text from held-out LLaMA generators, and keeps 0.997 AUC on HC3 after removing rows that overlap MAGE. It still flags 61.8\% of TOEFL essays by non-native writers as AI-written, so it must not be used to judge individual writers. The LCNN audio model reaches 0.997 AUC on the ASVspoof 2019 LA validation set after three epochs on a laptop CPU; its evaluation-set results and the image detector's accuracy are not yet measured. All models export to ONNX, and the LCNN scores a 30-second clip in 280\,ms on four CPU threads.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Deepfake Detection, Multi-Modal Forensics, Explainable AI, Discrete Cosine Transform, Audio Anti-Spoofing, Stylometry, Adversarial Robustness, CPU Serving.
+Deepfake detection, machine-generated text, audio anti-spoofing, explainability, dataset leakage, CPU inference.
 \end{IEEEkeywords}
 
 \section{Introduction}
 
-Recent advances in generative artificial intelligence (spanning latent diffusion models such as Stable Diffusion and FLUX, neural acoustic vocoders like HiFi-GAN and VITS, and large language models including GPT-4 and Llama-3) have democratized the synthesis of hyper-realistic digital media. While these technologies enable transformative applications in creative industries, their weaponization in non-consensual imagery, financial voice cloning, political disinformation, and academic fraud poses critical sociotechnical risks.
+Image diffusion models, neural vocoders and large language models now produce media that people struggle to tell apart from real recordings and writing. Detectors for each modality exist, but three problems limit their use outside benchmarks. Most handle a single modality. Most return one score with no reason attached. Many are evaluated on splits where the same face, speaker or prompt appears in both training and test data, which inflates their results.
 
-Despite substantial research in synthetic content detection, real-world forensic deployment faces three fundamental bottlenecks:
-\begin{enumerate}
-    \item \textbf{Modality Fragmentation:} Existing forensic systems operate almost exclusively in single silos (e.g., image-only or audio-only), leaving practitioners vulnerable to multi-modal synthetic campaigns.
-    \item \textbf{Opacity and Lack of Attribution:} The vast majority of published detectors emit a single monolithic probability score without spatial, spectral, or temporal rationale, rendering decisions inadmissible in audit and evidentiary settings.
-    \item \textbf{Fragility to Social-Media Channel Noise:} Detectors demonstrating $>98\%$ accuracy in laboratory datasets catastrophically degrade when subjected to platform compression (e.g., WhatsApp, X/Twitter), lossy codecs, or deliberate adversarial evasions.
-\end{enumerate}
-
-To address these limitations, we introduce \textbf{TruthLens}, a comprehensive, production-oriented platform for explainable multi-modal synthetic media attribution. The core contributions of this work are summarized as follows:
+TruthLens addresses these problems in one codebase:
 \begin{itemize}
-    \item \textbf{Unified Multi-Modal Architecture:} We engineer specialized detectors across images (spatial ConvNeXt fused with frequency-domain DCT), audio (LCNN-MFM over LFCC features), and text (logistic ensemble of GPT-2 perplexity, burstiness, and GLTR rank histograms).
-    \item \textbf{Fine-Grained Interpretable Forensics:} TruthLens provides spatial Grad-CAM overlays mapped to facial landmarks, temporal audio deepfake timelines over 4.0-second sliding windows, and sentence-level token entropy highlights.
-    \item \textbf{Strict Leak-Free Pipeline:} We formalize identity-disjoint, speaker-disjoint, and prompt-disjoint dataset stratification with held-out generator evaluation, preventing optimistic data leakage.
-    \item \textbf{Empirical Robustness and Adversarial Hardening:} We benchmark performance under realistic social-media compression, telephone bandpass filtering, and white-box FGSM/PGD adversarial attacks, demonstrating that fast adversarial training retains over $56\%$ accuracy at $\epsilon = 8/255$ where standard baselines collapse.
-    \item \textbf{CPU-Optimized Serving and Cryptographic Verification:} We deploy the full stack on standard CPU infrastructure through ONNX Runtime, offering an asynchronous Celery backend, a browser extension, and tamper-evident PDF reports certified via HMAC-SHA256 signatures.
+    \item \textbf{Three detectors, one interface.} Images, audio and text each get a calibrated probability, a label and an explanation: a Grad-CAM map for images, a per-window timeline for audio, and per-sentence scores for text.
+    \item \textbf{Leak-free splits.} A shared split engine keeps identities, speakers and prompt groups disjoint and holds out whole generators for an unseen-generator test.
+    \item \textbf{Measured, reported limits.} The text detector's results include a bias test on essays by non-native writers and a robustness test against paraphrasing, mixing and truncation. Results that have not been measured are reported as missing.
+    \item \textbf{CPU serving.} Models export to ONNX with output checks against PyTorch, and a FastAPI service returns results and signed PDF reports.
 \end{itemize}
 
 \section{Related Work}
 
 \subsection{Visual Deepfake Detection}
-Early facial manipulation detection relied on biological inconsistencies, such as abnormal blinking rates or corneal reflections. Modern approaches leverage convolutional backbones (e.g., EfficientNet, ConvNeXt)~\cite{liu2022convnet} and Vision Transformers (ViT). However, purely spatial models often overfit to high-level semantic features. Frank et al.~\cite{frank2020leveraging} demonstrated that upsampling and transposed convolutions in GANs introduce distinct frequency-domain spectral artifacts. TruthLens integrates an explicit 2D DCT branch inside the computational graph to preserve high-frequency artifacts without external preprocessing dependencies.
+Convolutional backbones such as ConvNeXt~\cite{liu2022convnet} and EfficientNet, and Vision Transformers, are the usual image detectors. Frank et al.~\cite{frank2020leveraging} showed that the upsampling in GANs leaves artifacts in the frequency spectrum, which motivates the DCT branch used here. FaceForensics++~\cite{rossler2019faceforensics} is the standard face-manipulation benchmark.
 
 \subsection{Acoustic Anti-Spoofing}
-Synthetic speech detection benchmarked by the ASVspoof competitive challenges~\cite{todisco2019asvspoof} relies on front-end acoustic representations, such as Linear Frequency Cepstral Coefficients (LFCC) and Constant Q-Transform (CQT). Wu et al.~\cite{wu2018lcnn} introduced the Light CNN (LCNN) architecture using Max-Feature-Map (MFM) activations, which suppress low-energy noise while preserving harmonic phase discontinuities. While self-supervised backbones (e.g., wav2vec 2.0~\cite{baevski2020wav2vec}) achieve competitive accuracy, their multi-hundred-megabyte footprints impose prohibitive latency on CPU hardware.
+ASVspoof 2019~\cite{todisco2019asvspoof} benchmarks synthetic and converted speech. LFCC front-ends with a Light CNN using Max-Feature-Map activations~\cite{wu2018lcnn} are a strong lightweight baseline. Self-supervised encoders such as wav2vec 2.0~\cite{baevski2020wav2vec} score higher but are large and slow on CPUs.
 
-\subsection{Synthetic Text Attribution}
-Detecting machine-generated prose is challenged by the converging fluency of modern LLMs. Zero-shot approaches utilize token log-probabilities to compute perplexity and burstiness. Gehrmann et al.~\cite{gehrmann2019gltr} introduced GLTR, tracking top-$k$ predictive ranks. Recent metric formulations, such as DetectGPT~\cite{mitchell2023detectgpt} and Binoculars~\cite{hans2024binoculars}, evaluate probability curvature across model pairs. Crucially, Liang et al.~\cite{liang2023gpt} revealed that statistical text detectors systematically discriminate against non-native English writers, motivating our explicit bias auditing and confidence calibration.
+\subsection{Machine-Generated Text}
+Zero-shot detectors use a language model's token probabilities: GLTR~\cite{gehrmann2019gltr} tracks the rank of each token, DetectGPT~\cite{mitchell2023detectgpt} probes the curvature of the log probability, and Binoculars~\cite{hans2024binoculars} contrasts two related models. Liang et al.~\cite{liang2023gpt} found that such detectors flag essays by non-native English writers far more often than essays by native writers.
 
-\section{Datasets and Leakage-Free Stratification}
+\section{Datasets and Splits}
 
-A pervasive flaw in published forensics literature is data leakage: models frequently memorize facial identities, speaker vocal tracts, or topical prompts shared between training and test sets. TruthLens enforces rigorous partitioning:
 \begin{itemize}
-    \item \textbf{FaceForensics++ (FF++)~\cite{rossler2019faceforensics}:} Videos split strictly by subject identity (70\% train, 15\% val, 15\% test). Manipulations include Deepfakes, Face2Face, FaceSwap, and NeuralTextures across c23 and c40 compressions.
-    \item \textbf{ASVspoof 2019 Logical Access (LA)~\cite{todisco2019asvspoof}:} Auditory spoofing attacks comprising 19 vocoder and voice conversion algorithms. Stratification is held speaker-disjoint; evaluation splits include unseen spoofing attacks (A10--A19).
-    \item \textbf{MAGE and HC3:} Multi-domain machine-generated and human-authored text spanning news, Wikipedia, and QA pairs, partitioned prompt-disjointly with token length bounded to $50 - 1{,}000$ words.
+    \item \textbf{ASVspoof 2019 LA}~\cite{todisco2019asvspoof}: 121,456 clips from 20 generators, with the official speaker-disjoint train, development and evaluation partitions.
+    \item \textbf{MAGE}: human and machine text across ten domains and many generators. Splits are disjoint by prompt group, and the LLaMA generators are held out as an unseen test.
+    \item \textbf{HC3}: human and ChatGPT answers. 497 rows open with the same words as MAGE training texts and are excluded from cross-dataset tests.
+    \item \textbf{ChatGPT Detector Bias}~\cite{liang2023gpt}: 831 essays, including 89 TOEFL essays by non-native writers.
 \end{itemize}
 
-\section{Multi-Modal Methodology}
+The split engine connects samples that share an identity, speaker or prompt into groups with a union-find pass, assigns whole groups to splits, and fails if any group crosses a split boundary.
 
-\subsection{Image Architecture: RGB and 2D DCT Fusion}
-The visual detector ingests an input image $x \in \mathbb{R}^{3 \times 224 \times 224}$. Spatial features are extracted via a ConvNeXt-Tiny backbone pre-trained on ImageNet. Concurrently, a frequency branch recovers luminance $Y = 0.299R + 0.587G + 0.114B$ and applies an orthonormal 2D Type-II DCT:
+\section{Method}
+
+\subsection{Images: RGB and DCT Fusion}
+An RGB backbone (EfficientNet-B0, ConvNeXt-Tiny or ViT-B/16) runs beside a frequency branch. The frequency branch converts the image to luminance and applies an orthonormal 2D type-II DCT inside the network:
 \begin{equation}
-    D(u, v) = \alpha(u)\alpha(v) \sum_{i=0}^{N-1}\sum_{j=0}^{N-1} Y(i, j) \cos\left[\frac{\pi(2i+1)u}{2N}\right]\cos\left[\frac{\pi(2j+1)v}{2N}\right]
+\begin{split}
+    D(u, v) = \alpha(u)\alpha(v) \sum_{i=0}^{N-1}\sum_{j=0}^{N-1} Y(i, j) &\cos\frac{\pi(2i+1)u}{2N} \\
+    &\times \cos\frac{\pi(2j+1)v}{2N}
+\end{split}
 \end{equation}
-The log-magnitude spectrum $\log(|D(u, v)| + \delta)$ is fed to a 4-layer CNN ending in an adaptive $4 \times 4$ pooling layer to preserve spatial frequency coordinate bands. A late-fusion layer combines the spatial logit $z_{\text{rgb}}$ and frequency logit $z_{\text{freq}}$:
-\begin{equation}
-    z_{\text{fused}} = w_1 z_{\text{rgb}} + w_2 z_{\text{freq}}
-\end{equation}
+A small CNN reads the log-magnitude spectrum, and a late-fusion layer combines both branches. Grad-CAM~\cite{selvaraju2017gradcam} on the last convolutional stage gives the explanation, checked with a model-randomization test~\cite{adebayo2018sanity}.
 
-Explainability is generated via Grad-CAM~\cite{selvaraju2017gradcam} on the final convolutional stage of ConvNeXt. Saliency heatmaps are passed to landmark-based facial bounding heuristics to produce plain-language descriptions (e.g., \textit{``Anomalous blending detected around ocular and oral boundaries''}). Saliency fidelity is confirmed via model-randomization tests~\cite{adebayo2018sanity}.
-
-\subsection{Audio Architecture: LFCC and LCNN}
-The audio stream is resampled to 16\,kHz mono. The front-end computes 60-dimensional Linear Frequency Cepstral Coefficients (LFCC) with static, delta, and double-delta coefficients. Acoustic classification is performed by a 9-layer Light CNN (LCNN) utilizing Max-Feature-Map (MFM) activation:
+\subsection{Audio: LFCC and LCNN}
+Audio is resampled to 16\,kHz mono and cut into 4-second windows with 50\% overlap. The front-end computes 20 LFCCs from 70 linear filters plus their deltas and delta-deltas, inside the network. A Light CNN with Max-Feature-Map activations classifies each window:
 \begin{equation}
     \text{MFM}(x)_k = \max(x_k, x_{k + C/2}), \quad k \in [1, C/2]
 \end{equation}
-For long-form recordings, clips are divided into 4.0-second sliding windows with 50\% overlap. Window scores are aggregated via dual mean-max pooling to provide a time-resolved anomaly track for the user interface.
+Window logits are reduced by both mean and max, each calibrated on validation data, which gives a per-window timeline for the interface.
 
-\subsection{Text Architecture: Stylometric Ensemble}
-The text engine implements a meta-classifier combining zero-shot statistical features and fine-tuned transformer representations:
-\begin{enumerate}
-    \item \textbf{Token Perplexity and Burstiness:} Evaluated via a frozen causal language model (GPT-2 small). Perplexity quantifies overall model surprise, while burstiness measures the standard deviation of sentence-level perplexities:
-    \begin{equation}
-        \text{Burstiness} = \sqrt{\frac{1}{|S|}\sum_{s \in S} (\text{PPL}(s) - \mu_{\text{PPL}})^2}
-    \end{equation}
-    \item \textbf{GLTR Rank Histograms:} Proportions of tokens falling into the top-10, top-100, top-1000, and tail probability bins.
-    \item \textbf{Supervised Meta-Classifier:} A regularized logistic regression model combining statistical stylometry with token probabilities, emitting a calibrated posterior likelihood and a 95\% bootstrap confidence interval.
-\end{enumerate}
+\subsection{Text: Statistics and a Fine-Tuned Transformer}
+GPT-2 (the performer) and DistilGPT-2 (the observer) score every token once, using 512-token windows. Eight features come from that pass: log perplexity, burstiness (the standard deviation of per-sentence log perplexity), the share of tokens ranked in the top 1, 10, 100 and 1000, mean entropy, and a Binoculars score~\cite{hans2024binoculars}. RoBERTa-base is fine-tuned on MAGE over 512-token windows, and its window-averaged logit is a ninth feature. A standardized logistic regression combines the nine features. Its threshold is the validation equal-error point. Sentence scores reuse the per-token values, and a bootstrap over sentences gives a 90\% band for each text.
 
-\section{System Architecture and CPU Serving}
+\section{Implementation}
 
-TruthLens is architectured as an asynchronous, distributed pipeline optimized for standard multi-core CPU instances (Fig.~\ref{fig:arch}):
-\begin{itemize}
-    \item \textbf{Asynchronous Worker Gateway:} Built with FastAPI, requests are enqueued in Redis and executed by Celery workers.
-    \item \textbf{ONNX Runtime Execution:} All PyTorch models are exported and graph-optimized via ONNX Runtime, eliminating Python GIL bottlenecks and running inference across intra-op CPU threads.
-    \item \textbf{Cryptographic PDF Reporting:} Completed analyses trigger asynchronous PDF generation via WeasyPrint (with a zero-dependency pure-Python ReportLab fallback). The document digest is signed via server-side HMAC-SHA256, embedding an interactive QR code linking to an immutable verification endpoint.
-\end{itemize}
+A FastAPI service queues jobs through Celery and Redis and stores media in MinIO, deleting it after 24 hours. Models are exported to ONNX and checked against PyTorch outputs. Finished analyses produce a PDF report whose digest is signed with HMAC-SHA256 and linked by QR code to a public verification page. A React web app and a Manifest V3 browser extension call the same API.
 
-\begin{figure*}[t]
+\section{Results}
+
+\subsection{Detection}
+The text models were trained on one Kaggle T4 GPU. RoBERTa-base was fine-tuned for four epochs of 3,000 steps, and its best validation AUC, 0.996, came at epoch 2. The logistic regression was trained on 4,999 MAGE texts. AUC intervals come from a bootstrap that resamples whole prompt groups. Table~\ref{tab:text} gives the results.
+
+\begin{table}[t]
 \centering
-\includegraphics[width=0.95\linewidth]{figures/combined_robustness_grid.png}
-\caption{Comprehensive evaluation: (a) Image detector degradation under lossy compression and optical blur; (b) Audio LCNN Equal Error Rate under MP3 codecs and additive noise; (c) Text detection rate under stylometric evasion; (d) Adversarial defense curves comparing standard vs. adversarially trained models under FGSM and PGD attacks.}
-\label{fig:arch}
-\end{figure*}
-
-\section{Experimental Results}
-
-\subsection{Classification Performance and Latency}
-Table~\ref{tab:benchmarks} reports in-domain detection metrics across all three modalities. ConvNeXt-Tiny with DCT fusion achieves 94.6\% accuracy and 0.981 ROC-AUC on FaceForensics++. The audio LCNN model achieves a 2.14\% Equal Error Rate (EER) on ASVspoof 2019. The text ensemble achieves 93.5\% detection accuracy with a low 4.8\% false positive rate on human baseline text.
-
-\begin{table}[h]
-\centering
-\caption{Multi-Modal Baseline Detection Performance}
-\label{tab:benchmarks}
-\begin{tabular}{llccc}
+\caption{Text detection. AUC with 95\% grouped bootstrap interval.}
+\label{tab:text}
+\begin{tabular}{lrl}
 \toprule
-\textbf{Modality} & \textbf{Model Backbone} & \textbf{Acc (\%)} & \textbf{ROC-AUC} & \textbf{EER (\%)} \\
+\textbf{Test set} & \textbf{Texts} & \textbf{AUC} \\
 \midrule
-Image & EfficientNet-B0 + Freq & 91.2 & 0.954 & 8.65 \\
-Image & ConvNeXt-Tiny + Freq   & \textbf{94.6} & \textbf{0.981} & \textbf{5.32} \\
-Image & ViT-B/16 + Freq        & 93.8 & 0.975 & 6.10 \\
+\multicolumn{3}{l}{\textit{Statistics and RoBERTa}} \\
+MAGE test & 3,999 & 0.997 (0.997--0.998) \\
+MAGE, unseen LLaMA (AI only) & 1,999 & 90.1\% detected \\
+HC3, overlap removed & 2,000 & 0.997 (0.995--0.998) \\
+Detector bias set & 831 & 0.794 (0.761--0.825) \\
 \midrule
-Audio & ResNet-18 + Mel        & 92.4 & 0.961 & 4.85 \\
-Audio & ResNet-18 + LFCC       & 94.1 & 0.974 & 3.20 \\
-Audio & LCNN + LFCC            & \textbf{95.2} & \textbf{0.988} & \textbf{2.14} \\
-\midrule
-Text  & GPT-2 Perplexity Only  & 81.3 & 0.884 & -- \\
-Text  & RoBERTa Supervised     & 91.0 & 0.960 & -- \\
-Text  & Logistic Ensemble      & \textbf{93.5} & \textbf{0.972} & -- \\
+\multicolumn{3}{l}{\textit{Statistics only}} \\
+MAGE test & 3,999 & 0.782 (0.767--0.797) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:latency} details empirical CPU inference latencies measured on an Intel Core i5 processor. Compiled ONNX models achieve dramatic speedups: LCNN processes a 30-second audio stream in 280.2\,ms on 4 threads (over $35\times$ faster than wav2vec2). ConvNeXt-Tiny with frequency analysis requires only 93.4\,ms.
+At its threshold, the ensemble reaches 97.6\% accuracy on the MAGE test set and 94.2\% on HC3, where it flags 9.3\% of human Reddit ELI5 answers. Adding the transformer raises test AUC from 0.782 to 0.997, so most of the detector's accuracy comes from RoBERTa rather than the statistics.
 
-\begin{table*}[t]
+The LCNN with LFCC trained on the development laptop's CPU, capped at 300 steps per epoch. After three epochs its validation AUC was 0.997. The same validation set picked the checkpoint, so this figure is optimistic. Evaluation-set EER and min t-DCF have not yet been measured. The image detector has not been trained on real data, so no image accuracy is reported.
+
+\subsection{Bias Against Non-Native Writers}
+Table~\ref{tab:bias} gives the share of human essays that the ensemble flags as AI-written. It flags most TOEFL essays even though it rarely flags native student writing, which reproduces the bias Liang et al.~\cite{liang2023gpt} found in commercial detectors. The service shows a disclaimer that scores must not be used alone to decide academic misconduct.
+
+\begin{table}[t]
 \centering
-\caption{CPU Inference Latency Benchmark (Intel Core i5)}
+\caption{Human essays flagged as AI-written}
+\label{tab:bias}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Writers} & \textbf{Essays} & \textbf{Flagged} \\
+\midrule
+TOEFL, non-native writers & 89 & 61.8\% \\
+College essays & 70 & 14.3\% \\
+Stanford CS224N & 145 & 8.3\% \\
+US 8th grade (Hewlett) & 88 & 5.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Robustness of the Statistical Detector}
+Table~\ref{tab:robust} tests the statistics-only model on 300 AI and 300 human MAGE test texts. Paraphrasing with a T5 model or replacing a quarter of the sentences with human writing each lowers detection from 71.3\% to about 47\%. The same test has not yet been run on the ensemble with RoBERTa.
+
+\begin{table}[t]
+\centering
+\caption{Statistics-only detector under evasion}
+\label{tab:robust}
+\begin{tabular}{lr}
+\toprule
+\textbf{Condition} & \textbf{AI detected} \\
+\midrule
+Unmodified & 71.3\% \\
+Paraphrased by T5 & 47.7\% \\
+25\% of sentences human & 47.0\% \\
+50\% of sentences human & 37.3\% \\
+First 75 words & 53.7\% \\
+First 50 words & 37.3\% \\
+\midrule
+Human texts flagged (unmodified) & 30.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{CPU Latency}
+Table~\ref{tab:latency} gives median ONNX Runtime latency on an Intel Core i5-10210U laptop. Image models score one 224$\times$224 image; audio models score a 30-second clip. Latency depends on the architecture, not on the trained weights, so these figures hold for the trained models.
+
+\begin{table}[t]
+\centering
+\caption{Median ONNX latency on an Intel Core i5-10210U}
 \label{tab:latency}
-\begin{tabular}{lcccc}
+\begin{tabular}{lrrr}
 \toprule
-\textbf{Model Family} & \textbf{Format} & \textbf{Size (MB)} & \textbf{1-Thread (ms)} & \textbf{4-Threads (ms)} \\
+\textbf{Model} & \textbf{MB} & \textbf{1 thread} & \textbf{4 threads} \\
 \midrule
-ConvNeXt-Tiny (RGB)   & ONNX & 111.9 & 178.8 & 65.7 \\
-ConvNeXt-Tiny (+Freq) & ONNX & 113.7 & 177.3 & 93.4 \\
-ViT-B/16 (+Freq)      & ONNX & 345.9 & 552.9 & 279.9 \\
+EfficientNet-B0 + DCT & 18.4 & 45\,ms & 28\,ms \\
+ConvNeXt-Tiny + DCT & 113.7 & 177\,ms & 93\,ms \\
+ViT-B/16 + DCT & 345.9 & 553\,ms & 280\,ms \\
 \midrule
-LCNN (LFCC, 30s)      & ONNX & \textbf{2.2}   & 533.2 & \textbf{280.2} \\
-ResNet-18 (LFCC, 30s) & ONNX & 45.9  & 940.0 & 639.6 \\
-wav2vec2 (Wave, 30s)  & ONNX & 378.9 & 30530.1 & 9754.9 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\subsection{Robustness under Distribution Shift}
-
-Table~\ref{tab:image_robustness} and Table~\ref{tab:audio_robustness} document performance under channel noise. Lossy JPEG compression at $Q=50$ degrades image accuracy from 94.6\% to 82.4\%, as high-frequency quantization zeroes out DCT discriminators. Compound social-media compression yields a sharp degradation to 78.6\% accuracy. In audio, telephonic bandpass filtering (300--3400\,Hz) severely disrupts vocoder phase cues, elevating EER from 2.14\% to 14.85\%.
-
-\begin{table}[h]
-\centering
-\caption{Image Detector Robustness under Channel Perturbations}
-\label{tab:image_robustness}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Perturbation} & \textbf{Parameter} & \textbf{Acc (\%)} & \textbf{ROC-AUC} & \textbf{F1} \\
-\midrule
-Clean Baseline        & None               & 94.6 & 0.981 & 0.942 \\
-JPEG Compression      & $Q=90$             & 93.2 & 0.968 & 0.927 \\
-JPEG Compression      & $Q=70$             & 88.7 & 0.931 & 0.881 \\
-JPEG Compression      & $Q=50$             & 82.4 & 0.875 & 0.816 \\
-Downscale Resize      & $0.5\times$ Scale  & 85.3 & 0.904 & 0.846 \\
-Gaussian Blur         & Radius = 2.0       & 84.1 & 0.892 & 0.833 \\
-Screenshot Re-encode  & PNG 256-color      & 89.5 & 0.942 & 0.890 \\
-Social Media Pipeline & WA/Twitter Sim     & 78.6 & 0.841 & 0.778 \\
+LCNN, LFCC & 2.2 & 533\,ms & 280\,ms \\
+ResNet-18, LFCC & 45.9 & 940\,ms & 640\,ms \\
+wav2vec2 & 378.9 & 30.5\,s & 9.8\,s \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{table}[h]
-\centering
-\caption{Audio Deepfake Detector under Codecs and Noise}
-\label{tab:audio_robustness}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Perturbation} & \textbf{Parameter} & \textbf{Acc (\%)} & \textbf{EER (\%)} & \textbf{ROC-AUC} \\
-\midrule
-Clean Baseline        & None               & 95.2 & 2.14  & 0.988 \\
-MP3 Compression       & 128 kbps           & 93.8 & 3.42  & 0.973 \\
-MP3 Compression       & 64 kbps            & 88.4 & 6.85  & 0.925 \\
-Additive Noise        & SNR = 20 dB        & 91.6 & 4.90  & 0.956 \\
-Additive Noise        & SNR = 10 dB        & 83.5 & 11.20 & 0.882 \\
-Phone-band Filter     & 300--3400 Hz       & 79.2 & 14.85 & 0.839 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\section{Limitations}
 
-In text attribution (Table~\ref{tab:text_robustness}), hybrid paragraph mixing represents the most effective evasion technique: when an AI document is diluted with 50\% human sentences, detection accuracy drops to 58.2\%, falling to 34.1\% under 75\% human mixing.
-
-\begin{table}[h]
-\centering
-\caption{Text Detector Robustness: Evasion and Hybrid Mixing}
-\label{tab:text_robustness}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Perturbation} & \textbf{Parameter} & \textbf{AI Det (\%)} & \textbf{Human FP (\%)} & \textbf{F1} \\
-\midrule
-Clean Baseline        & None          & 93.5 & 4.8 & 0.941 \\
-Paraphrase (T5)       & Syntactic     & 74.2 & 5.2 & 0.812 \\
-Synonym Swap          & Rate = 20\%   & 82.4 & 5.5 & 0.853 \\
-Typo Injection        & Rate = 7\%    & 81.2 & 5.8 & 0.847 \\
-Paragraph Mixing      & 25\% Human    & 79.4 & 5.0 & 0.839 \\
-Paragraph Mixing      & 50\% Human    & 58.2 & 5.3 & 0.701 \\
-Paragraph Mixing      & 75\% Human    & 34.1 & 5.1 & 0.495 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Adversarial Attacks and Defense}
-
-Table~\ref{tab:adversarial} evaluates image model vulnerability under white-box gradient attacks. Standard unhardened ConvNeXt accuracy collapses from 94.6\% to 3.86\% under PGD at $\epsilon = 8/255$. Incorporating adversarial training ($\mathcal{L}_{\text{adv}}$) successfully hardens decision boundaries, maintaining 56.8\% FGSM and 38.08\% PGD accuracy at $\epsilon = 8/255$, incurring only a minor 2.8\% drop in clean baseline performance ($94.6\% \rightarrow 91.8\%$).
-
-\begin{table*}[t]
-\centering
-\caption{Adversarial Robustness under FGSM and PGD Attacks}
-\label{tab:adversarial}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Attack $\epsilon$} & \multicolumn{2}{c}{\textbf{Standard Model Acc (\%)}} & \multicolumn{2}{c}{\textbf{Adv-Trained Model Acc (\%)}} \\
-\cmidrule(lr){2-3} \cmidrule(lr){4-5}
-& \textbf{FGSM} & \textbf{PGD} & \textbf{FGSM} & \textbf{PGD} \\
-\midrule
-$0/255$ (Clean) & 94.60 & 94.60 & 91.80 & 91.80 \\
-$2/255$         & 57.38 & 42.51 & 81.42 & 73.67 \\
-$4/255$         & 34.80 & 19.10 & 72.21 & 59.12 \\
-$8/255$         & 12.80 & 3.86  & 56.80 & 38.08 \\
-$12/255$        & 8.00  & 3.00  & 48.00 & 38.00 \\
-$16/255$        & 8.00  & 3.00  & 48.00 & 38.00 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\subsection{Cross-Dataset Transfer Generalization}
-
-Table~\ref{tab:generalization} quantifies generalization degradation when evaluated zero-shot across unseen generators and domains. The image model encounters a 24.4\% ROC-AUC drop on DiffusionFace due to distinct artifact physics between GANs and diffusion upscalers. Similarly, text evaluation on non-native English essays yields a 23.3\% drop, underscoring the critical need for confidence bands.
-
-\begin{table*}[t]
-\centering
-\caption{Cross-Dataset Transfer Degradation Analysis}
-\label{tab:generalization}
-\begin{tabular}{lllccc}
-\toprule
-\textbf{Domain} & \textbf{Train Source} & \textbf{Test Target} & \textbf{In-AUC} & \textbf{Out-AUC} & \textbf{$\Delta$ Drop} \\
-\midrule
-Image & FF++ & Celeb-DF-v2     & 0.962 & 0.841 & -12.1\% \\
-Image & FF++ & WildDeepfake    & 0.962 & 0.763 & -19.9\% \\
-Image & FF++ & DiffusionFace   & 0.962 & 0.718 & -24.4\% \\
-\midrule
-Audio & ASV19 & FakeAVCeleb    & 0.978 & 0.835 & -14.3\% \\
-Audio & ASV19 & In-The-Wild    & 0.978 & 0.789 & -18.9\% \\
-\midrule
-Text  & MAGE & Non-Native ESL  & 0.954 & 0.721 & -23.3\% \\
-Text  & MAGE & OpenWebText     & 0.954 & 0.862 & -9.2\% \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\section{Ethical Considerations and Limitations}
-
-Forensic systems carry significant potential for social harm if misapplied. TruthLens explicitly acknowledges several boundaries:
 \begin{enumerate}
-    \item \textbf{Non-Native Writer Bias:} Language model perplexity detectors penalize repetitive vocabulary and rigid syntax, disproportionately misclassifying essays authored by non-native English speakers as artificial. TruthLens includes non-dismissible disclaimers prohibiting solitary use in academic misconduct tribunals.
-    \item \textbf{Lossy Compression Asymmetry:} High-compression social media pipelines destroy subtle spatial and spectral cues, resulting in false negatives. TruthLens indicates degraded confidence whenever file metadata reveals heavy re-encoding.
-    \item \textbf{Data Minimization and Privacy:} Uploaded media is held in temporary storage and purged automatically within 24 hours unless explicit user opt-in retention is granted.
+    \item \textbf{Missing results.} The image detector has no accuracy result on real data, and the audio detector has only a validation AUC. The DeBERTa-v3-small run failed on its first attempt and is being repeated.
+    \item \textbf{Bias.} The text detector flags most essays by non-native writers. It must not be used to judge individual writers.
+    \item \textbf{Evasion.} Paraphrasing and mixing in human sentences defeat the statistical features. The ensemble's robustness has not been measured.
+    \item \textbf{Domain.} MAGE and HC3 share sources and generators, so the high cross-dataset AUC may not hold for newer models or other kinds of writing.
 \end{enumerate}
 
-\section{Conclusion and Future Work}
+\section{Conclusion}
 
-We presented TruthLens, an open-source, multi-modal, and explainable synthetic content detection platform. By uniting spatial-frequency visual detection, light acoustic CNNs, and stylometric text ensembles with optimized ONNX CPU serving, TruthLens bridges the gap between academic benchmarks and production forensics. Extensive evaluations demonstrate that while compression and domain shift remain persistent challenges, adversarial training and multi-modal evidence attribution provide actionable, verifiable transparency. Future work will investigate vision-language co-attention models and decentralized cryptographic watermarking.
+TruthLens provides explainable image, audio and text detection with leak-free splits and CPU serving. Fine-tuning RoBERTa lifts the text detector from 0.782 to 0.997 AUC on MAGE and keeps it at 0.997 on HC3, but its bias against non-native writers remains. The next steps are training the image detector on real data, evaluating the audio detector on the ASVspoof evaluation set with min t-DCF, and measuring the ensemble's robustness to paraphrasing.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

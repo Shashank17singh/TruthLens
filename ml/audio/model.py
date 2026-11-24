@@ -108,7 +108,7 @@ def ssl_backbone(name: str, pretrained: bool, overrides: dict | None = None) -> 
     from transformers import AutoConfig, AutoModel
 
     if pretrained:
-        return AutoModel.from_pretrained(name)
+        return AutoModel.from_pretrained(name, dtype=torch.float32)  # transformers 5 keeps the checkpoint dtype; train in float32
     config = AutoConfig.for_model(**overrides) if overrides else AutoConfig.from_pretrained(name)
     return AutoModel.from_config(config)
 

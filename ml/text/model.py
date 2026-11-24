@@ -55,7 +55,8 @@ def build_model(config: dict, pretrained: bool = True) -> tuple[TextClassifier, 
     overrides = model_config.get("overrides")
     tokenizer = AutoTokenizer.from_pretrained(model_config.get("tokenizer") or name)
     if pretrained and not overrides:
-        encoder = AutoModelForSequenceClassification.from_pretrained(name, num_labels=1)
+        # transformers 5 keeps the checkpoint's dtype; train in float32 so AMP's GradScaler can unscale.
+        encoder = AutoModelForSequenceClassification.from_pretrained(name, num_labels=1, dtype=torch.float32)
     else:
         # `overrides` builds a small random encoder for tests; otherwise only the shape is fetched.
         architecture = AutoConfig.for_model(**overrides, num_labels=1) if overrides else AutoConfig.from_pretrained(name, num_labels=1)

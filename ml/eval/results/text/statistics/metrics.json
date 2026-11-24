@@ -1,0 +1,354 @@
+{
+  "weights": {
+    "log_ppl": 0.8477,
+    "burstiness": 0.1016,
+    "rank_1": -0.0861,
+    "rank_10": -0.135,
+    "rank_100": 1.2698,
+    "rank_1000": 0.0108,
+    "entropy": -0.6917,
+    "binoculars": -0.1716
+  },
+  "threshold": 0.617453795584917,
+  "validation": {
+    "threshold": 0.617453795584917,
+    "accuracy": 0.7171414292853573,
+    "precision": 0.7963470319634703,
+    "recall": 0.7176954732510288,
+    "f1": 0.754978354978355,
+    "roc_auc": 0.7849694761201689,
+    "confusion_matrix": [
+      [
+        563,
+        223
+      ],
+      [
+        343,
+        872
+      ]
+    ],
+    "samples": 2001,
+    "auc_interval": {
+      "low": 0.7638449475860182,
+      "high": 0.8049584736098958,
+      "rounds": 1000,
+      "groups": 1680
+    },
+    "per_generator": [
+      {
+        "generator_name": "GLM130B",
+        "accuracy": 0.9152542372881356,
+        "samples": 59
+      },
+      {
+        "generator_name": "bloom_7b",
+        "accuracy": 0.6896551724137931,
+        "samples": 58
+      },
+      {
+        "generator_name": "flan_t5_base",
+        "accuracy": 0.45454545454545453,
+        "samples": 11
+      },
+      {
+        "generator_name": "flan_t5_large",
+        "accuracy": 0.07142857142857142,
+        "samples": 14
+      },
+      {
+        "generator_name": "flan_t5_small",
+        "accuracy": 0.42857142857142855,
+        "samples": 7
+      },
+      {
+        "generator_name": "flan_t5_xl",
+        "accuracy": 0.15789473684210525,
+        "samples": 19
+      },
+      {
+        "generator_name": "flan_t5_xxl",
+        "accuracy": 0.7647058823529411,
+        "samples": 34
+      },
+      {
+        "generator_name": "gpt-3.5-trubo",
+        "accuracy": 0.6808510638297872,
+        "samples": 141
+      },
+      {
+        "generator_name": "gpt_j",
+        "accuracy": 0.7647058823529411,
+        "samples": 51
+      },
+      {
+        "generator_name": "gpt_neox",
+        "accuracy": 0.5609756097560976,
+        "samples": 41
+      },
+      {
+        "generator_name": "opt_1.3b",
+        "accuracy": 0.8135593220338984,
+        "samples": 59
+      },
+      {
+        "generator_name": "opt_125m",
+        "accuracy": 0.7321428571428571,
+        "samples": 56
+      },
+      {
+        "generator_name": "opt_13b",
+        "accuracy": 0.5918367346938775,
+        "samples": 49
+      },
+      {
+        "generator_name": "opt_2.7b",
+        "accuracy": 0.8620689655172413,
+        "samples": 58
+      },
+      {
+        "generator_name": "opt_30b",
+        "accuracy": 0.5714285714285714,
+        "samples": 56
+      },
+      {
+        "generator_name": "opt_350m",
+        "accuracy": 0.8035714285714286,
+        "samples": 56
+      },
+      {
+        "generator_name": "opt_6.7b",
+        "accuracy": 0.7857142857142857,
+        "samples": 56
+      },
+      {
+        "generator_name": "opt_iml_30b",
+        "accuracy": 0.631578947368421,
+        "samples": 57
+      },
+      {
+        "generator_name": "opt_iml_max_1.3b",
+        "accuracy": 0.7857142857142857,
+        "samples": 56
+      },
+      {
+        "generator_name": "real",
+        "accuracy": 0.7162849872773537,
+        "samples": 786
+      },
+      {
+        "generator_name": "t0_11b",
+        "accuracy": 0.6428571428571429,
+        "samples": 14
+      },
+      {
+        "generator_name": "t0_3b",
+        "accuracy": 0.6111111111111112,
+        "samples": 18
+      },
+      {
+        "generator_name": "text-davinci-002",
+        "accuracy": 0.7631578947368421,
+        "samples": 114
+      },
+      {
+        "generator_name": "text-davinci-003",
+        "accuracy": 0.8091603053435115,
+        "samples": 131
+      }
+    ]
+  },
+  "mage-test": {
+    "threshold": 0.617453795584917,
+    "accuracy": 0.7206801700425106,
+    "precision": 0.7917967008470798,
+    "recall": 0.7320692497938994,
+    "f1": 0.7607624759049046,
+    "roc_auc": 0.7814647317757563,
+    "confusion_matrix": [
+      [
+        1106,
+        467
+      ],
+      [
+        650,
+        1776
+      ]
+    ],
+    "samples": 3999,
+    "auc_interval": {
+      "low": 0.7667148844136381,
+      "high": 0.7968356201255922,
+      "rounds": 1000,
+      "groups": 2959
+    },
+    "per_generator": [
+      {
+        "generator_name": "GLM130B",
+        "accuracy": 0.9152542372881356,
+        "samples": 118
+      },
+      {
+        "generator_name": "bloom_7b",
+        "accuracy": 0.7692307692307693,
+        "samples": 117
+      },
+      {
+        "generator_name": "flan_t5_base",
+        "accuracy": 0.2727272727272727,
+        "samples": 22
+      },
+      {
+        "generator_name": "flan_t5_large",
+        "accuracy": 0.25,
+        "samples": 28
+      },
+      {
+        "generator_name": "flan_t5_small",
+        "accuracy": 0.46153846153846156,
+        "samples": 13
+      },
+      {
+        "generator_name": "flan_t5_xl",
+        "accuracy": 0.05405405405405406,
+        "samples": 37
+      },
+      {
+        "generator_name": "flan_t5_xxl",
+        "accuracy": 0.5072463768115942,
+        "samples": 69
+      },
+      {
+        "generator_name": "gpt-3.5-trubo",
+        "accuracy": 0.8291814946619217,
+        "samples": 281
+      },
+      {
+        "generator_name": "gpt_j",
+        "accuracy": 0.7326732673267327,
+        "samples": 101
+      },
+      {
+        "generator_name": "gpt_neox",
+        "accuracy": 0.5121951219512195,
+        "samples": 82
+      },
+      {
+        "generator_name": "opt_1.3b",
+        "accuracy": 0.7966101694915254,
+        "samples": 118
+      },
+      {
+        "generator_name": "opt_125m",
+        "accuracy": 0.8214285714285714,
+        "samples": 112
+      },
+      {
+        "generator_name": "opt_13b",
+        "accuracy": 0.45918367346938777,
+        "samples": 98
+      },
+      {
+        "generator_name": "opt_2.7b",
+        "accuracy": 0.6956521739130435,
+        "samples": 115
+      },
+      {
+        "generator_name": "opt_30b",
+        "accuracy": 0.6428571428571429,
+        "samples": 112
+      },
+      {
+        "generator_name": "opt_350m",
+        "accuracy": 0.8738738738738738,
+        "samples": 111
+      },
+      {
+        "generator_name": "opt_6.7b",
+        "accuracy": 0.7589285714285714,
+        "samples": 112
+      },
+      {
+        "generator_name": "opt_iml_30b",
+        "accuracy": 0.7699115044247787,
+        "samples": 113
+      },
+      {
+        "generator_name": "opt_iml_max_1.3b",
+        "accuracy": 0.7589285714285714,
+        "samples": 112
+      },
+      {
+        "generator_name": "real",
+        "accuracy": 0.7031150667514304,
+        "samples": 1573
+      },
+      {
+        "generator_name": "t0_11b",
+        "accuracy": 0.4827586206896552,
+        "samples": 29
+      },
+      {
+        "generator_name": "t0_3b",
+        "accuracy": 0.6571428571428571,
+        "samples": 35
+      },
+      {
+        "generator_name": "text-davinci-002",
+        "accuracy": 0.8114035087719298,
+        "samples": 228
+      },
+      {
+        "generator_name": "text-davinci-003",
+        "accuracy": 0.8136882129277566,
+        "samples": 263
+      }
+    ],
+    "human_false_positive_rate_by_domain": [
+      {
+        "domain": "cmv",
+        "false_positive_rate": 0.5535714285714286,
+        "samples": 112
+      },
+      {
+        "domain": "eli5",
+        "false_positive_rate": 0.3046875,
+        "samples": 256
+      },
+      {
+        "domain": "roct",
+        "false_positive_rate": 0.5,
+        "samples": 44
+      },
+      {
+        "domain": "sci_gen",
+        "false_positive_rate": 0.0,
+        "samples": 128
+      },
+      {
+        "domain": "squad",
+        "false_positive_rate": 0.2037037037037037,
+        "samples": 270
+      },
+      {
+        "domain": "tldr",
+        "false_positive_rate": 0.40540540540540543,
+        "samples": 74
+      },
+      {
+        "domain": "wp",
+        "false_positive_rate": 0.30344827586206896,
+        "samples": 145
+      },
+      {
+        "domain": "xsum",
+        "false_positive_rate": 0.48026315789473684,
+        "samples": 152
+      },
+      {
+        "domain": "yelp",
+        "false_positive_rate": 0.2627551020408163,
+        "samples": 392
+      }
+    ]
+  }
+}

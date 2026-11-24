@@ -18,7 +18,7 @@ Detectors that score well in isolated benchmarks often fail when exposed to unse
 
 * **Vision Forensics:** Dual-branch ConvNeXt and EfficientNet backbones fused with 2D Discrete Cosine Transform (DCT) radial frequency analysis to detect upsampling checkerboard patterns and GAN/diffusion synthesis artifacts.
 * **Acoustic Forensics:** Linear Frequency Cepstral Coefficients (LFCC) combined with Light-CNN (LCNN) architectures evaluated under ASVspoof standards for synthetic voice and replay attack detection.
-* **Linguistic Forensics:** Multi-feature statistical ensemble combining GPT-2 token perplexity, burstiness metrics, GLTR ranking, and linguistic entropy scoring.
+* **Linguistic Forensics:** Logistic-regression ensemble over a fine-tuned RoBERTa classifier and GPT-2 statistics: token perplexity, burstiness, GLTR ranks, entropy and a Binoculars score.
 * **Audit Trail Integrity:** Automated generation of tamper-evident forensic PDF dossiers cryptographically signed with HMAC-SHA256 and embedded with dynamic QR codes for independent public verification.
 
 Inference is optimized for both low-latency CPU deployment via ONNX Runtime and GPU acceleration via PyTorch on Hugging Face ZeroGPU.
@@ -102,10 +102,22 @@ Tested on single-thread Intel Core i5-10210U at 224x224 input resolution. All ON
 | **ConvNeXt-Tiny** | 114 MB | 179 ms | 177 ms |
 | **ViT-B/16** | 346 MB | 480 ms | 553 ms |
 
-### 2. Multi-Modal Forensic Benchmark Accuracies
+### 2. Detection Results
 
-| Modality / Benchmark | Test Samples | AUROC (95% CI) | Balanced Accuracy |
-| :--- | :--- | :--- | :--- |
+Only results from real training runs are listed. The text models were trained on a Kaggle T4 GPU; the audio model was trained on the development laptop's CPU.
+
+| Model | Test set | Samples | AUC (95% interval) | At the threshold |
+| :--- | :--- | :--- | :--- | :--- |
+| **Text: statistics + RoBERTa** | MAGE test | 3,999 | 0.997 (0.997 to 0.998) | 97.6% accuracy |
+| | MAGE, unseen LLaMA generators | 1,999 AI | n/a, AI texts only | 90.1% detected |
+| | HC3, excluding rows that overlap MAGE | 2,000 | 0.997 (0.995 to 0.998) | 94.2% accuracy |
+| | ChatGPT Detector Bias | 831 | 0.794 (0.761 to 0.825) | 61.8% of TOEFL essays by non-native writers flagged as AI |
+| **Text: statistics only** | MAGE test | 3,999 | 0.782 (0.767 to 0.797) | 72.1% accuracy |
+| **Audio: LCNN + LFCC** | ASVspoof 2019 LA validation | 24,843 | 0.997 | after 3 of 10 epochs |
+
+The audio AUC is on the validation set that picks the best epoch, so it is optimistic. The ASVspoof evaluation set, min t-DCF and the image detector have no results yet: the image models have not been trained on real data. Full tables are in [ml/text/README.md](ml/text/README.md).
+
+--- | :--- | :--- | :--- |
 | **Vision (Deepfake Faces)** | 1,000 | 0.941 (0.925 to 0.957) | 88.5% |
 | **Vision (Unseen Midjourney v6)** | 500 | 0.892 (0.865 to 0.919) | 83.2% |
 | **Audio (ASVspoof 2019 LA Eval)** | 1,000 | 0.963 (0.948 to 0.978) | 91.4% |
@@ -157,12 +169,11 @@ TruthLens/
 │   ├── image/                # ConvNeXt, EfficientNet, ViT, Grad-CAM, DCT frequency
 │   ├── audio/                # LCNN, LFCC extraction, ASVspoof scoring
 │   ├── text/                 # Perplexity, burstiness, GLTR, RoBERTa classifiers
-│   └── eval/                 # Robustness and adversarial evaluation suites
+│   └── eval/                 # Evaluation results and robustness code
 ├── notebooks/                # GPU training workflows & ablation experiments
-├── paper/                    # Academic artifacts
-│   ├── main.tex              # IEEE conference paper source
-│   ├── references.bib        # Comprehensive citation library
-│   └── project_report.md     # 8-chapter university major project report
+├── paper/                    # Paper with the measured results
+│   ├── main.tex              # IEEE-format source
+│   └── references.bib        # Citations
 ├── docs/                     # System documentation, API contracts, database schema
 ├── app.py                    # ZeroGPU Hugging Face Space entrypoint
 ├── Dockerfile                # Multi-stage production container
@@ -250,12 +261,6 @@ Execute frontend test suites:
 
 ```bash
 cd frontend && pnpm test
-```
-
-Execute ML robustness and adversarial evaluations:
-
-```bash
-python -m ml.eval.robustness
 ```
 
 Run static code analysis:

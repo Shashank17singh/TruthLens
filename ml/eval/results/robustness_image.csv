@@ -1,9 +1,0 @@
-Perturbation,Parameter,Accuracy,ROC_AUC,F1
-Clean Baseline,None,0.946,0.981,0.942
-JPEG Compression,Q=90,0.932,0.968,0.927
-JPEG Compression,Q=70,0.887,0.931,0.881
-JPEG Compression,Q=50,0.824,0.875,0.816
-Downscale Resize,0.5x Scale,0.853,0.904,0.846
-Gaussian Blur,Radius=2.0,0.841,0.892,0.833
-Screenshot Re-encode,PNG 256-color,0.895,0.942,0.89
-Social Media Pipeline,WA/Twitter Sim,0.786,0.841,0.778

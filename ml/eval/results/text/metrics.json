@@ -1,362 +1,363 @@
 {
   "weights": {
-    "log_ppl": 0.499,
-    "burstiness": 0.1026,
-    "rank_1": -0.2248,
-    "rank_10": -0.071,
-    "rank_100": 1.0975,
-    "rank_1000": 0.1192,
-    "entropy": -0.7125,
-    "binoculars": 0.0295
+    "log_ppl": 0.0852,
+    "burstiness": 0.1167,
+    "rank_1": -0.1762,
+    "rank_10": 0.0225,
+    "rank_100": 0.253,
+    "rank_1000": 0.0921,
+    "entropy": 0.0546,
+    "binoculars": -0.1024,
+    "transformer_logit": 5.0402
   },
-  "threshold": 0.6168237436990396,
+  "threshold": 0.7315988673858017,
   "validation": {
-    "threshold": 0.6168237436990396,
-    "accuracy": 0.7176938369781312,
-    "precision": 0.7971014492753623,
-    "recall": 0.7189542483660131,
-    "f1": 0.7560137457044673,
-    "roc_auc": 0.7710095882684715,
+    "threshold": 0.7315988673858017,
+    "accuracy": 0.9685157421289355,
+    "precision": 0.9792013311148087,
+    "recall": 0.968724279835391,
+    "f1": 0.9739346297062474,
+    "roc_auc": 0.9958763966114828,
     "confusion_matrix": [
       [
-        141,
-        56
+        761,
+        25
       ],
       [
-        86,
-        220
+        38,
+        1177
       ]
     ],
-    "samples": 503,
+    "samples": 2001,
     "auc_interval": {
-      "low": 0.7256041569032822,
-      "high": 0.8104794942991739,
+      "low": 0.9937828650774104,
+      "high": 0.9974403638162542,
       "rounds": 1000,
-      "groups": 479
+      "groups": 1680
     },
     "per_generator": [
       {
         "generator_name": "GLM130B",
-        "accuracy": 1.0,
-        "samples": 15
+        "accuracy": 0.9661016949152542,
+        "samples": 59
       },
       {
         "generator_name": "bloom_7b",
-        "accuracy": 0.4666666666666667,
-        "samples": 15
+        "accuracy": 0.9827586206896551,
+        "samples": 58
       },
       {
         "generator_name": "flan_t5_base",
-        "accuracy": 0.6666666666666666,
-        "samples": 3
+        "accuracy": 0.9090909090909091,
+        "samples": 11
       },
       {
         "generator_name": "flan_t5_large",
-        "accuracy": 0.0,
-        "samples": 4
-      },
-      {
-        "generator_name": "flan_t5_small",
-        "accuracy": 0.5,
-        "samples": 2
-      },
-      {
-        "generator_name": "flan_t5_xl",
-        "accuracy": 0.2,
-        "samples": 5
-      },
-      {
-        "generator_name": "flan_t5_xxl",
-        "accuracy": 0.6666666666666666,
-        "samples": 9
-      },
-      {
-        "generator_name": "gpt-3.5-trubo",
-        "accuracy": 0.6285714285714286,
-        "samples": 35
-      },
-      {
-        "generator_name": "gpt_j",
-        "accuracy": 0.6923076923076923,
-        "samples": 13
-      },
-      {
-        "generator_name": "gpt_neox",
-        "accuracy": 0.6,
-        "samples": 10
-      },
-      {
-        "generator_name": "opt_1.3b",
-        "accuracy": 0.8,
-        "samples": 15
-      },
-      {
-        "generator_name": "opt_125m",
-        "accuracy": 0.6428571428571429,
-        "samples": 14
-      },
-      {
-        "generator_name": "opt_13b",
-        "accuracy": 0.75,
-        "samples": 12
-      },
-      {
-        "generator_name": "opt_2.7b",
         "accuracy": 0.8571428571428571,
         "samples": 14
       },
       {
+        "generator_name": "flan_t5_small",
+        "accuracy": 0.8571428571428571,
+        "samples": 7
+      },
+      {
+        "generator_name": "flan_t5_xl",
+        "accuracy": 0.8947368421052632,
+        "samples": 19
+      },
+      {
+        "generator_name": "flan_t5_xxl",
+        "accuracy": 0.9411764705882353,
+        "samples": 34
+      },
+      {
+        "generator_name": "gpt-3.5-trubo",
+        "accuracy": 0.9858156028368794,
+        "samples": 141
+      },
+      {
+        "generator_name": "gpt_j",
+        "accuracy": 1.0,
+        "samples": 51
+      },
+      {
+        "generator_name": "gpt_neox",
+        "accuracy": 1.0,
+        "samples": 41
+      },
+      {
+        "generator_name": "opt_1.3b",
+        "accuracy": 1.0,
+        "samples": 59
+      },
+      {
+        "generator_name": "opt_125m",
+        "accuracy": 0.9642857142857143,
+        "samples": 56
+      },
+      {
+        "generator_name": "opt_13b",
+        "accuracy": 1.0,
+        "samples": 49
+      },
+      {
+        "generator_name": "opt_2.7b",
+        "accuracy": 1.0,
+        "samples": 58
+      },
+      {
         "generator_name": "opt_30b",
-        "accuracy": 0.7857142857142857,
-        "samples": 14
+        "accuracy": 0.9642857142857143,
+        "samples": 56
       },
       {
         "generator_name": "opt_350m",
-        "accuracy": 0.9285714285714286,
-        "samples": 14
+        "accuracy": 1.0,
+        "samples": 56
       },
       {
         "generator_name": "opt_6.7b",
-        "accuracy": 0.7142857142857143,
-        "samples": 14
+        "accuracy": 1.0,
+        "samples": 56
       },
       {
         "generator_name": "opt_iml_30b",
-        "accuracy": 0.7142857142857143,
-        "samples": 14
+        "accuracy": 0.9649122807017544,
+        "samples": 57
       },
       {
         "generator_name": "opt_iml_max_1.3b",
-        "accuracy": 0.7857142857142857,
-        "samples": 14
+        "accuracy": 0.9642857142857143,
+        "samples": 56
       },
       {
         "generator_name": "real",
-        "accuracy": 0.7157360406091371,
-        "samples": 197
+        "accuracy": 0.9681933842239185,
+        "samples": 786
       },
       {
         "generator_name": "t0_11b",
         "accuracy": 1.0,
-        "samples": 4
+        "samples": 14
       },
       {
         "generator_name": "t0_3b",
-        "accuracy": 0.5,
-        "samples": 4
+        "accuracy": 0.8888888888888888,
+        "samples": 18
       },
       {
         "generator_name": "text-davinci-002",
-        "accuracy": 0.7241379310344828,
-        "samples": 29
+        "accuracy": 0.9210526315789473,
+        "samples": 114
       },
       {
         "generator_name": "text-davinci-003",
-        "accuracy": 0.8181818181818182,
-        "samples": 33
+        "accuracy": 0.9541984732824428,
+        "samples": 131
       }
     ]
   },
   "mage-test": {
-    "threshold": 0.6168237436990396,
-    "accuracy": 0.70375,
-    "precision": 0.7627118644067796,
-    "recall": 0.7422680412371134,
-    "f1": 0.7523510971786834,
-    "roc_auc": 0.7679463262968417,
+    "threshold": 0.7315988673858017,
+    "accuracy": 0.975743935983996,
+    "precision": 0.9829946080464538,
+    "recall": 0.9769167353668591,
+    "f1": 0.9799462476741783,
+    "roc_auc": 0.9973965553295538,
     "confusion_matrix": [
       [
-        203,
-        112
+        1532,
+        41
       ],
       [
-        125,
-        360
+        56,
+        2370
       ]
     ],
-    "samples": 800,
+    "samples": 3999,
     "auc_interval": {
-      "low": 0.7367309592982714,
-      "high": 0.8008774396728963,
+      "low": 0.9965004959819594,
+      "high": 0.9982122011968516,
       "rounds": 1000,
-      "groups": 742
+      "groups": 2959
     },
     "per_generator": [
       {
         "generator_name": "GLM130B",
-        "accuracy": 0.9166666666666666,
-        "samples": 24
+        "accuracy": 0.9661016949152542,
+        "samples": 118
       },
       {
         "generator_name": "bloom_7b",
-        "accuracy": 0.7391304347826086,
-        "samples": 23
+        "accuracy": 0.9914529914529915,
+        "samples": 117
       },
       {
         "generator_name": "flan_t5_base",
-        "accuracy": 0.25,
-        "samples": 4
+        "accuracy": 0.9545454545454546,
+        "samples": 22
       },
       {
         "generator_name": "flan_t5_large",
-        "accuracy": 0.16666666666666666,
-        "samples": 6
+        "accuracy": 0.8571428571428571,
+        "samples": 28
       },
       {
         "generator_name": "flan_t5_small",
-        "accuracy": 0.3333333333333333,
-        "samples": 3
+        "accuracy": 1.0,
+        "samples": 13
       },
       {
         "generator_name": "flan_t5_xl",
-        "accuracy": 0.0,
-        "samples": 7
+        "accuracy": 1.0,
+        "samples": 37
       },
       {
         "generator_name": "flan_t5_xxl",
-        "accuracy": 0.35714285714285715,
-        "samples": 14
+        "accuracy": 0.9710144927536232,
+        "samples": 69
       },
       {
         "generator_name": "gpt-3.5-trubo",
-        "accuracy": 0.875,
-        "samples": 56
+        "accuracy": 0.9893238434163701,
+        "samples": 281
       },
       {
         "generator_name": "gpt_j",
-        "accuracy": 0.8,
-        "samples": 20
+        "accuracy": 0.9900990099009901,
+        "samples": 101
       },
       {
         "generator_name": "gpt_neox",
-        "accuracy": 0.375,
-        "samples": 16
+        "accuracy": 1.0,
+        "samples": 82
       },
       {
         "generator_name": "opt_1.3b",
-        "accuracy": 0.8333333333333334,
-        "samples": 24
+        "accuracy": 0.9830508474576272,
+        "samples": 118
       },
       {
         "generator_name": "opt_125m",
-        "accuracy": 0.8636363636363636,
-        "samples": 22
+        "accuracy": 0.9821428571428571,
+        "samples": 112
       },
       {
         "generator_name": "opt_13b",
-        "accuracy": 0.35,
-        "samples": 20
+        "accuracy": 1.0,
+        "samples": 98
       },
       {
         "generator_name": "opt_2.7b",
-        "accuracy": 0.6956521739130435,
-        "samples": 23
+        "accuracy": 1.0,
+        "samples": 115
       },
       {
         "generator_name": "opt_30b",
-        "accuracy": 0.6818181818181818,
-        "samples": 22
+        "accuracy": 1.0,
+        "samples": 112
       },
       {
         "generator_name": "opt_350m",
-        "accuracy": 1.0,
-        "samples": 22
+        "accuracy": 0.990990990990991,
+        "samples": 111
       },
       {
         "generator_name": "opt_6.7b",
-        "accuracy": 0.7727272727272727,
-        "samples": 22
+        "accuracy": 1.0,
+        "samples": 112
       },
       {
         "generator_name": "opt_iml_30b",
-        "accuracy": 0.7391304347826086,
-        "samples": 23
+        "accuracy": 0.9646017699115044,
+        "samples": 113
       },
       {
         "generator_name": "opt_iml_max_1.3b",
-        "accuracy": 0.8181818181818182,
-        "samples": 22
+        "accuracy": 0.9464285714285714,
+        "samples": 112
       },
       {
         "generator_name": "real",
-        "accuracy": 0.6444444444444445,
-        "samples": 315
+        "accuracy": 0.9739351557533376,
+        "samples": 1573
       },
       {
         "generator_name": "t0_11b",
-        "accuracy": 0.5,
-        "samples": 6
+        "accuracy": 1.0,
+        "samples": 29
       },
       {
         "generator_name": "t0_3b",
-        "accuracy": 0.42857142857142855,
-        "samples": 7
+        "accuracy": 0.9714285714285714,
+        "samples": 35
       },
       {
         "generator_name": "text-davinci-002",
-        "accuracy": 0.8260869565217391,
-        "samples": 46
+        "accuracy": 0.9298245614035088,
+        "samples": 228
       },
       {
         "generator_name": "text-davinci-003",
-        "accuracy": 0.8867924528301887,
-        "samples": 53
+        "accuracy": 0.9695817490494296,
+        "samples": 263
       }
     ],
     "human_false_positive_rate_by_domain": [
       {
         "domain": "cmv",
-        "false_positive_rate": 0.72,
-        "samples": 25
+        "false_positive_rate": 0.05357142857142857,
+        "samples": 112
       },
       {
         "domain": "eli5",
-        "false_positive_rate": 0.35,
-        "samples": 40
+        "false_positive_rate": 0.0234375,
+        "samples": 256
       },
       {
         "domain": "roct",
-        "false_positive_rate": 0.8571428571428571,
-        "samples": 7
+        "false_positive_rate": 0.045454545454545456,
+        "samples": 44
       },
       {
         "domain": "sci_gen",
-        "false_positive_rate": 0.0,
-        "samples": 30
+        "false_positive_rate": 0.0390625,
+        "samples": 128
       },
       {
         "domain": "squad",
-        "false_positive_rate": 0.2786885245901639,
-        "samples": 61
+        "false_positive_rate": 0.014814814814814815,
+        "samples": 270
       },
       {
         "domain": "tldr",
-        "false_positive_rate": 0.38461538461538464,
-        "samples": 13
+        "false_positive_rate": 0.05405405405405406,
+        "samples": 74
       },
       {
         "domain": "wp",
-        "false_positive_rate": 0.15384615384615385,
-        "samples": 26
+        "false_positive_rate": 0.006896551724137931,
+        "samples": 145
       },
       {
         "domain": "xsum",
-        "false_positive_rate": 0.65625,
-        "samples": 32
+        "false_positive_rate": 0.03289473684210526,
+        "samples": 152
       },
       {
         "domain": "yelp",
-        "false_positive_rate": 0.3333333333333333,
-        "samples": 81
+        "false_positive_rate": 0.02040816326530612,
+        "samples": 392
       }
     ]
   },
   "mage-unseen": {
-    "threshold": 0.6168237436990396,
-    "accuracy": 0.814,
+    "threshold": 0.7315988673858017,
+    "accuracy": 0.9014507253626813,
     "precision": 1.0,
-    "recall": 0.814,
-    "f1": 0.8974641675854466,
+    "recall": 0.9014507253626813,
+    "f1": 0.9481715338068929,
     "roc_auc": null,
     "confusion_matrix": [
       [
@@ -364,159 +365,159 @@
         0
       ],
       [
-        93,
-        407
+        197,
+        1802
       ]
     ],
-    "samples": 500,
+    "samples": 1999,
     "per_generator": [
       {
         "generator_name": "13B",
-        "accuracy": 0.84,
-        "samples": 125
+        "accuracy": 0.9138276553106213,
+        "samples": 499
       },
       {
         "generator_name": "30B",
-        "accuracy": 0.8225806451612904,
-        "samples": 124
+        "accuracy": 0.8732394366197183,
+        "samples": 497
       },
       {
         "generator_name": "65B",
-        "accuracy": 0.76,
-        "samples": 125
+        "accuracy": 0.86,
+        "samples": 500
       },
       {
         "generator_name": "7B",
-        "accuracy": 0.8333333333333334,
-        "samples": 126
+        "accuracy": 0.9582504970178927,
+        "samples": 503
       }
     ],
     "human_false_positive_rate_by_domain": []
   },
   "hc3": {
-    "threshold": 0.6168237436990396,
-    "accuracy": 0.774,
-    "precision": 0.6655948553054662,
-    "recall": 0.9583333333333334,
-    "f1": 0.7855787476280834,
-    "roc_auc": 0.9317944705268648,
+    "threshold": 0.7315988673858017,
+    "accuracy": 0.942,
+    "precision": 0.8862461220268872,
+    "recall": 0.9930475086906141,
+    "f1": 0.9366120218579235,
+    "roc_auc": 0.9967663068125651,
     "confusion_matrix": [
       [
-        180,
-        104
+        1027,
+        110
       ],
       [
-        9,
-        207
+        6,
+        857
       ]
     ],
-    "samples": 500,
+    "samples": 2000,
     "auc_interval": {
-      "low": 0.9096217133550367,
-      "high": 0.9520126651976794,
+      "low": 0.995319584485306,
+      "high": 0.998021470550111,
       "rounds": 1000,
-      "groups": 497
+      "groups": 1936
     },
     "per_generator": [
       {
         "generator_name": "chatgpt",
-        "accuracy": 0.9583333333333334,
-        "samples": 216
+        "accuracy": 0.9930475086906141,
+        "samples": 863
       },
       {
         "generator_name": "real",
-        "accuracy": 0.6338028169014085,
-        "samples": 284
+        "accuracy": 0.9032541776605101,
+        "samples": 1137
       }
     ],
     "human_false_positive_rate_by_domain": [
       {
         "domain": "finance",
-        "false_positive_rate": 0.2777777777777778,
-        "samples": 18
+        "false_positive_rate": 0.08080808080808081,
+        "samples": 99
       },
       {
         "domain": "medicine",
+        "false_positive_rate": 0.1724137931034483,
+        "samples": 29
+      },
+      {
+        "domain": "open_qa",
         "false_positive_rate": 0.0,
         "samples": 3
       },
       {
-        "domain": "open_qa",
-        "false_positive_rate": 0.5,
-        "samples": 2
-      },
-      {
         "domain": "reddit_eli5",
-        "false_positive_rate": 0.37254901960784315,
-        "samples": 255
+        "false_positive_rate": 0.09257375381485249,
+        "samples": 983
       },
       {
         "domain": "wiki_csai",
-        "false_positive_rate": 0.5,
-        "samples": 6
+        "false_positive_rate": 0.2608695652173913,
+        "samples": 23
       }
     ]
   },
   "detector_bias": {
-    "threshold": 0.6168237436990396,
-    "accuracy": 0.4657039711191336,
-    "precision": 0.4890829694323144,
-    "recall": 0.255125284738041,
-    "f1": 0.33532934131736525,
-    "roc_auc": 0.5413218818279021,
+    "threshold": 0.7315988673858017,
+    "accuracy": 0.7521058965102286,
+    "precision": 0.7934508816120907,
+    "recall": 0.7175398633257403,
+    "f1": 0.7535885167464115,
+    "roc_auc": 0.7940646645902096,
     "confusion_matrix": [
       [
-        275,
-        117
+        310,
+        82
       ],
       [
-        327,
-        112
+        124,
+        315
       ]
     ],
     "samples": 831,
     "auc_interval": {
-      "low": 0.4983914518240701,
-      "high": 0.5811735487852818,
+      "low": 0.7608226122210822,
+      "high": 0.8246282386722542,
       "rounds": 1000,
       "groups": 831
     },
     "per_generator": [
       {
         "generator_name": "gpt3",
-        "accuracy": 0.3448275862068966,
+        "accuracy": 0.8916256157635468,
         "samples": 203
       },
       {
         "generator_name": "gpt4",
-        "accuracy": 0.17796610169491525,
+        "accuracy": 0.5677966101694916,
         "samples": 236
       },
       {
         "generator_name": "real",
-        "accuracy": 0.701530612244898,
+        "accuracy": 0.7908163265306123,
         "samples": 392
       }
     ],
     "human_false_positive_rate_by_domain": [
       {
         "domain": "CS224N_real_145",
-        "false_positive_rate": 0.0,
+        "false_positive_rate": 0.08275862068965517,
         "samples": 145
       },
       {
         "domain": "CollegeEssay_real_70",
-        "false_positive_rate": 0.2571428571428571,
+        "false_positive_rate": 0.14285714285714285,
         "samples": 70
       },
       {
         "domain": "HewlettStudentEssay_real_88",
-        "false_positive_rate": 0.25,
+        "false_positive_rate": 0.056818181818181816,
         "samples": 88
       },
       {
         "domain": "TOEFL_real_91",
-        "false_positive_rate": 0.8651685393258427,
+        "false_positive_rate": 0.6179775280898876,
         "samples": 89
       }
     ]

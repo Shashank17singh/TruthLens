@@ -1,0 +1,33 @@
+{
+  "threshold": 0.617453795584917,
+  "baseline_ai_detected": 0.7133333333333334,
+  "baseline_human_flagged": 0.30666666666666664,
+  "paraphrased": {
+    "samples": 300,
+    "ai_detected": 0.4766666666666667
+  },
+  "human_edited_25": {
+    "samples": 300,
+    "ai_detected": 0.47
+  },
+  "human_edited_50": {
+    "samples": 300,
+    "ai_detected": 0.37333333333333335
+  },
+  "short_50_ai": {
+    "samples": 300,
+    "ai_detected": 0.37333333333333335
+  },
+  "short_50_human": {
+    "samples": 300,
+    "human_flagged": 0.22666666666666666
+  },
+  "short_75_ai": {
+    "samples": 300,
+    "ai_detected": 0.5366666666666666
+  },
+  "short_75_human": {
+    "samples": 300,
+    "human_flagged": 0.23333333333333334
+  }
+}

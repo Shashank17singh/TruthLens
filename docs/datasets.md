@@ -14,7 +14,7 @@ These need a form or a terms agreement, and approval can take days:
 |---|---|
 | FaceForensics++ | Follow the instructions in the official repository. Sources disagree on whether this is a Google form or a signed agreement sent by email. |
 | Celeb-DF v2 | Fill in the Google form linked from the official repository. |
-| FakeAVCeleb (optional) | Use a college email and write a research description of at least 100 words. Access expires after 1 week, so be ready to download at once. |
+| FakeAVCeleb (optional) | Use an institutional email and write a research description of at least 100 words. Access expires after 1 week, so be ready to download at once. |
 | DFDC (optional) | Accept the terms on the official page. |
 
 ## Image

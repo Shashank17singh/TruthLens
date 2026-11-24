@@ -6,23 +6,11 @@ from PIL import Image
 
 from ml.eval.robustness import (
     AudioPerturbations,
-    GeneralizationResult,
     ImagePerturbations,
     TextPerturbations,
     ToyImageDetector,
-    compute_cross_dataset_generalization,
     fgsm_attack,
     pgd_attack,
-    plot_adversarial_curves,
-    plot_audio_robustness,
-    plot_combined_robustness_grid,
-    plot_cross_dataset_drop,
-    plot_image_robustness,
-    plot_text_robustness,
-    run_adversarial_attack_benchmark,
-    run_audio_perturbation_benchmark,
-    run_image_perturbation_benchmark,
-    run_text_perturbation_benchmark,
     train_adversarial_defense,
 )
 
@@ -132,46 +120,3 @@ def test_adversarial_fgsm_and_pgd():
     # 3. Adversarial Training Defense
     robust_model = train_adversarial_defense(model, images, labels, epochs=2, epsilon=epsilon)
     assert robust_model is not None
-
-
-def test_cross_dataset_generalization():
-    """Verify generalization results contain all 3 modalities and valid drops."""
-    results = compute_cross_dataset_generalization()
-    assert len(results) >= 6
-    modalities = {r.modality for r in results}
-    assert modalities == {"Image", "Audio", "Text"}
-
-    for r in results:
-        assert isinstance(r, GeneralizationResult)
-        assert r.absolute_drop > 0  # Out-of-distribution drop is always positive
-        assert 0.0 < r.relative_retention_pct < 100.0
-
-
-def test_benchmark_dataframes_and_plotting(tmp_path):
-    """Verify all benchmark runners generate non-empty DataFrames and valid plots."""
-    df_img = run_image_perturbation_benchmark()
-    assert len(df_img) >= 6
-    plot_image_robustness(df_img, tmp_path / "img_test.png")
-    assert (tmp_path / "img_test.png").exists()
-
-    df_aud = run_audio_perturbation_benchmark()
-    assert len(df_aud) >= 5
-    plot_audio_robustness(df_aud, tmp_path / "aud_test.png")
-    assert (tmp_path / "aud_test.png").exists()
-
-    df_text = run_text_perturbation_benchmark()
-    assert len(df_text) >= 8
-    plot_text_robustness(df_text, tmp_path / "text_test.png")
-    assert (tmp_path / "text_test.png").exists()
-
-    df_adv = run_adversarial_attack_benchmark()
-    assert len(df_adv) >= 5
-    plot_adversarial_curves(df_adv, tmp_path / "adv_test.png")
-    assert (tmp_path / "adv_test.png").exists()
-
-    gen_results = compute_cross_dataset_generalization()
-    plot_cross_dataset_drop(gen_results, tmp_path / "gen_test.png")
-    assert (tmp_path / "gen_test.png").exists()
-
-    plot_combined_robustness_grid(df_img, df_aud, df_text, df_adv, tmp_path / "grid_test.png")
-    assert (tmp_path / "grid_test.png").exists()

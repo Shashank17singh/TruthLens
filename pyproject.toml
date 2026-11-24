@@ -15,7 +15,7 @@ include = ["backend*", "ml*"]
 [tool.pytest.ini_options]
 testpaths = ["ml", "backend/tests"]
 pythonpath = ["."]
-addopts = "-q"
+addopts = "-q --import-mode=importlib"
 markers = [
   "network: downloads model weights or data",
 ]

@@ -181,12 +181,12 @@ export const LandingPage: React.FC = () => {
         <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           <h3 className="text-base font-bold">
-            Honest Limitations, Biases, and Viva Defense Transparency
+            Limitations and Biases
           </h3>
         </div>
 
         <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          In adherence to academic integrity and ethical forensic practice, TruthLens explicitly documents known model boundaries:
+          TruthLens documents the known limits of its models:
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600 dark:text-slate-300 pt-2">

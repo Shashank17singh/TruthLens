@@ -5,7 +5,7 @@ Run every command from the repository root, after preparing `mage`, `hc3` and `d
 The detector has three parts:
 
 1. **Statistics.** GPT-2 and DistilGPT-2 give eight features per text: log perplexity, burstiness, four GLTR rank buckets, mean entropy and a Binoculars score. They run on a CPU.
-2. **Transformers.** RoBERTa-base or DeBERTa-v3-small, fine-tuned on 512-token windows. These need a GPU, so they train on Colab.
+2. **Transformers.** RoBERTa-base or DeBERTa-v3-small, fine-tuned on 512-token windows. These need a GPU, so they train on Colab or Kaggle.
 3. **Ensemble.** A logistic regression over the statistics, with the transformer logit as one more column when a fine-tuned model exists.
 
 ## Statistics and the ensemble on a CPU
@@ -27,52 +27,57 @@ python -m ml.text.ensemble evaluate --model checkpoints/text/meta.joblib --valid
 
 `metrics.json` holds the threshold, which is set at the validation equal-error point, plus AUC with a grouped bootstrap interval, per-generator accuracy, and the share of human texts flagged as AI in each domain. On `detector_bias` those domains separate TOEFL essays by non-native writers from native essays, which is the bias check.
 
-## Results of the CPU run
+## Results
 
-Statistics-only ensemble, without a transformer. It was trained on 1,501 MAGE texts and scored on samples stratified by generator. The threshold of 0.617 is the validation equal-error point. The files are `ml/eval/results/text/metrics.json` and `robustness.json`.
+The models were trained on Kaggle with a T4 GPU using [notebooks/colab_text.ipynb](../../notebooks/colab_text.ipynb). RoBERTa-base was fine-tuned for 4 epochs of 3,000 steps on MAGE, and its best validation AUC was 0.996, at epoch 2. DeBERTa-v3-small crashed on that run (see below), so the ensemble uses RoBERTa.
+
+**Ensemble with RoBERTa.** This is a logistic regression over the eight statistics plus the RoBERTa logit, trained on 4,999 MAGE texts. The threshold of 0.732 is the validation equal-error point. The file is `ml/eval/results/text/metrics.json`.
 
 | Test set | Texts | AUC (95% interval) | At the threshold |
 |---|---|---|---|
-| MAGE validation | 503 | 0.771 (0.726 to 0.810) | accuracy 0.718 |
-| MAGE test | 800 | 0.768 (0.737 to 0.801) | accuracy 0.704 |
-| MAGE, unseen LLaMA generators | 500 AI | none, AI texts only | 81.4% detected |
-| HC3, excluding the 497 overlapping rows | 500 | 0.932 (0.910 to 0.952) | 95.8% of AI detected, 37% of Reddit ELI5 human answers flagged |
-| ChatGPT Detector Bias | 831 | 0.541 (0.498 to 0.581) | close to chance |
+| MAGE validation | 2,001 | 0.996 (0.994 to 0.997) | accuracy 0.969 |
+| MAGE test | 3,999 | 0.997 (0.997 to 0.998) | accuracy 0.976 |
+| MAGE, unseen LLaMA generators | 1,999 AI | none, AI texts only | 90.1% detected |
+| HC3, excluding rows that open like MAGE training texts | 2,000 | 0.997 (0.995 to 0.998) | 99.3% of AI detected, 9.3% of Reddit ELI5 human answers flagged |
+| ChatGPT Detector Bias | 831 | 0.794 (0.761 to 0.825) | accuracy 0.752 |
 
 Human texts flagged as AI on the bias set:
 
 | Writers | Essays | Flagged as AI |
 |---|---|---|
-| TOEFL essays, non-native writers | 89 | 86.5% |
-| US 8th-grade essays (Hewlett) | 88 | 25.0% |
-| College essays | 70 | 25.7% |
-| Stanford CS224N student writing | 145 | 0.0% |
+| TOEFL essays, non-native writers | 89 | 61.8% |
+| College essays | 70 | 14.3% |
+| Stanford CS224N student writing | 145 | 8.3% |
+| US 8th-grade essays (Hewlett) | 88 | 5.7% |
 
-Statistical detectors penalize plain, predictable vocabulary, and this reproduces the bias that Liang et al. reported for commercial detectors. The detector must not be used to judge non-native writers, and the disclaimer says so.
+The transformer cuts false positives for native writers. It still flags most TOEFL essays, so the bias that Liang et al. reported for commercial detectors remains. The detector must not be used to judge non-native writers, and the disclaimer says so.
 
-Robustness on 150 AI and 150 human MAGE test texts:
+**Statistics only.** This is the same regression without the transformer, trained on 4,999 MAGE texts. It scores 0.785 AUC on validation (2,001 texts) and 0.782 (0.767 to 0.797) on the test set (3,999 texts), with accuracy 0.721 at its threshold of 0.617. The file is `ml/eval/results/text/statistics/metrics.json`.
+
+Robustness of the statistics-only model, on 300 AI and 300 human MAGE test texts (`statistics/robustness.json`):
 
 | Condition | Result |
 |---|---|
-| Full AI texts | 73.3% detected |
-| A quarter of the sentences replaced by human writing | 49.3% detected |
-| Half of the sentences replaced | 36.0% detected |
-| First 75 words | 50.7% of AI detected, 28.0% of human flagged |
-| First 50 words | 36.7% of AI detected, 22.7% of human flagged |
-| Full human texts | 32.0% flagged |
+| Full AI texts | 71.3% detected |
+| Paraphrased by T5 | 47.7% detected |
+| A quarter of the sentences replaced by human writing | 47.0% detected |
+| Half of the sentences replaced | 37.3% detected |
+| First 75 words | 53.7% of AI detected, 23.3% of human flagged |
+| First 50 words | 37.3% of AI detected, 22.7% of human flagged |
+| Full human texts | 30.7% flagged |
 
-The T5 paraphrase test was not run. The paraphraser and both GPT-2 models do not fit in memory together on the 8 GB development laptop, so run it on Colab. One `analyze` call took 0.8 seconds for a 79-word text and 10.7 seconds for a 638-word text on that laptop while it was short of memory.
+The robustness test has not been run on the ensemble with RoBERTa. DeBERTa-v3-small is published in fp16, and transformers 5 kept that precision, so mixed-precision training refused to unscale its gradients. The loader now forces float32. On the development laptop, one statistics-only `analyze` call took 0.8 seconds for a 79-word text and 10.7 seconds for a 638-word text, while the laptop was short of memory.
 
 ## Robustness
 
 ```bash
 python -m ml.text.robustness --model checkpoints/text/meta.joblib --features data/features/text/mage-test.parquet \
-  --threshold-from ml/eval/results/text/metrics.json --limit 200 --output ml/eval/results/text/robustness.json
+  --threshold-from ml/eval/results/text/statistics/metrics.json --limit 300 --output ml/eval/results/text/statistics/robustness.json
 ```
 
 It reports detection rates for AI text that has been paraphrased by a T5 model, AI text with a quarter or half of its sentences swapped for human sentences from the same domain, and AI and human texts cut to their first 50 or 75 words. Add `--no-paraphrase` to skip the 900 MB paraphraser download.
 
-## Transformers on Colab
+## Transformers on a GPU
 
 [notebooks/colab_text.ipynb](../../notebooks/colab_text.ipynb) prepares the data, trains both models with checkpoints on Drive, and rebuilds the ensemble with the transformer logit.
 
