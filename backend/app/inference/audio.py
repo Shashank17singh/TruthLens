@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import soundfile as sf
 
+from backend.app.inference.calibration import calibrated_probability
+from backend.app.inference.calibration import verdict as get_verdict
 from backend.app.inference.registry import registry
 from ml.audio.inference import score_long
 
@@ -53,6 +55,7 @@ def run_audio_inference(audio_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     target_sr = int(info.get("sample_rate", 16000))
     if sr != target_sr:
         import librosa
+
         wave = librosa.resample(wave, orig_sr=sr, target_sr=target_sr)
         sr = target_sr
 
@@ -68,7 +71,7 @@ def run_audio_inference(audio_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
         return outputs[0].flatten()
 
     def prob_func(logits: np.ndarray) -> np.ndarray:
-        return 1.0 / (1.0 + np.exp(-logits))
+        return calibrated_probability(logits, info)
 
     scoring = score_long(
         logits_of=onnx_logits,
@@ -86,12 +89,11 @@ def run_audio_inference(audio_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     # Primary probability based on mean
     probability = round(mean_prob, 4)
 
-    if probability >= threshold:
-        verdict = "likely_fake"
+    verdict = get_verdict(probability, threshold)
+    if verdict == "likely_fake":
         verdict_label = "Likely AI-generated"
         explanation = f"Synthetic acoustic artifacts detected in speech spectral windows (max window: {max_prob:.2f})."
-    elif probability < (threshold - 0.15):
-        verdict = "likely_real"
+    elif verdict == "likely_real":
         verdict_label = "Likely real"
         explanation = "Natural vocal harmonics and breath patterns detected across all audio windows."
     else:

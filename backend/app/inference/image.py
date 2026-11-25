@@ -8,6 +8,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from backend.app.inference.calibration import calibrated_probability
+from backend.app.inference.calibration import verdict as get_verdict
 from backend.app.inference.registry import registry
 
 
@@ -55,6 +57,7 @@ def detect_face_and_crop(pil_img: Image.Image) -> tuple[Image.Image, bool, list[
     # Attempt RetinaFace through batch_face or OpenCV
     try:
         from batch_face import RetinaFace
+
         detector = RetinaFace(gpu_id=-1)
         np_img = np.array(pil_img.convert("RGB"))
         faces = detector(np_img, cv=False)
@@ -72,9 +75,7 @@ def detect_face_and_crop(pil_img: Image.Image) -> tuple[Image.Image, bool, list[
                 min(img_h, bottom + margin_y),
             )
             cropped = pil_img.crop(crop_box)
-            regions = [
-                {"box": [left, top, right, bottom], "score": float(score), "part": "face"}
-            ]
+            regions = [{"box": [left, top, right, bottom], "score": float(score), "part": "face"}]
             return cropped, True, regions
     except Exception:
         pass
@@ -107,21 +108,13 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     outputs = session.run(None, {input_name: tensor.astype(np.float32)})
     raw_logit = float(outputs[0].flatten()[0])
 
-    temperature = float(info.get("temperature", 1.0))
-    bias = float(info.get("bias", 0.0))
-    calibrated_logit = (raw_logit - bias) / temperature
-    probability = sigmoid(calibrated_logit)
+    probability = calibrated_probability(raw_logit, info)
 
     threshold = float(info.get("decision_threshold", 0.50))
-    if probability >= threshold:
-        verdict = "likely_fake"
-        verdict_label = "Likely AI-generated"
-    elif probability < (threshold - 0.15):
-        verdict = "likely_real"
-        verdict_label = "Likely real"
-    else:
-        verdict = "uncertain"
-        verdict_label = "Uncertain"
+    verdict = get_verdict(probability, threshold)
+    verdict_label = {"likely_fake": "Likely AI-generated", "likely_real": "Likely real", "uncertain": "Uncertain"}[
+        verdict
+    ]
 
     # Confidence band (bootstrap or variance heuristic)
     delta = min(0.08, max(0.02, 0.1 * abs(0.5 - probability)))
@@ -148,7 +141,9 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
         ]
 
     if verdict == "likely_real":
-        explanation_text = "Natural spectral power falloff and coherent optical textures consistent with authentic camera capture."
+        explanation_text = (
+            "Natural spectral power falloff and coherent optical textures consistent with authentic camera capture."
+        )
     elif verdict == "uncertain":
         if face_detected:
             explanation_text = "Facial boundary textures fall within the borderline confidence interval. Corroborating contextual review recommended."
@@ -156,7 +151,9 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
             explanation_text = "Complex specular reflections, fine geometric patterns, or optical bokeh fall within the borderline decision band. Manual review recommended."
     else:
         if face_detected:
-            explanation_text = "Unusual generative synthesis texture detected around facial contours and hairline boundaries."
+            explanation_text = (
+                "Unusual generative synthesis texture detected around facial contours and hairline boundaries."
+            )
         else:
             explanation_text = "High-frequency artifacts and periodic spectral anomalies detected in focal regions."
 
