@@ -33,3 +33,5 @@ transformers
 sentencepiece
 timm
 matplotlib
+albumentations
+scikit-image

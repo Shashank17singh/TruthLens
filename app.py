@@ -55,9 +55,14 @@ def predict_image(input_img):
         image_bytes = buf.getvalue()
         result, artefacts = run_image_inference(image_bytes)
 
-        prob = round(result.get("probability", 0.0) * 100, 1)
+        # The validated threshold can be far below 1%, so show enough digits to compare against it.
+        prob = result.get("probability", 0.0) * 100
+        threshold = result.get("decision_threshold", 0.5) * 100
         verdict = result.get("verdict_label", "Unknown")
-        summary = f"Verdict: {verdict}\nAI Probability: {prob}%\nModel: {result.get('model_name', 'convnext-tiny')}"
+        summary = (
+            f"Verdict: {verdict}\nAI probability: {prob:.3g}% (flagged as AI at {threshold:.3g}% or above)"
+            f"\nModel: {result.get('model_name', 'unknown')}"
+        )
 
         heatmap_img = None
         if "heatmap.png" in artefacts:
