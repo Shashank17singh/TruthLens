@@ -15,3 +15,12 @@ def test_model_catalog():
     assert len(catalog) == 3
     modalities = {item["modality"] for item in catalog}
     assert modalities == {"image", "audio", "text"}
+
+
+def test_missing_models_yaml_is_an_error_not_an_untrained_default(tmp_path):
+    import pytest
+
+    from backend.app.inference.registry import ModelRegistry
+
+    with pytest.raises(FileNotFoundError):
+        ModelRegistry(tmp_path / "missing.yaml")

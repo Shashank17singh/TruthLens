@@ -49,6 +49,9 @@ def check_rate_limit(key: str, limit_per_minute: int) -> RateLimitResult:
     """
     now = time.time()
     window_start = now - 60.0
+    # Every allowed request is also kept in memory, so a Redis timeout falls back to the full count.
+    _in_memory_buckets[key] = [t for t in _in_memory_buckets[key] if t > window_start]
+    bucket = _in_memory_buckets[key]
 
     r = get_redis_client()
     if r is not None:
@@ -74,6 +77,7 @@ def check_rate_limit(key: str, limit_per_minute: int) -> RateLimitResult:
                     reset_after_seconds=reset_after,
                 )
 
+            bucket.append(now)
             remaining = max(0, limit_per_minute - current_count - 1)
             return RateLimitResult(
                 allowed=True,
@@ -85,10 +89,6 @@ def check_rate_limit(key: str, limit_per_minute: int) -> RateLimitResult:
             logger.debug("Redis rate limiter error (%s); falling back to in-memory.", exc)
 
     # In-memory fallback
-    bucket = _in_memory_buckets[key]
-    _in_memory_buckets[key] = [t for t in bucket if t > window_start]
-    bucket = _in_memory_buckets[key]
-
     if len(bucket) >= limit_per_minute:
         oldest = bucket[0]
         reset_after = max(1, int(oldest + 60.0 - now))

@@ -1,29 +1,30 @@
 version: "1.0.0"
 models:
   image:
-    name: "image-convnext-tiny-freq"
+    # Calibration and threshold from ml/eval/results/image/image-convnext_tiny-freq-robust-1.0.0/metrics.json
+    name: "image-convnext_tiny-freq-robust"
     version: "1.0.0"
-    onnx_file: "checkpoints/onnx_benchmark/bench-convnext_tiny-freq.onnx"
-    pytorch_checkpoint: null
+    onnx_file: "checkpoints/onnx/image-convnext_tiny-freq-robust-1.0.0.onnx"
+    pytorch_checkpoint: "checkpoints/image/image-convnext_tiny-freq-robust-1.0.0/image-convnext_tiny-freq-robust-1.0.0-best.pt"
     image_size: 224
     mean: [0.485, 0.456, 0.406]
     std: [0.229, 0.224, 0.225]
-    decision_threshold: 0.50
-    temperature: 1.0
-    bias: 0.0
+    decision_threshold: 0.000526527
+    temperature: 0.38682
+    bias: -1.37858
     disclaimer: "Results are probabilistic and must not be used alone to make decisions about a person."
 
   audio:
-    name: "audio-lcnn-lfcc"
+    # Mean-over-windows calibration and threshold from ml/eval/results/audio/audio-lcnn-lfcc-robust-1.0.0/metrics.json
+    name: "audio-lcnn-lfcc-robust"
     version: "1.0.0"
-    onnx_file: "checkpoints/onnx_benchmark/bench-audio-lcnn-lfcc.onnx"
-    pytorch_checkpoint: "checkpoints/audio/audio-lcnn-lfcc-robust-1.0.0/audio-lcnn-lfcc-robust-1.0.0-best.pt"
+    onnx_file: "checkpoints/onnx/audio-lcnn-lfcc-robust-1.0.0.onnx"
     sample_rate: 16000
     clip_seconds: 4.0
     window_overlap: 0.5
-    decision_threshold: 0.50
-    temperature: 1.0
-    bias: 0.0
+    decision_threshold: 0.883203
+    temperature: 0.320716
+    bias: 4.09388
     disclaimer: "Results are probabilistic and must not be used alone to make decisions about a person."
 
   text:

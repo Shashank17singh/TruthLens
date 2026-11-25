@@ -11,6 +11,8 @@ from PIL import Image
 from backend.app.inference.calibration import calibrated_probability
 from backend.app.inference.calibration import verdict as get_verdict
 from backend.app.inference.registry import registry
+from ml.image.explain import describe, explain
+from ml.image.preprocess import resize_square
 
 
 def softmax(x: np.ndarray) -> np.ndarray:
@@ -83,6 +85,30 @@ def detect_face_and_crop(pil_img: Image.Image) -> tuple[Image.Image, bool, list[
     return pil_img, False, []
 
 
+def to_original_box(box: tuple[int, int, int, int], original_size: tuple[int, int], size: int) -> list[int]:
+    """Map a box in model-input pixels back through resize_square's scale and centre crop."""
+    width, height = original_size
+    scale = size / min(width, height)
+    offset_x = (max(size, round(width * scale)) - size) // 2
+    offset_y = (max(size, round(height * scale)) - size) // 2
+    left, top, right, bottom = box
+    return [
+        round((left + offset_x) / scale),
+        round((top + offset_y) / scale),
+        round((right + offset_x) / scale),
+        round((bottom + offset_y) / scale),
+    ]
+
+
+def model_input(pil_img: Image.Image, info: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
+    """Prepare an image the way training did: short side to size, centre crop, then normalize."""
+    square = resize_square(np.array(pil_img.convert("RGB")), int(info.get("image_size", 224)))
+    mean = np.array(info.get("mean", [0.485, 0.456, 0.406]), dtype=np.float32)
+    std = np.array(info.get("std", [0.229, 0.224, 0.225]), dtype=np.float32)
+    normalized = (square.astype(np.float32) / 255.0 - mean) / std
+    return square, normalized.transpose(2, 0, 1)[np.newaxis].astype(np.float32)
+
+
 def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, bytes]]:
     """Run ONNX inference and explainability on image bytes.
 
@@ -92,16 +118,9 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     session, info = registry.get_image_session()
 
     pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    cropped_img, face_detected, regions = detect_face_and_crop(pil_img)
-
-    target_size = info.get("image_size", 224)
-    resized_img = cropped_img.resize((target_size, target_size), Image.Resampling.BILINEAR)
-    img_np = np.array(resized_img, dtype=np.float32) / 255.0
-
-    mean = np.array(info.get("mean", [0.485, 0.456, 0.406]), dtype=np.float32)
-    std = np.array(info.get("std", [0.229, 0.224, 0.225]), dtype=np.float32)
-    normalized = (img_np - mean) / std
-    tensor = np.transpose(normalized, (2, 0, 1))[np.newaxis, ...]  # [1, 3, 224, 224]
+    # Faces are reported, not cropped: the served model was trained on whole GenImage images.
+    _, face_detected, regions = detect_face_and_crop(pil_img)
+    square, tensor = model_input(pil_img, info)
 
     # Run ONNX inference
     input_name = session.get_inputs()[0].name
@@ -121,48 +140,29 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     conf_low = max(0.0, round(probability - delta, 3))
     conf_high = min(1.0, round(probability + delta, 3))
 
-    # Generate explainability artefacts
-    spectrum_np = compute_dct_spectrum(np.array(resized_img))
-    spectrum_png = generate_spectrum_png(spectrum_np)
-
-    # Generate synthetic heatmap based on frequency residual / gradient
-    grad_map = np.abs(cv2.Laplacian(spectrum_np, cv2.CV_32F))
-    grad_map = cv2.resize(grad_map, (target_size, target_size))
-    if grad_map.max() > 0:
-        grad_map = grad_map / grad_map.max()
-
-    heatmap_png = generate_heatmap_overlay_png(np.array(resized_img), grad_map)
-
-    # Top suspicious regions
-    if not regions:
-        regions = [
-            {"box": [60, 40, 160, 140], "score": round(probability, 2), "part": "center_subject"},
-            {"box": [10, 10, 50, 50], "score": round(max(0.1, probability * 0.7), 2), "part": "background"},
+    # Explainability artefacts. The spectrum is always real; the heatmap and regions
+    # come only from Grad-CAM on the trained PyTorch checkpoint, never from placeholders.
+    spectrum_png = generate_spectrum_png(compute_dct_spectrum(square))
+    artefacts = {"spectrum.png": spectrum_png}
+    explainer = registry.get_image_explainer()
+    if explainer is not None:
+        model, checkpoint = explainer
+        _, explanation = explain(model, checkpoint, np.array(pil_img))
+        artefacts["heatmap.png"] = generate_heatmap_overlay_png(square, explanation.heatmap)
+        regions = regions + [
+            {"box": to_original_box(r.box, pil_img.size, square.shape[0]), "score": r.score, "part": r.part}
+            for r in explanation.regions
         ]
-
-    if verdict == "likely_real":
-        explanation_text = (
-            "Natural spectral power falloff and coherent optical textures consistent with authentic camera capture."
-        )
-    elif verdict == "uncertain":
-        if face_detected:
-            explanation_text = "Facial boundary textures fall within the borderline confidence interval. Corroborating contextual review recommended."
-        else:
-            explanation_text = "Complex specular reflections, fine geometric patterns, or optical bokeh fall within the borderline decision band. Manual review recommended."
+        explanation_text = describe([r.part for r in explanation.regions], leans_fake=verdict == "likely_fake")
     else:
-        if face_detected:
-            explanation_text = (
-                "Unusual generative synthesis texture detected around facial contours and hairline boundaries."
-            )
-        else:
-            explanation_text = "High-frequency artifacts and periodic spectral anomalies detected in focal regions."
+        explanation_text = f"{verdict_label}. No heatmap: this deployment has no PyTorch checkpoint for Grad-CAM."
 
     latency_ms = int((time.perf_counter() - start_time) * 1000)
 
     result_data = {
         "model_name": info.get("name", "image-convnext-tiny-freq"),
         "model_version": info.get("version", "1.0.0"),
-        "probability": round(probability, 4),
+        "probability": round(probability, 6),
         "decision_threshold": threshold,
         "verdict": verdict,
         "verdict_label": verdict_label,
@@ -177,16 +177,8 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
         "details": {
             "face_detected": face_detected,
             "regions": regions,
-            "artefacts": {
-                "heatmap": "heatmap.png",
-                "spectrum": "spectrum.png",
-            },
+            "artefacts": {name.removesuffix(".png"): name for name in artefacts},
         },
-    }
-
-    artefacts = {
-        "heatmap.png": heatmap_png,
-        "spectrum.png": spectrum_png,
     }
 
     return result_data, artefacts

@@ -10,6 +10,7 @@ from PIL import Image
 from backend.app.core.config import settings
 from backend.app.inference.audio import run_audio_inference
 from backend.app.inference.image import run_image_inference
+from backend.app.inference.registry import registry
 
 
 def generate_test_image_bytes(size: int = 224) -> bytes:
@@ -31,7 +32,8 @@ def generate_test_audio_bytes(duration_seconds: float = 4.0, sample_rate: int = 
 
 
 def test_real_image_onnx_inference():
-    image_onnx = settings.repo_root / "checkpoints/onnx_benchmark/bench-convnext_tiny-freq.onnx"
+    info = registry.get_model_info("image")
+    image_onnx = settings.repo_root / info["onnx_file"]
     if not image_onnx.exists():
         pytest.skip("Image ONNX model not found on disk.")
 
@@ -41,8 +43,8 @@ def test_real_image_onnx_inference():
     assert "probability" in result_data
     assert 0.0 <= result_data["probability"] <= 1.0
     assert result_data["verdict"] in ("likely_fake", "uncertain", "likely_real")
-    assert result_data["model_name"] == "image-convnext-tiny-freq"
-    assert result_data["model_version"] == "1.0.0"
+    assert result_data["model_name"] == info["name"]
+    assert result_data["model_version"] == info["version"]
     assert result_data["latency_ms"] >= 0
 
     assert "heatmap.png" in artefacts
@@ -52,7 +54,7 @@ def test_real_image_onnx_inference():
 
 
 def test_real_audio_onnx_inference():
-    audio_onnx = settings.repo_root / "checkpoints/onnx_benchmark/bench-audio-lcnn-lfcc.onnx"
+    audio_onnx = settings.repo_root / registry.get_model_info("audio")["onnx_file"]
     if not audio_onnx.exists():
         pytest.skip("Audio ONNX model not found on disk.")
 
@@ -62,7 +64,7 @@ def test_real_audio_onnx_inference():
     assert "probability" in result_data
     assert 0.0 <= result_data["probability"] <= 1.0
     assert result_data["verdict"] in ("likely_fake", "uncertain", "likely_real")
-    assert result_data["model_name"] == "audio-lcnn-lfcc"
+    assert result_data["model_name"] == registry.get_model_info("audio")["name"]
     assert result_data["model_version"] == "1.0.0"
     assert result_data["latency_ms"] >= 0
 

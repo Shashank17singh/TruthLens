@@ -82,12 +82,12 @@ def run_audio_inference(audio_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     )
 
     # Aggregates
-    mean_prob = float(scoring.get("mean_probability", sigmoid(scoring.get("mean_logit", 0.0))))
-    max_prob = float(scoring.get("max_probability", sigmoid(scoring.get("max_logit", 0.0))))
+    mean_prob = calibrated_probability(scoring["mean_logit"], info)
+    max_prob = calibrated_probability(scoring["max_logit"], info)
 
     threshold = float(info.get("decision_threshold", 0.50))
     # Primary probability based on mean
-    probability = round(mean_prob, 4)
+    probability = round(mean_prob, 6)
 
     verdict = get_verdict(probability, threshold)
     if verdict == "likely_fake":

@@ -28,3 +28,27 @@ def test_default_threshold_keeps_the_old_band():
     assert verdict(0.30, 0.5) == "likely_real"
     assert verdict(0.40, 0.5) == "uncertain"
     assert verdict(0.50, 0.5) == "likely_fake"
+
+
+def test_audio_score_is_calibrated(monkeypatch):
+    import io
+
+    import soundfile as sf
+
+    from backend.app.inference import audio as audio_module
+
+    class Session:
+        def get_inputs(self):
+            return [type("Input", (), {"name": "wave"})()]
+
+        def run(self, outputs, feeds):
+            return [np.ones(len(feeds["wave"]), dtype=np.float32)]
+
+    info = {"onnx_file": "x.onnx", "temperature": 0.5, "bias": 1.0, "decision_threshold": 0.5}
+    monkeypatch.setattr(audio_module.registry, "get_audio_session", lambda: (Session(), info))
+    buffer = io.BytesIO()
+    sf.write(buffer, np.zeros(16000 * 5, dtype=np.float32), 16000, format="WAV")
+
+    result, _ = audio_module.run_audio_inference(buffer.getvalue())
+
+    assert math.isclose(result["probability"], 1 / (1 + math.exp(-3.0)), rel_tol=1e-5)

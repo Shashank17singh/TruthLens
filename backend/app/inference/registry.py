@@ -18,6 +18,7 @@ class ModelRegistry:
         self.config_path = Path(config_path or (settings.repo_root / settings.MODELS_YAML_PATH))
         self.config: dict[str, Any] = {}
         self._image_session: onnxruntime.InferenceSession | None = None
+        self._image_explainer: tuple[Any, dict] | None = None
         self._audio_session: onnxruntime.InferenceSession | None = None
         self._text_meta: Any = None
         self._text_pair: Any = None
@@ -26,32 +27,8 @@ class ModelRegistry:
     def load_config(self) -> None:
         """Load and parse models.yaml."""
         if not self.config_path.exists():
-            logger.warning("models.yaml not found at %s. Using default configuration.", self.config_path)
-            self.config = {
-                "version": "1.0.0",
-                "models": {
-                    "image": {
-                        "name": "image-convnext-tiny-freq",
-                        "version": "1.0.0",
-                        "onnx_file": "checkpoints/onnx_benchmark/bench-convnext_tiny-freq.onnx",
-                        "decision_threshold": 0.50,
-                    },
-                    "audio": {
-                        "name": "audio-lcnn-lfcc",
-                        "version": "1.0.0",
-                        "onnx_file": "checkpoints/onnx_benchmark/bench-audio-lcnn-lfcc.onnx",
-                        "decision_threshold": 0.50,
-                    },
-                    "text": {
-                        "name": "text-stats-ensemble",
-                        "version": "1.0.0",
-                        "meta_file": "checkpoints/text/meta.joblib",
-                        "decision_threshold": 0.50,
-                    },
-                },
-            }
-            return
-
+            # No built-in defaults: the only fallback files are untrained benchmark exports.
+            raise FileNotFoundError(f"models.yaml not found at {self.config_path}")
         with open(self.config_path, encoding="utf-8") as file:
             self.config = yaml.safe_load(file) or {}
 
@@ -61,7 +38,7 @@ class ModelRegistry:
     def get_image_session(self) -> tuple[onnxruntime.InferenceSession, dict[str, Any]]:
         info = self.get_model_info("image")
         if self._image_session is None:
-            onnx_rel = info.get("onnx_file", "checkpoints/onnx_benchmark/bench-convnext_tiny-freq.onnx")
+            onnx_rel = info["onnx_file"]
             onnx_path = settings.repo_root / onnx_rel
             if not onnx_path.exists():
                 raise FileNotFoundError(f"Image ONNX model not found: {onnx_path}")
@@ -73,10 +50,22 @@ class ModelRegistry:
             logger.info("Loaded Image ONNX session from %s", onnx_path)
         return self._image_session, info
 
+    def get_image_explainer(self) -> tuple[Any, dict] | None:
+        """The trained PyTorch model for Grad-CAM, or None when models.yaml names no checkpoint."""
+        checkpoint_rel = self.get_model_info("image").get("pytorch_checkpoint")
+        if not checkpoint_rel:
+            return None
+        if self._image_explainer is None:
+            from ml.image.model import load_checkpoint
+
+            self._image_explainer = load_checkpoint(settings.repo_root / checkpoint_rel)
+            logger.info("Loaded image PyTorch checkpoint from %s", checkpoint_rel)
+        return self._image_explainer
+
     def get_audio_session(self) -> tuple[onnxruntime.InferenceSession, dict[str, Any]]:
         info = self.get_model_info("audio")
         if self._audio_session is None:
-            onnx_rel = info.get("onnx_file", "checkpoints/onnx_benchmark/bench-audio-lcnn-lfcc.onnx")
+            onnx_rel = info["onnx_file"]
             onnx_path = settings.repo_root / onnx_rel
             if not onnx_path.exists():
                 raise FileNotFoundError(f"Audio ONNX model not found: {onnx_path}")
@@ -91,7 +80,7 @@ class ModelRegistry:
     def get_text_components(self) -> tuple[Any, Any, dict[str, Any]]:
         info = self.get_model_info("text")
         if self._text_meta is None:
-            meta_rel = info.get("meta_file", "checkpoints/text/meta.joblib")
+            meta_rel = info["meta_file"]
             meta_path = settings.repo_root / meta_rel
             if not meta_path.exists():
                 raise FileNotFoundError(f"Text meta pipeline not found: {meta_path}")
@@ -100,6 +89,7 @@ class ModelRegistry:
 
         if self._text_pair is None:
             from ml.text.features import ModelPair
+
             self._text_pair = ModelPair.pretrained(device="cpu")
             logger.info("Loaded Text GPT-2 / DistilGPT-2 model pair")
 
@@ -108,12 +98,14 @@ class ModelRegistry:
     def get_catalog(self) -> list[dict[str, Any]]:
         catalog = []
         for modality, data in self.config.get("models", {}).items():
-            catalog.append({
-                "modality": modality,
-                "name": data.get("name"),
-                "version": data.get("version"),
-                "decision_threshold": data.get("decision_threshold", 0.50),
-            })
+            catalog.append(
+                {
+                    "modality": modality,
+                    "name": data.get("name"),
+                    "version": data.get("version"),
+                    "decision_threshold": data.get("decision_threshold", 0.50),
+                }
+            )
         return catalog
 
 
