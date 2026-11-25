@@ -22,6 +22,17 @@ python -m ml.image.train model=convnext_tiny use_frequency=true \
 
 Running the same command again resumes from the last finished epoch. `steps_per_epoch` caps an epoch so a run fits inside one session.
 
+## Results
+
+One run on a Kaggle T4: ConvNeXt-Tiny with the frequency branch and `robust` augmentation, trained on 20,000 GenImage ADM images and 20,000 ImageNet originals with a grouped 70/15/15 split. Each epoch of 583 steps took about 202 seconds. Validation AUC peaked at 0.99985 after epoch 4, and training stopped after epoch 9 when it had not improved for five epochs. The threshold was set on validation to reach 95% precision. Full output is in [ml/eval/results/image/](../eval/results/image/).
+
+| Test set | Images | AUC (95% interval) | At the threshold |
+|---|---|---|---|
+| ADM test split | 3,000 AI, 3,000 real | 0.9985 (0.9972 to 0.9995) | 97.8% accuracy; 99.97% of ADM images and 95.6% of real photos classified correctly |
+| BigGAN, never seen in training | 4,000 AI, the same 3,000 real | 0.901 (0.893 to 0.908) | 77.3% of BigGAN images detected |
+
+The drop from ADM to BigGAN is the number to watch: a detector trained on one diffusion model catches about three quarters of a GAN's images. Only one architecture was trained, so the experiment grid below has no results yet.
+
 ## The experiment grid
 
 Architectures, with and without the frequency branch:

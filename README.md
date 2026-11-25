@@ -104,7 +104,7 @@ Tested on single-thread Intel Core i5-10210U at 224x224 input resolution. All ON
 
 ### 2. Detection Results
 
-Only results from real training runs are listed. The text models were trained on a Kaggle T4 GPU; the audio model was trained on the development laptop's CPU.
+Only results from real training runs are listed. The text and image models were trained on a Kaggle T4 GPU; the audio model was trained on the development laptop's CPU.
 
 | Model | Test set | Samples | AUC (95% interval) | At the threshold |
 | :--- | :--- | :--- | :--- | :--- |
@@ -113,9 +113,11 @@ Only results from real training runs are listed. The text models were trained on
 | | HC3, excluding rows that overlap MAGE | 2,000 | 0.997 (0.995 to 0.998) | 94.2% accuracy |
 | | ChatGPT Detector Bias | 831 | 0.794 (0.761 to 0.825) | 61.8% of TOEFL essays by non-native writers flagged as AI |
 | **Text: statistics only** | MAGE test | 3,999 | 0.782 (0.767 to 0.797) | 72.1% accuracy |
+| **Image: ConvNeXt-Tiny + DCT branch** | GenImage ADM test | 6,000 | 0.9985 (0.9972 to 0.9995) | 97.8% accuracy |
+| | GenImage BigGAN, a generator never seen in training | 4,000 AI, 3,000 real | 0.901 (0.893 to 0.908) | 77.3% of BigGAN images detected |
 | **Audio: LCNN + LFCC** | ASVspoof 2019 LA validation | 24,843 | 0.997 | after 3 of 10 epochs |
 
-The audio AUC is on the validation set that picks the best epoch, so it is optimistic. The ASVspoof evaluation set, min t-DCF and the image detector have no results yet: the image models have not been trained on real data. Full tables are in [ml/text/README.md](ml/text/README.md).
+The image model trained on 20,000 ADM images and 20,000 ImageNet photos from GenImage. At the threshold it flags 4.4% of real test photos as AI. The audio AUC is on the validation set that picks the best epoch, so it is optimistic. The ASVspoof evaluation set and min t-DCF have no results yet. Full tables are in [ml/text/README.md](ml/text/README.md) and [ml/image/README.md](ml/image/README.md).
 
 --- | :--- | :--- | :--- |
 | **Vision (Deepfake Faces)** | 1,000 | 0.941 (0.925 to 0.957) | 88.5% |

@@ -28,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-TruthLens is an open-source system that scores images, audio and text for signs of machine generation and explains each score. It pairs an RGB backbone with a 2D DCT frequency branch and Grad-CAM for images, a Light CNN over LFCC features for audio, and, for text, a logistic regression over GPT-2 statistics and a fine-tuned RoBERTa logit. Every dataset is split so that identities, speakers or prompts never cross between training and test. On the MAGE test set, the text ensemble reaches 0.997 AUC (95\% interval 0.997 to 0.998), detects 90.1\% of text from held-out LLaMA generators, and keeps 0.997 AUC on HC3 after removing rows that overlap MAGE. It still flags 61.8\% of TOEFL essays by non-native writers as AI-written, so it must not be used to judge individual writers. The LCNN audio model reaches 0.997 AUC on the ASVspoof 2019 LA validation set after three epochs on a laptop CPU; its evaluation-set results and the image detector's accuracy are not yet measured. All models export to ONNX, and the LCNN scores a 30-second clip in 280\,ms on four CPU threads.
+TruthLens is an open-source system that scores images, audio and text for signs of machine generation and explains each score. It pairs an RGB backbone with a 2D DCT frequency branch and Grad-CAM for images, a Light CNN over LFCC features for audio, and, for text, a logistic regression over GPT-2 statistics and a fine-tuned RoBERTa logit. Every dataset is split so that identities, speakers or prompts never cross between training and test. On the MAGE test set, the text ensemble reaches 0.997 AUC (95\% interval 0.997 to 0.998), detects 90.1\% of text from held-out LLaMA generators, and keeps 0.997 AUC on HC3 after removing rows that overlap MAGE. It still flags 61.8\% of TOEFL essays by non-native writers as AI-written, so it must not be used to judge individual writers. The LCNN audio model reaches 0.997 AUC on the ASVspoof 2019 LA validation set after three epochs on a laptop CPU; its evaluation-set results are not yet measured. The image detector, trained on GenImage ADM, reaches 0.9985 AUC on the ADM test split and 0.901 on BigGAN images it never saw. All models export to ONNX, and the LCNN scores a 30-second clip in 280\,ms on four CPU threads.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -122,7 +122,25 @@ MAGE test & 3,999 & 0.782 (0.767--0.797) \\
 
 At its threshold, the ensemble reaches 97.6\% accuracy on the MAGE test set and 94.2\% on HC3, where it flags 9.3\% of human Reddit ELI5 answers. Adding the transformer raises test AUC from 0.782 to 0.997, so most of the detector's accuracy comes from RoBERTa rather than the statistics.
 
-The LCNN with LFCC trained on the development laptop's CPU, capped at 300 steps per epoch. After three epochs its validation AUC was 0.997. The same validation set picked the checkpoint, so this figure is optimistic. Evaluation-set EER and min t-DCF have not yet been measured. The image detector has not been trained on real data, so no image accuracy is reported.
+The image detector, ConvNeXt-Tiny with the DCT branch, was trained on the same T4 with 20,000 ADM images and 20,000 ImageNet originals from GenImage~\cite{zhu2023genimage}, split 70/15/15 with byte-identical files kept in one split. Epochs of 583 steps took about 202 seconds. Validation AUC peaked at 0.9999 after epoch 4, and early stopping ended training after epoch 9. The threshold was chosen on validation for 95\% precision. Table~\ref{tab:image} gives the results. BigGAN images were never used in training, and the detector catches 77.3\% of them against 99.97\% of ADM images, so a detector fitted to one diffusion model transfers only partly to a GAN.
+
+\begin{table}[t]
+\centering
+\caption{Image detection on GenImage. AUC with 95\% bootstrap interval.}
+\label{tab:image}
+\begin{tabular}{lrl}
+\toprule
+\textbf{Test set} & \textbf{Images} & \textbf{AUC} \\
+\midrule
+ADM test split & 6,000 & 0.9985 (0.9972--0.9995) \\
+BigGAN (unseen) and real & 7,000 & 0.901 (0.893--0.908) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At its threshold the image detector reaches 97.8\% accuracy on the ADM test split and flags 4.4\% of real test photos as AI.
+
+The LCNN with LFCC trained on the development laptop's CPU, capped at 300 steps per epoch. After three epochs its validation AUC was 0.997. The same validation set picked the checkpoint, so this figure is optimistic. Evaluation-set EER and min t-DCF have not yet been measured.
 
 \subsection{Bias Against Non-Native Writers}
 Table~\ref{tab:bias} gives the share of human essays that the ensemble flags as AI-written. It flags most TOEFL essays even though it rarely flags native student writing, which reproduces the bias Liang et al.~\cite{liang2023gpt} found in commercial detectors. The service shows a disclaimer that scores must not be used alone to decide academic misconduct.
@@ -191,7 +209,7 @@ wav2vec2 & 378.9 & 30.5\,s & 9.8\,s \\
 \section{Limitations}
 
 \begin{enumerate}
-    \item \textbf{Missing results.} The image detector has no accuracy result on real data, and the audio detector has only a validation AUC.
+    \item \textbf{Missing results.} The audio detector has only a validation AUC. The image detector was trained on one diffusion model only, and only ConvNeXt-Tiny with the DCT branch was trained, so no architecture or ablation comparison exists.
     \item \textbf{Bias.} The text detector flags most essays by non-native writers. It must not be used to judge individual writers.
     \item \textbf{Evasion.} Paraphrasing and mixing in human sentences defeat the statistical features. The ensemble's robustness has not been measured.
     \item \textbf{Domain.} MAGE and HC3 share sources and generators, so the high cross-dataset AUC may not hold for newer models or other kinds of writing.
@@ -199,7 +217,7 @@ wav2vec2 & 378.9 & 30.5\,s & 9.8\,s \\
 
 \section{Conclusion}
 
-TruthLens provides explainable image, audio and text detection with leak-free splits and CPU serving. Fine-tuning RoBERTa lifts the text detector from 0.782 to 0.997 AUC on MAGE and keeps it at 0.997 on HC3, but its bias against non-native writers remains. The next steps are training the image detector on real data, evaluating the audio detector on the ASVspoof evaluation set with min t-DCF, and measuring the ensemble's robustness to paraphrasing.
+TruthLens provides explainable image, audio and text detection with leak-free splits and CPU serving. Fine-tuning RoBERTa lifts the text detector from 0.782 to 0.997 AUC on MAGE and keeps it at 0.997 on HC3, but its bias against non-native writers remains. The image detector reaches 0.9985 AUC on GenImage ADM but 0.901 on unseen BigGAN images. The next steps are training the image detector on more generators, evaluating the audio detector on the ASVspoof evaluation set with min t-DCF, and measuring the ensemble's robustness to paraphrasing.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
