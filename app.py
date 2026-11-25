@@ -50,9 +50,9 @@ def predict_image(input_img):
     if input_img is None:
         return "Please upload an image to analyze.", None, None
     try:
-        buf = io.BytesIO()
-        input_img.save(buf, format="JPEG")
-        image_bytes = buf.getvalue()
+        # Score the uploaded file as is: re-encoding it (e.g. to JPEG) erases the artifacts the model looks for.
+        with open(input_img, "rb") as file:
+            image_bytes = file.read()
         result, artefacts = run_image_inference(image_bytes)
 
         # The validated threshold can be far below 1%, so show enough digits to compare against it.
@@ -100,7 +100,7 @@ with gr.Blocks(title="TruthLens - Multi-Modal Deepfake Detection") as demo:
         with gr.TabItem("🖼️ Image Forensics (ZeroGPU)"):
             with gr.Row():
                 with gr.Column():
-                    img_input = gr.Image(type="pil", label="Upload Image (Face, Portrait, or Scene)")
+                    img_input = gr.Image(type="filepath", format="png", label="Upload Image (Face, Portrait, or Scene)")
                     img_btn = gr.Button("Analyze Image with ZeroGPU", variant="primary")
                 with gr.Column():
                     img_output_text = gr.Textbox(label="Forensic Verdict & Probability", lines=4)
