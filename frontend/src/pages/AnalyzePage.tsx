@@ -19,7 +19,7 @@ import {
   useSubmitUrl,
 } from '../api/hooks';
 import { useAuth } from '../context/AuthContext';
-import { api } from '../api/client';
+import { api, getStoredToken, retryOnUnauthorized } from '../api/client';
 
 type TabType = 'image' | 'audio' | 'text' | 'url';
 
@@ -132,7 +132,7 @@ export const AnalyzePage: React.FC = () => {
   };
 
   const ensureAuthenticated = async () => {
-    if (!user) {
+    if (!user || !getStoredToken()) {
       // Auto-initialize demo analyst session so users can test friction-free
       await loginAsDemo();
     }
@@ -230,12 +230,12 @@ export const AnalyzePage: React.FC = () => {
     try {
       await ensureAuthenticated();
 
-      let res;
+      const res = await retryOnUnauthorized(async () => {
       if (activeTab === 'image') {
         if (!selectedImage) {
           throw new Error('Please select an image file to analyze.');
         }
-        res = await submitImageMutation.mutateAsync({
+        return submitImageMutation.mutateAsync({
           file: selectedImage,
           retainMedia,
         });
@@ -243,7 +243,7 @@ export const AnalyzePage: React.FC = () => {
         if (!selectedAudio) {
           throw new Error('Please select an audio file to analyze.');
         }
-        res = await submitAudioMutation.mutateAsync({
+        return submitAudioMutation.mutateAsync({
           file: selectedAudio,
           retainMedia,
         });
@@ -254,7 +254,7 @@ export const AnalyzePage: React.FC = () => {
         if (wordCount < 10) {
           throw new Error('Please provide at least 10 words for stylometric feature extraction.');
         }
-        res = await submitTextMutation.mutateAsync({
+        return submitTextMutation.mutateAsync({
           text: textContent,
           retainMedia,
         });
@@ -262,12 +262,14 @@ export const AnalyzePage: React.FC = () => {
         if (!urlInput.trim()) {
           throw new Error('Please enter a valid URL to analyze.');
         }
-        res = await submitUrlMutation.mutateAsync({
+        return submitUrlMutation.mutateAsync({
           url: urlInput.trim(),
           modalityHint: urlModalityHint || undefined,
           retainMedia,
         });
       }
+        return undefined;
+      }, loginAsDemo);
 
       if (res && res.analysis_id) {
         startProgressTracking(res.analysis_id);

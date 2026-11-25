@@ -106,6 +106,17 @@ async function refreshAccessToken(): Promise<string | null> {
   return refreshPromise;
 }
 
+// The server's account database can reset on restart, which leaves a dead session in the browser.
+export async function retryOnUnauthorized<T>(run: () => Promise<T>, relogin: () => Promise<void>): Promise<T> {
+  try {
+    return await run();
+  } catch (err) {
+    if (!(err instanceof ApiError) || err.status !== 401) throw err;
+    await relogin();
+    return run();
+  }
+}
+
 interface CustomRequestInit extends RequestInit {
   _retry?: boolean;
 }
