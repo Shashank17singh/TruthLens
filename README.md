@@ -17,7 +17,7 @@ Detects AI-generated and manipulated images, audio, and text with explainable fo
 Detectors that score well in isolated benchmarks often fail when exposed to unseen generation tools or aggressive social media compression. TruthLens addresses this generalization gap through multi-modal dual-branch architectures, frequency-domain artifact analysis, leak-free dataset split verification, and cryptographic report signing.
 
 * **Vision Forensics:** Dual-branch ConvNeXt and EfficientNet backbones fused with 2D Discrete Cosine Transform (DCT) radial frequency analysis to detect upsampling checkerboard patterns and GAN/diffusion synthesis artifacts.
-* **Acoustic Forensics:** Linear Frequency Cepstral Coefficients (LFCC) combined with Light-CNN (LCNN) architectures evaluated under ASVspoof standards for synthetic voice and replay attack detection.
+* **Acoustic Forensics:** Linear Frequency Cepstral Coefficients (LFCC) combined with Light-CNN (LCNN) architectures evaluated on ASVspoof 2019 LA for synthetic and converted speech.
 * **Linguistic Forensics:** Logistic-regression ensemble over a fine-tuned RoBERTa classifier and GPT-2 statistics: token perplexity, burstiness, GLTR ranks, entropy and a Binoculars score.
 * **Audit Trail Integrity:** Automated generation of tamper-evident forensic PDF dossiers cryptographically signed with HMAC-SHA256 and embedded with dynamic QR codes for independent public verification.
 
@@ -104,7 +104,7 @@ Tested on single-thread Intel Core i5-10210U at 224x224 input resolution. All ON
 
 ### 2. Detection Results
 
-Only results from real training runs are listed. The text and image models were trained on a Kaggle T4 GPU; the audio model was trained on the development laptop's CPU.
+Only results from real training runs are listed. All models were trained on a Kaggle T4 GPU.
 
 | Model | Test set | Samples | AUC (95% interval) | At the threshold |
 | :--- | :--- | :--- | :--- | :--- |
@@ -115,16 +115,10 @@ Only results from real training runs are listed. The text and image models were 
 | **Text: statistics only** | MAGE test | 3,999 | 0.782 (0.767 to 0.797) | 72.1% accuracy |
 | **Image: ConvNeXt-Tiny + DCT branch** | GenImage ADM test | 6,000 | 0.9985 (0.9972 to 0.9995) | 97.8% accuracy |
 | | GenImage BigGAN, a generator never seen in training | 4,000 AI, 3,000 real | 0.901 (0.893 to 0.908) | 77.3% of BigGAN images detected |
-| **Audio: LCNN + LFCC** | ASVspoof 2019 LA validation | 24,843 | 0.997 | after 3 of 10 epochs |
+| **Audio: LCNN + LFCC** | ASVspoof 2019 LA evaluation, attacks A16 and A19 (same algorithms as training attacks A04 and A06) | 17,182 | 0.992 (0.988 to 0.995) | EER 4.3%, min t-DCF 0.135 |
+| | ASVspoof 2019 LA evaluation, 11 attacks never seen in training | 61,406 | 0.926 (0.915 to 0.937) | EER 15.2%; 65.3% of spoofed clips detected |
 
-The image model trained on 20,000 ADM images and 20,000 ImageNet photos from GenImage. At the threshold it flags 4.4% of real test photos as AI. A follow-up grid trained EfficientNet-B0, ConvNeXt-Tiny and ViT-B/16 with and without the DCT branch: all score at least 0.998 on ADM, and on unseen BigGAN they range from 0.901 to 0.980, with ViT-B/16 + DCT best. One seed per configuration. The audio AUC is on the validation set that picks the best epoch, so it is optimistic. The ASVspoof evaluation set and min t-DCF have no results yet. Full tables are in [ml/text/README.md](ml/text/README.md) and [ml/image/README.md](ml/image/README.md).
-
---- | :--- | :--- | :--- |
-| **Vision (Deepfake Faces)** | 1,000 | 0.941 (0.925 to 0.957) | 88.5% |
-| **Vision (Unseen Midjourney v6)** | 500 | 0.892 (0.865 to 0.919) | 83.2% |
-| **Audio (ASVspoof 2019 LA Eval)** | 1,000 | 0.963 (0.948 to 0.978) | 91.4% |
-| **Text (AI News & Essays)** | 500 | 0.958 (0.941 to 0.975) | 92.0% |
-| **HC3 Cross-Domain** | 500 | 0.932 (0.910 to 0.952) | 91.8% |
+The image model trained on 20,000 ADM images and 20,000 ImageNet photos from GenImage. At the threshold it flags 4.4% of real test photos as AI. A follow-up grid trained EfficientNet-B0, ConvNeXt-Tiny and ViT-B/16 with and without the DCT branch: all score at least 0.998 on ADM, and on unseen BigGAN they range from 0.901 to 0.980, with ViT-B/16 + DCT best. One seed per configuration. Audio scores are the mean over 4-second windows. Per-attack EER on unseen attacks ranges from 0.0% (A09) to 34.6% (A10). The wav2vec2 and WavLM models trained but have no evaluation-set results: their CPU evaluation did not finish inside Kaggle's 12-hour limit. Full tables are in [ml/text/README.md](ml/text/README.md), [ml/image/README.md](ml/image/README.md) and [ml/eval/results/audio/](ml/eval/results/audio/).
 
 ---
 

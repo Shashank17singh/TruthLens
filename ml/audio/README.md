@@ -26,6 +26,19 @@ python -m ml.audio.evaluate checkpoints/audio/<run>/<run>-best.pt --asv-scores <
 
 Long files are cut into 4-second windows with 50% overlap. The report gives both the mean and the max window logit, each calibrated on validation and thresholded at the validation equal-error point. It includes EER, AUC with a bootstrap interval by speaker, calibration error before and after, and EER per attack. min t-DCF appears only when the official ASV score file is given.
 
+## Results
+
+The LCNN with LFCC was trained on a Kaggle T4 and stopped early after nine epochs, with a best validation AUC of 0.998. On the official ASVspoof 2019 LA evaluation partition, scored as the mean logit over 4-second windows:
+
+| Evaluation attacks | Clips | AUC (95% interval) | EER | min t-DCF |
+|---|---|---|---|---|
+| A16 and A19, the same algorithms as training attacks A04 and A06 | 17,182 | 0.992 (0.988 to 0.995) | 4.3% | 0.135 |
+| The 11 attacks never seen in training | 61,406 | 0.926 (0.915 to 0.937) | 15.2% | not computed |
+
+Per-attack EER on the unseen attacks runs from 0.0% (A09) and 0.04% (A08) to 26.7% (A12) and 34.6% (A10). Full output is in [ml/eval/results/audio/](../eval/results/audio/).
+
+wav2vec 2.0 and WavLM were trained too (best validation AUC 0.9996 and 0.9925), but their evaluation ran on CPU and did not finish inside Kaggle's 12-hour limit, so they have no evaluation-set results.
+
 ## Export and explain
 
 ```bash
