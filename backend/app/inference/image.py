@@ -11,7 +11,6 @@ from PIL import Image
 from backend.app.inference.calibration import calibrated_probability
 from backend.app.inference.calibration import verdict as get_verdict
 from backend.app.inference.registry import registry
-from ml.image.explain import describe, explain
 from ml.image.preprocess import resize_square
 
 
@@ -146,6 +145,8 @@ def run_image_inference(image_bytes: bytes) -> tuple[dict[str, Any], dict[str, b
     artefacts = {"spectrum.png": spectrum_png}
     explainer = registry.get_image_explainer()
     if explainer is not None:
+        from ml.image.explain import describe, explain  # torch and grad-cam load only when Grad-CAM is configured
+
         model, checkpoint = explainer
         _, explanation = explain(model, checkpoint, np.array(pil_img))
         artefacts["heatmap.png"] = generate_heatmap_overlay_png(square, explanation.heatmap)
