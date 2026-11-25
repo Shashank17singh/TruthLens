@@ -51,7 +51,14 @@ The grid below was then run on the same data and split, on a Kaggle T4. Every ru
 - ADM can't rank the models: all of them score 0.998 or higher.
 - Augmentation matters most. Without it the model still separates ADM perfectly but catches 12.5% of BigGAN images.
 - The DCT branch helps ViT-B/16 and hurts the two CNNs on BigGAN.
-- Removing JPEG recompression raised BigGAN AUC from 0.901 to 0.958. That contradicts the reason for the augmentation, so it needs more seeds before it is trusted.
+- Removing JPEG recompression looked like it raised BigGAN AUC from 0.901 to 0.958. Two more seeds of each setting show that most of that gap is run-to-run noise:
+
+| ConvNeXt-Tiny + DCT | Seed 1337 | Seed 2 | Seed 3 | Mean |
+|---|---|---|---|---|
+| robust | 0.901 | 0.962 | 0.963 | 0.942 |
+| robust without JPEG | 0.958 | 0.963 | 0.988 | 0.970 |
+
+- Retraining ViT-B/16 + DCT with the same seed gave 0.947 on BigGAN instead of 0.980, and caught 66.2% of BigGAN images instead of 89.9%. GPU training is not bit-for-bit repeatable, so the 0.980 is one draw, not a property of the architecture. With one run each, the backbone ranking above is not reliable.
 
 The full table, with precision, recall and calibration error, is [ml/eval/results/image_models.csv](../eval/results/image_models.csv). CPU latency was not measured for these runs.
 
