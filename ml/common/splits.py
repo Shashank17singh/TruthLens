@@ -83,15 +83,18 @@ def _allocate(compositions: dict[str, Counter], ratios: tuple[float, ...], seed:
 def _grouped(frame: pd.DataFrame, config: SplitConfig) -> SplitResult:
     is_heldout = frame["generator_name"].isin(config.heldout_generators)
     strata = frame["label"].astype(str) + "|" + frame["generator_name"]
+    # Byte-identical files under different groups must share a split, so link their groups.
+    roots = connect_groups(zip(frame["group_id"], "content:" + frame["content_hash"]))
+    groups = frame["group_id"].map(roots)
 
     compositions: dict[str, Counter] = {}
-    for group, stratum in zip(frame.loc[~is_heldout, "group_id"], strata[~is_heldout]):
+    for group, stratum in zip(groups[~is_heldout], strata[~is_heldout]):
         compositions.setdefault(group, Counter())[stratum] += 1
     if len(compositions) < len(TRAIN_SPLITS):
         raise ValueError(f"need at least {len(TRAIN_SPLITS)} groups, found {len(compositions)}")
 
     assignment = _allocate(compositions, config.ratios, config.seed)
-    split = frame["group_id"].map(assignment)
+    split = groups.map(assignment)
 
     # A held-out row may stay only if its identity never reaches training.
     only_heldout = split.isna()

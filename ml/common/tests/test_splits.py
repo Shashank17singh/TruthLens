@@ -40,6 +40,18 @@ def test_no_file_or_content_appears_in_two_splits():
     assert frame.groupby("content_hash")["split"].nunique().max() == 1
 
 
+def test_identical_content_in_different_groups_lands_in_one_split():
+    # Datasets such as GenImage hold byte-identical files under different names, so different groups.
+    records = [
+        Record(f"real/{index}", REAL, "toy", REAL_GENERATOR, f"g{index}", content_hash="same" if index % 7 == 0 else f"r{index}")
+        for index in range(300)
+    ]
+    records += [Record(f"fake/{index}", FAKE, "toy", "gan_a", f"f{index}", content_hash=f"f{index}") for index in range(300)]
+    frame = assign_splits(records_to_frame(records), SplitConfig()).frame
+    check_no_leakage(frame)
+    assert frame.loc[frame["content_hash"] == "same", "split"].nunique() == 1
+
+
 def test_no_identity_appears_in_two_splits():
     frame = assign_splits(face_dataset(), SplitConfig()).frame
     assert frame.groupby("group_id")["split"].nunique().max() == 1
