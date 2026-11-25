@@ -117,7 +117,7 @@ Only results from real training runs are listed. The text and image models were 
 | | GenImage BigGAN, a generator never seen in training | 4,000 AI, 3,000 real | 0.901 (0.893 to 0.908) | 77.3% of BigGAN images detected |
 | **Audio: LCNN + LFCC** | ASVspoof 2019 LA validation | 24,843 | 0.997 | after 3 of 10 epochs |
 
-The image model trained on 20,000 ADM images and 20,000 ImageNet photos from GenImage. At the threshold it flags 4.4% of real test photos as AI. The audio AUC is on the validation set that picks the best epoch, so it is optimistic. The ASVspoof evaluation set and min t-DCF have no results yet. Full tables are in [ml/text/README.md](ml/text/README.md) and [ml/image/README.md](ml/image/README.md).
+The image model trained on 20,000 ADM images and 20,000 ImageNet photos from GenImage. At the threshold it flags 4.4% of real test photos as AI. A follow-up grid trained EfficientNet-B0, ConvNeXt-Tiny and ViT-B/16 with and without the DCT branch: all score at least 0.998 on ADM, and on unseen BigGAN they range from 0.901 to 0.980, with ViT-B/16 + DCT best. One seed per configuration. The audio AUC is on the validation set that picks the best epoch, so it is optimistic. The ASVspoof evaluation set and min t-DCF have no results yet. Full tables are in [ml/text/README.md](ml/text/README.md) and [ml/image/README.md](ml/image/README.md).
 
 --- | :--- | :--- | :--- |
 | **Vision (Deepfake Faces)** | 1,000 | 0.941 (0.925 to 0.957) | 88.5% |

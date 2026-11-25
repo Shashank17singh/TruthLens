@@ -31,7 +31,29 @@ One run on a Kaggle T4: ConvNeXt-Tiny with the frequency branch and `robust` aug
 | ADM test split | 3,000 AI, 3,000 real | 0.9985 (0.9972 to 0.9995) | 97.8% accuracy; 99.97% of ADM images and 95.6% of real photos classified correctly |
 | BigGAN, never seen in training | 4,000 AI, the same 3,000 real | 0.901 (0.893 to 0.908) | 77.3% of BigGAN images detected |
 
-The drop from ADM to BigGAN is the number to watch: a detector trained on one diffusion model catches about three quarters of a GAN's images. Only one architecture was trained, so the experiment grid below has no results yet.
+The drop from ADM to BigGAN is the number to watch: a detector trained on one diffusion model catches about three quarters of a GAN's images.
+
+### Experiment grid
+
+The grid below was then run on the same data and split, on a Kaggle T4. Every run stopped early, five epochs after its best one, before the 75-minute budget. Each configuration was trained once, so treat differences of a few points in BigGAN AUC as possible noise.
+
+| Backbone | DCT branch | Augmentation | ADM test AUC | BigGAN AUC (unseen) | BigGAN detected |
+|---|---|---|---|---|---|
+| EfficientNet-B0 | no | robust | 0.9991 | 0.935 | 75.3% |
+| EfficientNet-B0 | yes | robust | 0.9995 | 0.918 | 71.6% |
+| ConvNeXt-Tiny | no | robust | 0.9992 | 0.956 | 86.0% |
+| ConvNeXt-Tiny | yes | robust | 0.9985 | 0.901 | 77.3% |
+| ConvNeXt-Tiny | yes | none | 1.0000 | 0.650 | 12.5% |
+| ConvNeXt-Tiny | yes | robust without JPEG | 0.9994 | 0.958 | 87.0% |
+| ViT-B/16 | no | robust | 0.9986 | 0.959 | 80.8% |
+| ViT-B/16 | yes | robust | 0.9979 | **0.980** | **89.9%** |
+
+- ADM can't rank the models: all of them score 0.998 or higher.
+- Augmentation matters most. Without it the model still separates ADM perfectly but catches 12.5% of BigGAN images.
+- The DCT branch helps ViT-B/16 and hurts the two CNNs on BigGAN.
+- Removing JPEG recompression raised BigGAN AUC from 0.901 to 0.958. That contradicts the reason for the augmentation, so it needs more seeds before it is trusted.
+
+The full table, with precision, recall and calibration error, is [ml/eval/results/image_models.csv](../eval/results/image_models.csv). CPU latency was not measured for these runs.
 
 ## The experiment grid
 

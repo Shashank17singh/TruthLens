@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{Image detector comparison}
+\label{tab:image-models}
+\footnotesize
+\begin{tabular}{lllcccccc}
+\toprule
+Model & Branches & Aug. & Acc. & F1 & AUC & ECE & Unseen AUC & CPU ms \\
+\midrule
+ConvNeXt-Tiny & RGB + freq. & no_jpeg & 0.970 & 0.971 & 0.999 & 0.005 & 0.958 & -- \\
+ConvNeXt-Tiny & RGB + freq. & none & 0.977 & 0.977 & \textbf{1.000} & \textbf{0.001} & 0.650 & -- \\
+ConvNeXt-Tiny & RGB + freq. & robust & \textbf{0.978} & \textbf{0.978} & 0.999 & 0.003 & 0.901 & -- \\
+ConvNeXt-Tiny & RGB & robust & 0.971 & 0.972 & 0.999 & 0.003 & 0.956 & -- \\
+EfficientNet-B0 & RGB + freq. & robust & 0.977 & 0.978 & 0.999 & 0.002 & 0.918 & -- \\
+EfficientNet-B0 & RGB & robust & 0.976 & 0.976 & 0.999 & 0.003 & 0.935 & -- \\
+ViT-B/16 & RGB + freq. & robust & 0.974 & 0.974 & 0.998 & 0.004 & \textbf{0.980} & -- \\
+ViT-B/16 & RGB & robust & 0.976 & 0.976 & 0.999 & 0.005 & 0.959 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

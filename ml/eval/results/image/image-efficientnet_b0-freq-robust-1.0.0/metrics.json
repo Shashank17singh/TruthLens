@@ -1,0 +1,124 @@
+{
+  "name": "image-efficientnet_b0-freq-robust-1.0.0",
+  "model": "efficientnet_b0",
+  "use_frequency": true,
+  "augment": "robust",
+  "best_epoch": 7,
+  "best_val_auc": 0.9993600555555555,
+  "warnings": [],
+  "calibration": {
+    "temperature": 0.4714998894801338,
+    "bias": -0.942092067015742
+  },
+  "threshold_choice": {
+    "threshold": 0.004317717586646271,
+    "target_precision": 0.95,
+    "reached": true,
+    "precision": 0.9502219403931516,
+    "recall": 0.999
+  },
+  "precision_tradeoff_on_val": [
+    {
+      "threshold": 0.0014566715350406909,
+      "target_precision": 0.8,
+      "reached": true,
+      "precision": 0.8005872931126535,
+      "recall": 0.9996666666666667
+    },
+    {
+      "threshold": 0.0021664937242577512,
+      "target_precision": 0.9,
+      "reached": true,
+      "precision": 0.9006006006006007,
+      "recall": 0.9996666666666667
+    },
+    {
+      "threshold": 0.004317717586646271,
+      "target_precision": 0.95,
+      "reached": true,
+      "precision": 0.9502219403931516,
+      "recall": 0.999
+    },
+    {
+      "threshold": 0.41420060587251817,
+      "target_precision": 0.99,
+      "reached": true,
+      "precision": 0.9900464499004645,
+      "recall": 0.9946666666666667
+    }
+  ],
+  "val_ece_uncalibrated": 0.048124332137405884,
+  "val_ece_calibrated": 0.0033265076608554357,
+  "test": {
+    "threshold": 0.004317717586646271,
+    "accuracy": 0.977,
+    "precision": 0.9566049776643267,
+    "recall": 0.9993333333333333,
+    "f1": 0.9775024453863711,
+    "roc_auc": 0.9994523333333333,
+    "confusion_matrix": [
+      [
+        2864,
+        136
+      ],
+      [
+        2,
+        2998
+      ]
+    ],
+    "samples": 6000,
+    "auc_interval": {
+      "low": 0.9989938053140344,
+      "high": 0.9997691740722058,
+      "rounds": 1000,
+      "groups": 6000
+    }
+  },
+  "test_ece_uncalibrated": 0.046699024440099796,
+  "test_ece_calibrated": 0.0023325018160872354,
+  "unseen": {
+    "threshold": 0.004317717586646271,
+    "accuracy": 0.8184285714285714,
+    "precision": 0.9546817727424192,
+    "recall": 0.71625,
+    "f1": 0.8184545064990716,
+    "roc_auc": 0.9176051249999999,
+    "confusion_matrix": [
+      [
+        2864,
+        136
+      ],
+      [
+        1135,
+        2865
+      ]
+    ],
+    "samples": 7000,
+    "auc_interval": {
+      "low": 0.9112067086720337,
+      "high": 0.9243255957307281,
+      "rounds": 1000,
+      "groups": 7000
+    }
+  },
+  "per_generator": [
+    {
+      "generator_name": "adm",
+      "accuracy": 0.9993333333333333,
+      "samples": 3000
+    },
+    {
+      "generator_name": "biggan",
+      "accuracy": 0.71625,
+      "samples": 4000
+    },
+    {
+      "generator_name": "real",
+      "accuracy": 0.9546666666666667,
+      "samples": 3000
+    }
+  ],
+  "unseen_generators": [
+    "biggan"
+  ]
+}
