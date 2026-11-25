@@ -9,6 +9,7 @@ from ml.common.manifest import (
     ManifestError,
     Record,
     check_no_leakage,
+    drop_conflicting_labels,
     read_manifest,
     records_to_frame,
     unseen_evaluation_frame,
@@ -50,6 +51,16 @@ def test_identical_content_in_different_groups_lands_in_one_split():
     frame = assign_splits(records_to_frame(records), SplitConfig()).frame
     check_no_leakage(frame)
     assert frame.loc[frame["content_hash"] == "same", "split"].nunique() == 1
+
+
+def test_content_with_both_labels_is_dropped_before_splitting():
+    records = [Record(f"real/{index}", REAL, "toy", REAL_GENERATOR, f"g{index}", content_hash=f"h{index}") for index in range(300)]
+    records += [Record(f"fake/{index}", FAKE, "toy", "gan_a", f"f{index}", content_hash=f"x{index}") for index in range(300)]
+    records.append(Record("fake/copy", FAKE, "toy", "gan_a", "copy", content_hash="h0"))
+    frame, dropped = drop_conflicting_labels(records_to_frame(records))
+    assert dropped == 2
+    assert "h0" not in set(frame["content_hash"])
+    check_no_leakage(assign_splits(frame, SplitConfig()).frame)
 
 
 def test_no_identity_appears_in_two_splits():

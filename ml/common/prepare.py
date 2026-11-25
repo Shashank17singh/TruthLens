@@ -21,7 +21,7 @@ import yaml
 from ml.common import balance, datacard
 from ml.common.checksums import verify_or_record
 from ml.common.download import download, extract
-from ml.common.manifest import Record, combine, records_to_frame, write_manifest
+from ml.common.manifest import Record, combine, drop_conflicting_labels, records_to_frame, write_manifest
 from ml.common.seed import set_seed
 from ml.common.splits import SplitConfig, assign_splits
 
@@ -98,7 +98,7 @@ def run(name: str, data_root: Path, cards_dir: Path, workers: int, limit: int | 
     print(f"{name}: {len(records):,} records found")
 
     prepared, stats = preprocess(entry["modality"], records, data_root / "processed" / name, config, workers)
-    frame = records_to_frame(prepared)
+    frame, conflicting = drop_conflicting_labels(records_to_frame(prepared))
 
     split = entry["split"]
     result = assign_splits(
@@ -110,7 +110,7 @@ def run(name: str, data_root: Path, cards_dir: Path, workers: int, limit: int | 
             heldout_generators=frozenset(split.get("heldout_generators", [])),
         ),
     )
-    stats = {**stats, "dropped_heldout_outside_test": result.dropped_heldout}
+    stats = {**stats, "dropped_heldout_outside_test": result.dropped_heldout, "dropped_conflicting_labels": conflicting}
 
     manifest_path = data_root / "manifests" / f"{name}.csv"
     write_manifest(result.frame, manifest_path)

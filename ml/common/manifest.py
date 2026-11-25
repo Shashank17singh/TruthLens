@@ -101,6 +101,12 @@ def check_no_leakage(frame: pd.DataFrame) -> None:
         raise LeakageError("identical content carries both labels")
 
 
+def drop_conflicting_labels(frame: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """Drop every copy of content that appears under both labels: no label for it can be trusted."""
+    conflicting = frame.groupby("content_hash", sort=False)["label"].transform("nunique") > 1
+    return frame[~conflicting], int(conflicting.sum())
+
+
 def write_manifest(frame: pd.DataFrame, path: Path) -> None:
     validate(frame)
     check_no_leakage(frame)
