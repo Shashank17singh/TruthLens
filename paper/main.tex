@@ -98,7 +98,7 @@ A FastAPI service queues jobs through Celery and Redis and stores media in MinIO
 \section{Results}
 
 \subsection{Detection}
-The text models were trained on one Kaggle T4 GPU. RoBERTa-base was fine-tuned for four epochs of 3,000 steps, and its best validation AUC, 0.996, came at epoch 2. The logistic regression was trained on 4,999 MAGE texts. AUC intervals come from a bootstrap that resamples whole prompt groups. Table~\ref{tab:text} gives the results.
+The text models were trained on one Kaggle T4 GPU. RoBERTa-base was fine-tuned for four epochs of 3,000 steps, and its best validation AUC, 0.996, came at epoch 2. DeBERTa-v3-small, trained the same way, reached 0.9956, just below RoBERTa's 0.9962, so the ensemble uses RoBERTa. The logistic regression was trained on 4,999 MAGE texts. AUC intervals come from a bootstrap that resamples whole prompt groups. Table~\ref{tab:text} gives the results.
 
 \begin{table}[t]
 \centering
@@ -191,7 +191,7 @@ wav2vec2 & 378.9 & 30.5\,s & 9.8\,s \\
 \section{Limitations}
 
 \begin{enumerate}
-    \item \textbf{Missing results.} The image detector has no accuracy result on real data, and the audio detector has only a validation AUC. The DeBERTa-v3-small run failed on its first attempt and is being repeated.
+    \item \textbf{Missing results.} The image detector has no accuracy result on real data, and the audio detector has only a validation AUC.
     \item \textbf{Bias.} The text detector flags most essays by non-native writers. It must not be used to judge individual writers.
     \item \textbf{Evasion.} Paraphrasing and mixing in human sentences defeat the statistical features. The ensemble's robustness has not been measured.
     \item \textbf{Domain.} MAGE and HC3 share sources and generators, so the high cross-dataset AUC may not hold for newer models or other kinds of writing.

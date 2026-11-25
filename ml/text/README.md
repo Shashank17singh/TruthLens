@@ -29,7 +29,7 @@ python -m ml.text.ensemble evaluate --model checkpoints/text/meta.joblib --valid
 
 ## Results
 
-The models were trained on Kaggle with a T4 GPU using [notebooks/colab_text.ipynb](../../notebooks/colab_text.ipynb). RoBERTa-base was fine-tuned for 4 epochs of 3,000 steps on MAGE, and its best validation AUC was 0.996, at epoch 2. DeBERTa-v3-small crashed on that run (see below), so the ensemble uses RoBERTa.
+The models were trained on Kaggle with a T4 GPU using [notebooks/colab_text.ipynb](../../notebooks/colab_text.ipynb). RoBERTa-base was fine-tuned for 4 epochs of 3,000 steps on MAGE, and its best validation AUC was 0.996, at epoch 2. DeBERTa-v3-small, trained the same way in a second run, reached 0.9956 at epoch 3, just under RoBERTa's 0.9962, so the ensemble uses RoBERTa.
 
 **Ensemble with RoBERTa.** This is a logistic regression over the eight statistics plus the RoBERTa logit, trained on 4,999 MAGE texts. The threshold of 0.732 is the validation equal-error point. The file is `ml/eval/results/text/metrics.json`.
 
@@ -66,7 +66,7 @@ Robustness of the statistics-only model, on 300 AI and 300 human MAGE test texts
 | First 50 words | 37.3% of AI detected, 22.7% of human flagged |
 | Full human texts | 30.7% flagged |
 
-The robustness test has not been run on the ensemble with RoBERTa. DeBERTa-v3-small is published in fp16, and transformers 5 kept that precision, so mixed-precision training refused to unscale its gradients. The loader now forces float32. On the development laptop, one statistics-only `analyze` call took 0.8 seconds for a 79-word text and 10.7 seconds for a 638-word text, while the laptop was short of memory.
+The robustness test has not been run on the ensemble with RoBERTa. DeBERTa-v3-small's first run crashed: it is published in fp16, transformers 5 kept that precision, and mixed-precision training refused to unscale its gradients. The loader now forces float32, which fixed the second run. On the development laptop, one statistics-only `analyze` call took 0.8 seconds for a 79-word text and 10.7 seconds for a 638-word text, while the laptop was short of memory.
 
 ## Robustness
 
