@@ -1,0 +1,288 @@
+{
+  "name": "audio-wav2vec2-wave-robust-1.0.0",
+  "model": "wav2vec2",
+  "feature": "waveform",
+  "augment": "robust",
+  "best_epoch": 10,
+  "best_val_auc": 0.9996108359330415,
+  "warnings": [],
+  "window_seconds": 4,
+  "window_overlap": 0.5,
+  "unseen_generators": [
+    "A07",
+    "A08",
+    "A09",
+    "A10",
+    "A11",
+    "A12",
+    "A13",
+    "A14",
+    "A15",
+    "A17",
+    "A18"
+  ],
+  "mean": {
+    "calibration": {
+      "temperature": 0.5867496735931572,
+      "bias": 0.4183189099764602
+    },
+    "threshold": 0.9960010458024339,
+    "val_eer": 0.007075577483740749,
+    "test": {
+      "threshold": 0.9960010458024339,
+      "accuracy": 0.9746828075893377,
+      "precision": 0.9967209646710388,
+      "recall": 0.9588887758217157,
+      "f1": 0.9774389295161039,
+      "roc_auc": 0.998687947307592,
+      "confusion_matrix": [
+        [
+          7324,
+          31
+        ],
+        [
+          404,
+          9423
+        ]
+      ],
+      "samples": 17182,
+      "eer": 0.014261233271698273,
+      "auc_interval": {
+        "low": 0.9981314698680182,
+        "high": 0.99920268398,
+        "rounds": 1000,
+        "groups": 67
+      },
+      "ece_uncalibrated": 0.04013529501382913,
+      "ece_calibrated": 0.008625737534826214,
+      "min_tdcf": 0.040865700662096875
+    },
+    "unseen": {
+      "threshold": 0.9960010458024339,
+      "accuracy": 0.6988567892388367,
+      "precision": 0.9991297268465231,
+      "recall": 0.658452202549444,
+      "f1": 0.7937817824962085,
+      "roc_auc": 0.9599451815662526,
+      "confusion_matrix": [
+        [
+          7324,
+          31
+        ],
+        [
+          18461,
+          35590
+        ]
+      ],
+      "samples": 61406,
+      "eer": 0.09790931144781673,
+      "auc_interval": {
+        "low": 0.9550718122034266,
+        "high": 0.9650987832793275,
+        "rounds": 1000,
+        "groups": 67
+      },
+      "ece_uncalibrated": 0.20093576079479591,
+      "ece_calibrated": 0.17885678085124998
+    },
+    "per_attack_eer": [
+      {
+        "generator_name": "A07",
+        "eer": 0.09219327238892142,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A08",
+        "eer": 0.00675748506681105,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A09",
+        "eer": 0.007164244723728069,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A10",
+        "eer": 0.326022017864302,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A11",
+        "eer": 0.1379872487962223,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A12",
+        "eer": 0.03619445488922035,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A13",
+        "eer": 0.0052972987632667005,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A14",
+        "eer": 0.07164200454479178,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A15",
+        "eer": 0.06407031672157437,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A16",
+        "eer": 0.017284101628014744,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A17",
+        "eer": 0.013683334315557294,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A18",
+        "eer": 0.07181173561187157,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A19",
+        "eer": 0.01181584988519047,
+        "samples": 4914
+      }
+    ]
+  },
+  "max": {
+    "calibration": {
+      "temperature": 0.589180180725629,
+      "bias": 0.4174190568407513
+    },
+    "threshold": 0.9959906261532413,
+    "val_eer": 0.00749607535321821,
+    "test": {
+      "threshold": 0.9959906261532413,
+      "accuracy": 0.9725875916656966,
+      "precision": 0.9964975589046912,
+      "recall": 0.955428920321563,
+      "f1": 0.9755311964257883,
+      "roc_auc": 0.9986534691218585,
+      "confusion_matrix": [
+        [
+          7322,
+          33
+        ],
+        [
+          438,
+          9389
+        ]
+      ],
+      "samples": 17182,
+      "eer": 0.014668697079461081,
+      "auc_interval": {
+        "low": 0.9980678406382507,
+        "high": 0.9991883761084256,
+        "rounds": 1000,
+        "groups": 67
+      },
+      "ece_uncalibrated": 0.03959464047913621,
+      "ece_calibrated": 0.008898284153979232,
+      "min_tdcf": 0.04307559464890459
+    },
+    "unseen": {
+      "threshold": 0.9959906261532413,
+      "accuracy": 0.7048822590626324,
+      "precision": 0.9990832060008334,
+      "recall": 0.6653345914044143,
+      "f1": 0.7987473069320126,
+      "roc_auc": 0.960240034901197,
+      "confusion_matrix": [
+        [
+          7322,
+          33
+        ],
+        [
+          18089,
+          35962
+        ]
+      ],
+      "samples": 61406,
+      "eer": 0.09748335600811889,
+      "auc_interval": {
+        "low": 0.9552495387800097,
+        "high": 0.9653966512795515,
+        "rounds": 1000,
+        "groups": 67
+      },
+      "ece_uncalibrated": 0.19697940035596884,
+      "ece_calibrated": 0.17531128301842977
+    },
+    "per_attack_eer": [
+      {
+        "generator_name": "A07",
+        "eer": 0.0924310051317119,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A08",
+        "eer": 0.007504473141983912,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A09",
+        "eer": 0.007571687823217395,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A10",
+        "eer": 0.3247996885658341,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A11",
+        "eer": 0.13700263153016382,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A12",
+        "eer": 0.03660189798870968,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A13",
+        "eer": 0.0059425160263084816,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A14",
+        "eer": 0.07204944764428109,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A15",
+        "eer": 0.06430802875398389,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A16",
+        "eer": 0.017284101628014744,
+        "samples": 4913
+      },
+      {
+        "generator_name": "A17",
+        "eer": 0.014260508482126429,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A18",
+        "eer": 0.07204944764428109,
+        "samples": 4914
+      },
+      {
+        "generator_name": "A19",
+        "eer": 0.012053561917599986,
+        "samples": 4914
+      }
+    ]
+  }
+}

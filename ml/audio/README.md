@@ -28,16 +28,31 @@ Long files are cut into 4-second windows with 50% overlap. The report gives both
 
 ## Results
 
-The LCNN with LFCC was trained on a Kaggle T4 and stopped early after nine epochs, with a best validation AUC of 0.998. On the official ASVspoof 2019 LA evaluation partition, scored as the mean logit over 4-second windows:
+All three models were trained on a Kaggle T4 and evaluated on the official ASVspoof 2019 LA evaluation partition, scored as the mean logit over 4-second windows. Best validation AUC was 0.998 for the LCNN with LFCC, 0.9996 for wav2vec 2.0 and 0.9925 for WavLM.
 
-| Evaluation attacks | Clips | AUC (95% interval) | EER | min t-DCF |
-|---|---|---|---|---|
-| A16 and A19, the same algorithms as training attacks A04 and A06 | 17,182 | 0.992 (0.988 to 0.995) | 4.3% | 0.135 |
-| The 11 attacks never seen in training | 61,406 | 0.926 (0.915 to 0.937) | 15.2% | not computed |
+| Model | Evaluation attacks | Clips | AUC (95% interval) | EER | min t-DCF |
+|---|---|---|---|---|---|
+| LCNN + LFCC | A16 and A19, the same algorithms as training attacks A04 and A06 | 17,182 | 0.992 (0.988 to 0.995) | 4.3% | 0.135 |
+| | The 11 attacks never seen in training | 61,406 | 0.926 (0.915 to 0.937) | 15.2% | not computed |
+| wav2vec 2.0 | A16 and A19 | 17,182 | 0.999 (0.998 to 0.999) | 1.4% | 0.041 |
+| | The 11 unseen attacks | 61,406 | 0.960 (0.955 to 0.965) | 9.8% | not computed |
+| WavLM | A16 and A19 | 17,182 | 0.931 (0.923 to 0.938) | 12.5% | 0.316 |
+| | The 11 unseen attacks | 61,406 | 0.954 (0.949 to 0.959) | 10.7% | not computed |
 
-Per-attack EER on the unseen attacks runs from 0.0% (A09) and 0.04% (A08) to 26.7% (A12) and 34.6% (A10). Full output is in [ml/eval/results/audio/](../eval/results/audio/).
+EER per attack (%):
 
-wav2vec 2.0 and WavLM were trained too (best validation AUC 0.9996 and 0.9925), but their evaluation ran on CPU and did not finish inside Kaggle's 12-hour limit, so they have no evaluation-set results.
+| Model | A07 | A08 | A09 | A10 | A11 | A12 | A13 | A14 | A15 | A16 | A17 | A18 | A19 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| LCNN + LFCC | 7.83 | 0.04 | 0.00 | 34.62 | 13.72 | 26.65 | 15.61 | 0.65 | 5.23 | 5.05 | 9.18 | 18.76 | 3.29 |
+| wav2vec 2.0 | 9.22 | 0.68 | 0.72 | 32.60 | 13.80 | 3.62 | 0.53 | 7.16 | 6.41 | 1.73 | 1.37 | 7.18 | 1.18 |
+| WavLM | 10.50 | 1.69 | 1.16 | 32.07 | 6.25 | 4.07 | 1.20 | 8.12 | 7.94 | 5.31 | 7.22 | 17.38 | 18.80 |
+
+- wav2vec 2.0 is the strongest model on both splits: EER 1.4% on known attacks and 9.8% on unseen ones, against 4.3% and 15.2% for the LCNN.
+- WavLM does worse on the known attacks (12.5% EER) than on the unseen ones (10.7%). Most of its known-attack errors come from A19 (18.8% EER), so the validation set did not predict its test behaviour.
+- A10 stays near 33% EER for every model, so no model handles that attack.
+- The LCNN is still the one served. As ONNX it is 2.2 MB and scores a 30-second clip in 280 ms on four CPU threads; wav2vec 2.0 is 379 MB and takes 9.8 s.
+
+Each model was trained once. Full output is in [ml/eval/results/audio/](../eval/results/audio/).
 
 ## Export and explain
 

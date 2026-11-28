@@ -28,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-TruthLens is an open-source system that scores images, audio and text for signs of machine generation and explains each score. It pairs an RGB backbone with a 2D DCT frequency branch and Grad-CAM for images, a Light CNN over LFCC features for audio, and, for text, a logistic regression over GPT-2 statistics and a fine-tuned RoBERTa logit. Every dataset is split so that identities, speakers or prompts never cross between training and test. On the MAGE test set, the text ensemble reaches 0.997 AUC (95\% interval 0.997 to 0.998), detects 90.1\% of text from held-out LLaMA generators, and keeps 0.997 AUC on HC3 after removing rows that overlap MAGE. It still flags 61.8\% of TOEFL essays by non-native writers as AI-written, so it must not be used to judge individual writers. On the ASVspoof 2019 LA evaluation set, the LCNN audio model reaches 4.3\% EER and 0.135 min t-DCF on attacks related to its training attacks, and 15.2\% EER on eleven unseen attacks. The image detector, trained on GenImage ADM, reaches 0.9985 AUC on the ADM test split and 0.901 on BigGAN images it never saw; across three backbones and two ablations, ViT-B/16 with the DCT branch transfers best, at 0.980. ConvNeXt-Tiny retrained on seven GenImage generators detects 91.1\% of Midjourney images, against 45.5\% when Midjourney is held out. All models export to ONNX, and the LCNN scores a 30-second clip in 280\,ms on four CPU threads.
+TruthLens is an open-source system that scores images, audio and text for signs of machine generation and explains each score. It pairs an RGB backbone with a 2D DCT frequency branch and Grad-CAM for images, a Light CNN over LFCC features for audio, and, for text, a logistic regression over GPT-2 statistics and a fine-tuned RoBERTa logit. Every dataset is split so that identities, speakers or prompts never cross between training and test. On the MAGE test set, the text ensemble reaches 0.997 AUC (95\% interval 0.997 to 0.998), detects 90.1\% of text from held-out LLaMA generators, and keeps 0.997 AUC on HC3 after removing rows that overlap MAGE. It still flags 61.8\% of TOEFL essays by non-native writers as AI-written, so it must not be used to judge individual writers. On the ASVspoof 2019 LA evaluation set, the LCNN audio model reaches 4.3\% EER and 0.135 min t-DCF on attacks related to its training attacks, and 15.2\% EER on eleven unseen attacks; a fine-tuned wav2vec~2.0 lowers these to 1.4\% and 9.8\% at 170 times the model size. The image detector, trained on GenImage ADM, reaches 0.9985 AUC on the ADM test split and 0.901 on BigGAN images it never saw; across three backbones and two ablations, ViT-B/16 with the DCT branch transfers best, at 0.980. ConvNeXt-Tiny retrained on seven GenImage generators detects 91.1\% of Midjourney images, against 45.5\% when Midjourney is held out. All models export to ONNX, and the LCNN scores a 30-second clip in 280\,ms on four CPU threads.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -179,18 +179,22 @@ trained on & 0.981 & 0.906 & 91.1\% & 52.0\% \\
 \end{tabular}
 \end{table}
 
-The LCNN with LFCC was trained on a Kaggle T4. Epochs took about 23 minutes, validation AUC peaked at 0.998, and early stopping ended training after nine epochs. Table~\ref{tab:audio} scores it on the official ASVspoof 2019 LA evaluation partition, with the clip score taken as the mean logit over 4-second windows. Attacks A16 and A19 reuse the algorithms of training attacks A04 and A06; the other eleven evaluation attacks never appear in training. On the familiar attacks the EER is 4.3\% and the min t-DCF 0.135. On the unseen attacks the EER rises to 15.2\%, and per-attack EER ranges from 0.0\% (A09) to 34.6\% (A10). wav2vec~2.0 and WavLM models were also trained, but their evaluation ran on CPU and did not finish within Kaggle's 12-hour limit, so they have no evaluation-set results.
+The LCNN with LFCC was trained on a Kaggle T4. Epochs took about 23 minutes, validation AUC peaked at 0.998, and early stopping ended training after nine epochs. Table~\ref{tab:audio} scores it on the official ASVspoof 2019 LA evaluation partition, with the clip score taken as the mean logit over 4-second windows. Attacks A16 and A19 reuse the algorithms of training attacks A04 and A06; the other eleven evaluation attacks never appear in training. On the familiar attacks the EER is 4.3\% and the min t-DCF 0.135. On the unseen attacks the EER rises to 15.2\%, and per-attack EER ranges from 0.0\% (A09) to 34.6\% (A10). Fine-tuned wav2vec~2.0 does better on both splits, with 1.4\% EER and 0.041 min t-DCF on the known attacks and 9.8\% EER on the unseen ones. WavLM reaches 10.7\% EER on the unseen attacks but 12.5\% on the known ones, mostly because of A19 (18.8\% EER). A10 stays near 33\% EER for all three models. The LCNN remains the served model because it is 2.2\,MB against 379\,MB for wav2vec~2.0 and runs about 35 times faster on a CPU (Table~\ref{tab:latency}).
 
 \begin{table}[t]
 \centering
-\caption{LCNN on the ASVspoof 2019 LA evaluation partition. AUC with 95\% bootstrap interval over speakers.}
+\caption{Audio detectors on the ASVspoof 2019 LA evaluation partition. AUC with 95\% bootstrap interval over speakers.}
 \label{tab:audio}
-\begin{tabular}{lrll}
+\begin{tabular}{llll}
 \toprule
-\textbf{Attacks} & \textbf{Clips} & \textbf{AUC} & \textbf{EER} \\
+\textbf{Model} & \textbf{Attacks} & \textbf{AUC} & \textbf{EER} \\
 \midrule
-A16, A19 (known) & 17,182 & 0.992 (0.988--0.995) & 4.3\% \\
-11 unseen & 61,406 & 0.926 (0.915--0.937) & 15.2\% \\
+LCNN & A16, A19 (known) & 0.992 (0.988--0.995) & 4.3\% \\
+ & 11 unseen & 0.926 (0.915--0.937) & 15.2\% \\
+wav2vec~2.0 & A16, A19 (known) & 0.999 (0.998--0.999) & \textbf{1.4\%} \\
+ & 11 unseen & 0.960 (0.955--0.965) & \textbf{9.8\%} \\
+WavLM & A16, A19 (known) & 0.931 (0.923--0.938) & 12.5\% \\
+ & 11 unseen & 0.954 (0.949--0.959) & 10.7\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -262,7 +266,7 @@ wav2vec2 & 378.9 & 30.5\,s & 9.8\,s \\
 \section{Limitations}
 
 \begin{enumerate}
-    \item \textbf{Missing results.} Only the LCNN audio model has evaluation-set results, and min t-DCF was computed only for the known attacks. The image grid was trained on one diffusion model only, the multi-generator models cover seven GenImage generators and no newer commercial ones, and most configurations were trained once; repeated runs of one configuration differ by up to 0.06 in unseen AUC.
+    \item \textbf{Missing results.} min t-DCF was computed only for the known audio attacks, and each audio model was trained once. The image grid was trained on one diffusion model only, the multi-generator models cover seven GenImage generators and no newer commercial ones, and most configurations were trained once; repeated runs of one configuration differ by up to 0.06 in unseen AUC.
     \item \textbf{Bias.} The text detector flags most essays by non-native writers. It must not be used to judge individual writers.
     \item \textbf{Evasion.} Paraphrasing and mixing in human sentences defeat the statistical features. The ensemble's robustness has not been measured.
     \item \textbf{Domain.} MAGE and HC3 share sources and generators, so the high cross-dataset AUC may not hold for newer models or other kinds of writing.
@@ -270,7 +274,7 @@ wav2vec2 & 378.9 & 30.5\,s & 9.8\,s \\
 
 \section{Conclusion}
 
-TruthLens provides explainable image, audio and text detection with leak-free splits and CPU serving. Fine-tuning RoBERTa lifts the text detector from 0.782 to 0.997 AUC on MAGE and keeps it at 0.997 on HC3, but its bias against non-native writers remains. The LCNN audio detector reaches 4.3\% EER on known ASVspoof attacks but 15.2\% on unseen ones. Every image backbone scores at least 0.998 AUC on GenImage ADM, but on unseen BigGAN images they range from 0.901 to 0.980, and a model trained without augmentation falls to 0.650. Training on seven generators lifts Midjourney recall to 91.1\%, but with Midjourney held out the same model catches only 45.5\%, so each new generator needs training data. The next steps are evaluating the wav2vec~2.0 and WavLM audio models, and measuring the ensemble's robustness to paraphrasing.
+TruthLens provides explainable image, audio and text detection with leak-free splits and CPU serving. Fine-tuning RoBERTa lifts the text detector from 0.782 to 0.997 AUC on MAGE and keeps it at 0.997 on HC3, but its bias against non-native writers remains. The LCNN audio detector reaches 4.3\% EER on known ASVspoof attacks but 15.2\% on unseen ones; wav2vec~2.0 lowers this to 1.4\% and 9.8\%. Every image backbone scores at least 0.998 AUC on GenImage ADM, but on unseen BigGAN images they range from 0.901 to 0.980, and a model trained without augmentation falls to 0.650. Training on seven generators lifts Midjourney recall to 91.1\%, but with Midjourney held out the same model catches only 45.5\%, so each new generator needs training data. The next steps are a smaller self-supervised audio model that runs on a CPU, and measuring the ensemble's robustness to paraphrasing.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
