@@ -3,6 +3,8 @@
 from collections.abc import Iterator
 from pathlib import Path
 
+import pandas as pd
+
 from ml.common.manifest import FAKE, REAL, REAL_GENERATOR, Record
 from ml.common.splits import connect_groups
 
@@ -82,3 +84,39 @@ def genimage_records(raw: Path, entry: dict) -> Iterator[Record]:
                         group_id=path.stem,
                         domain="whole_image",
                     )
+
+
+def aivr_records(raw: Path, entry: dict) -> Iterator[Record]:
+    """`train` and `test` folders with `fake` and `real` inside. Fakes mix Stable Diffusion, Midjourney and DALL-E without labels."""
+    for path in sorted(raw.glob("*/*/*")):
+        split_dir, folder = path.parent.parent.name, path.parent.name
+        if folder not in ("fake", "real") or path.suffix.lower() not in IMAGE_SUFFIXES:
+            continue
+        is_real = folder == "real"
+        yield Record(
+            path=str(path),
+            label=REAL if is_real else FAKE,
+            source_dataset="aivr",
+            generator_name=REAL_GENERATOR if is_real else "aivr_mixed",
+            # File names restart at 0001 in every folder, so the folder is part of the group.
+            group_id=f"aivr_{split_dir}_{folder}_{path.stem}",
+            domain="whole_image",
+        )
+
+
+def shutterstock_records(raw: Path, entry: dict) -> Iterator[Record]:
+    """Shutterstock photos paired with AI versions; `train.csv` maps each file to label 1 (AI) or 0 (real)."""
+    labels = pd.read_csv(raw / "train.csv")
+    for file_name, label in zip(labels["file_name"], labels["label"]):
+        path = raw / file_name
+        if not path.exists():
+            continue
+        is_real = int(label) == 0
+        yield Record(
+            path=str(path),
+            label=REAL if is_real else FAKE,
+            source_dataset="shutterstock",
+            generator_name=REAL_GENERATOR if is_real else "shutterstock_ai",
+            group_id=f"shutterstock_{path.stem}",
+            domain="whole_image",
+        )

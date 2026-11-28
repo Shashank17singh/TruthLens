@@ -150,6 +150,27 @@ def test_genimage_finds_nested_folders(tmp_path):
     ]
 
 
+def test_aivr_labels_folders_and_keeps_same_named_files_apart(tmp_path):
+    write_image(tmp_path / "train" / "fake" / "0001.png")
+    write_image(tmp_path / "train" / "real" / "0001.jpg")
+    write_image(tmp_path / "test" / "fake" / "0001.jpg")
+    rows = list(datasets.aivr_records(tmp_path, {}))
+    assert sorted((r.generator_name, r.label) for r in rows) == [
+        ("aivr_mixed", FAKE), ("aivr_mixed", FAKE), (REAL_GENERATOR, REAL),
+    ]
+    assert len({r.group_id for r in rows}) == 3
+
+
+def test_shutterstock_reads_labels_from_the_csv(tmp_path):
+    write_image(tmp_path / "train_data" / "a.jpg")
+    write_image(tmp_path / "train_data" / "b.jpg")
+    (tmp_path / "train.csv").write_text(",file_name,label\n0,train_data/a.jpg,1\n1,train_data/b.jpg,0\n2,train_data/missing.jpg,1\n")
+    rows = sorted(datasets.shutterstock_records(tmp_path, {}), key=lambda r: r.path)
+    assert [(Path(r.path).name, r.label, r.generator_name) for r in rows] == [
+        ("a.jpg", FAKE, "shutterstock_ai"), ("b.jpg", REAL, REAL_GENERATOR),
+    ]
+
+
 @pytest.mark.network
 def test_retinaface_finds_the_astronaut_face_and_crops_it():
     detector = preprocess.retinaface_detector(0.9)

@@ -63,6 +63,40 @@ genimage:
     - Real images are ImageNet JPEGs and many fakes were saved differently, so a model can learn the file history instead of the forgery. The JPEG augmentation in prompt 2.2 exists to counter this.
     - Real images inherit ImageNet's class and geographic skew.
 
+aivr:
+  title: AI-generated images vs real images (Kaggle, tristanzhang32)
+  modality: image
+  adapter: ml.image.datasets:aivr_records
+  role: Training data from commercial generators (Stable Diffusion, Midjourney, DALL-E)
+  licence: MIT, as stated on the Kaggle page
+  access: manual
+  homepage: https://www.kaggle.com/datasets/tristanzhang32/ai-generated-images-vs-real-images
+  instructions: >-
+    Download from Kaggle so data/raw/aivr/ holds train/ and test/, each with
+    fake/ and real/ folders.
+  split:
+    strategy: grouped
+  known_biases:
+    - Every real image is a JPEG while about a third of the fakes are PNG, so a model can learn the file format. JPEG augmentation counters part of this.
+    - Fakes are not labelled by generator, so per-generator results are not possible.
+    - A quarter of the real images are WikiArt paintings rather than photos.
+
+shutterstock:
+  title: AI vs. Human-Generated Images (Shutterstock pairs)
+  modality: image
+  adapter: ml.image.datasets:shutterstock_records
+  role: Cross-dataset test only
+  licence: Apache-2.0, as stated on the Kaggle page
+  access: manual
+  homepage: https://www.kaggle.com/datasets/alessandrasala79/ai-vs-human-generated-dataset
+  instructions: >-
+    Download from Kaggle so data/raw/shutterstock/ holds train.csv and train_data/.
+  split:
+    strategy: evaluation
+  known_biases:
+    - The generators are not named, only described as state of the art.
+    - Each AI image is a version of a real Shutterstock photo, so the pairs share content.
+
 asvspoof2019_la:
   title: ASVspoof 2019 Logical Access
   modality: audio
