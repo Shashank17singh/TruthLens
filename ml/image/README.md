@@ -24,6 +24,21 @@ Running the same command again resumes from the last finished epoch. `steps_per_
 
 ## Results
 
+### Multi-generator model (served)
+
+Two runs of ConvNeXt-Tiny with the frequency branch and `robust` augmentation, on a Kaggle T4. Both used 5,000 AI images and 5,000 ImageNet photos from each of six GenImage generators (ADM, Stable Diffusion 1.4 and 1.5, GLIDE, Wukong, VQDM), split 70/15/15 by group. Midjourney and BigGAN fakes came from GenImage's official validation folders, 6,000 of each. The notebook is [notebooks/kaggle_image_multigen.ipynb](../../notebooks/kaggle_image_multigen.ipynb).
+
+| Run | Midjourney | Test AUC (95% interval) | Unseen AUC (95% interval) | Detected at the threshold |
+|---|---|---|---|---|
+| `2.0.0-heldout` | held out | 0.986 (0.984 to 0.989), 9,000 images | 0.861 (0.855 to 0.867), Midjourney and BigGAN | Midjourney 45.5%, BigGAN 68.3%, VQDM 87.6%, other generators 96% to 98%; 94.6% of real photos correct |
+| `2.0.0` (served) | trained on, 4,187 images | 0.981 (0.978 to 0.983), 9,910 images | 0.906 (0.900 to 0.911), BigGAN | Midjourney 91.1%, BigGAN 52.0%, VQDM 78.5%, other generators 95% to 98%; 93.9% of real photos correct |
+
+- A detector trained on six generators still catches less than half of Midjourney's images. Coverage comes from training on a generator, not from training on many.
+- Adding Midjourney cost BigGAN recall (68.3% to 52.0%) and some VQDM recall. Each run was trained once, so part of that gap may be run-to-run noise.
+- The served model flags 6.1% of real photos as AI at its threshold, against 4.4% for the ADM-only model below.
+
+### ADM-only model
+
 One run on a Kaggle T4: ConvNeXt-Tiny with the frequency branch and `robust` augmentation, trained on 20,000 GenImage ADM images and 20,000 ImageNet originals with a grouped 70/15/15 split. Each epoch of 583 steps took about 202 seconds. Validation AUC peaked at 0.99985 after epoch 4, and training stopped after epoch 9 when it had not improved for five epochs. The threshold was set on validation to reach 95% precision. Full output is in [ml/eval/results/image/](../eval/results/image/).
 
 | Test set | Images | AUC (95% interval) | At the threshold |
